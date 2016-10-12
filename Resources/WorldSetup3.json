@@ -1,0 +1,55 @@
+[
+	{ 
+		"Id": 1,
+		"SceneNodeType": "Camera",
+		"CameraPosition": {"x": 0, "y": 0, "z": -150 },
+		"CameraTarget": {"x": 0, "y": 0, "z": 0 }
+	},
+	{
+		"Id": 2,
+		"SceneNodeType": "light",
+		"Light": {
+			"color": { "x":  1.0, "y": 1.0, "z": 1.0, "w": 1.0 }, 
+			"direction": { "x": 0.0, "y": 1.0, "z": 1.0, "w": 1.0 },
+			"type": "directional",
+			"enabled":  1
+		}
+	},
+	{
+		"Id": 4,
+		"SceneNodeType": "light",
+		"Light": {
+			"color": { "x":  0.0, "y": 1.0, "z": 0.0, "w": 1.0 }, 
+			"direction": { "x": 0.0, "y": 0.0, "z": 0.0, "w": 1.0 },
+			"constantattenuation": 10,
+			"linearattenuation": 10,
+			"quadraticattenuation": 10,
+			"position": { "x": 0.0, "y": 10.0, "z": -10.0, "w": 1.0 },
+			"type": "point",
+			"enabled":  1
+		}
+	},
+	{
+		"Id": 3,
+		"SceneNodeType": "ResourcedMesh",
+		"ResourcedMesh": "cat/cat.vem",
+		"WorldPosition": {
+			"_11": 50,
+			"_12": 0,
+			"_13": 0,
+			"_14": 0,
+			"_21": 0,
+			"_22": 50,
+			"_23": 0,
+			"_24": 0,
+			"_31": 0,
+			"_32": 0,
+			"_33": 50,
+			"_34": 0,
+			"_41": 0,
+			"_42": -25,
+			"_43": 0,
+			"_44": 1
+		}
+	}
+]

@@ -1,0 +1,98 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VeritasEngine", "VeritasEngine\VeritasEngine.vcxproj", "{A6B4DB6E-6530-4E9F-ADBC-758CCD690A68}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0F4D1076-7BCE-4EAC-BB62-A24E2F8963A3} = {0F4D1076-7BCE-4EAC-BB62-A24E2F8963A3}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VeritasGame", "VeritasGame\VeritasGame.vcxproj", "{F789D3BC-0450-45BE-B932-984399B04306}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A6B4DB6E-6530-4E9F-ADBC-758CCD690A68} = {A6B4DB6E-6530-4E9F-ADBC-758CCD690A68}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VeritasEngine_Windows", "VeritasEngine_Windows\VeritasEngine_Windows.vcxproj", "{0F4D1076-7BCE-4EAC-BB62-A24E2F8963A3}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VeritasEngineBase", "VeritasEngineBase\VeritasEngineBase.vcxproj", "{8F963E27-4606-4EE2-86BB-B6A2E4963765}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VeritasACP", "VeritasACP\VeritasACP.vcxproj", "{92860DFD-902F-4854-9A16-55A5F5D69B13}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8F963E27-4606-4EE2-86BB-B6A2E4963765} = {8F963E27-4606-4EE2-86BB-B6A2E4963765}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A6B4DB6E-6530-4E9F-ADBC-758CCD690A68}.Debug|x64.ActiveCfg = Debug|x64
+		{A6B4DB6E-6530-4E9F-ADBC-758CCD690A68}.Debug|x64.Build.0 = Debug|x64
+		{A6B4DB6E-6530-4E9F-ADBC-758CCD690A68}.Debug|x86.ActiveCfg = Debug|Win32
+		{A6B4DB6E-6530-4E9F-ADBC-758CCD690A68}.Debug|x86.Build.0 = Debug|Win32
+		{A6B4DB6E-6530-4E9F-ADBC-758CCD690A68}.Release|x64.ActiveCfg = Release|x64
+		{A6B4DB6E-6530-4E9F-ADBC-758CCD690A68}.Release|x64.Build.0 = Release|x64
+		{A6B4DB6E-6530-4E9F-ADBC-758CCD690A68}.Release|x86.ActiveCfg = Release|Win32
+		{A6B4DB6E-6530-4E9F-ADBC-758CCD690A68}.Release|x86.Build.0 = Release|Win32
+		{F789D3BC-0450-45BE-B932-984399B04306}.Debug|x64.ActiveCfg = Debug|x64
+		{F789D3BC-0450-45BE-B932-984399B04306}.Debug|x64.Build.0 = Debug|x64
+		{F789D3BC-0450-45BE-B932-984399B04306}.Debug|x86.ActiveCfg = Debug|Win32
+		{F789D3BC-0450-45BE-B932-984399B04306}.Debug|x86.Build.0 = Debug|Win32
+		{F789D3BC-0450-45BE-B932-984399B04306}.Release|x64.ActiveCfg = Release|x64
+		{F789D3BC-0450-45BE-B932-984399B04306}.Release|x64.Build.0 = Release|x64
+		{F789D3BC-0450-45BE-B932-984399B04306}.Release|x86.ActiveCfg = Release|Win32
+		{F789D3BC-0450-45BE-B932-984399B04306}.Release|x86.Build.0 = Release|Win32
+		{0F4D1076-7BCE-4EAC-BB62-A24E2F8963A3}.Debug|x64.ActiveCfg = Debug|x64
+		{0F4D1076-7BCE-4EAC-BB62-A24E2F8963A3}.Debug|x64.Build.0 = Debug|x64
+		{0F4D1076-7BCE-4EAC-BB62-A24E2F8963A3}.Debug|x86.ActiveCfg = Debug|Win32
+		{0F4D1076-7BCE-4EAC-BB62-A24E2F8963A3}.Debug|x86.Build.0 = Debug|Win32
+		{0F4D1076-7BCE-4EAC-BB62-A24E2F8963A3}.Release|x64.ActiveCfg = Release|x64
+		{0F4D1076-7BCE-4EAC-BB62-A24E2F8963A3}.Release|x64.Build.0 = Release|x64
+		{0F4D1076-7BCE-4EAC-BB62-A24E2F8963A3}.Release|x86.ActiveCfg = Release|Win32
+		{0F4D1076-7BCE-4EAC-BB62-A24E2F8963A3}.Release|x86.Build.0 = Release|Win32
+		{8F963E27-4606-4EE2-86BB-B6A2E4963765}.Debug|x64.ActiveCfg = Debug|x64
+		{8F963E27-4606-4EE2-86BB-B6A2E4963765}.Debug|x64.Build.0 = Debug|x64
+		{8F963E27-4606-4EE2-86BB-B6A2E4963765}.Debug|x86.ActiveCfg = Debug|Win32
+		{8F963E27-4606-4EE2-86BB-B6A2E4963765}.Debug|x86.Build.0 = Debug|Win32
+		{8F963E27-4606-4EE2-86BB-B6A2E4963765}.Release|x64.ActiveCfg = Release|x64
+		{8F963E27-4606-4EE2-86BB-B6A2E4963765}.Release|x64.Build.0 = Release|x64
+		{8F963E27-4606-4EE2-86BB-B6A2E4963765}.Release|x86.ActiveCfg = Release|Win32
+		{8F963E27-4606-4EE2-86BB-B6A2E4963765}.Release|x86.Build.0 = Release|Win32
+		{92860DFD-902F-4854-9A16-55A5F5D69B13}.Debug|x64.ActiveCfg = Debug|x64
+		{92860DFD-902F-4854-9A16-55A5F5D69B13}.Debug|x64.Build.0 = Debug|x64
+		{92860DFD-902F-4854-9A16-55A5F5D69B13}.Debug|x86.ActiveCfg = Debug|Win32
+		{92860DFD-902F-4854-9A16-55A5F5D69B13}.Debug|x86.Build.0 = Debug|Win32
+		{92860DFD-902F-4854-9A16-55A5F5D69B13}.Release|x64.ActiveCfg = Release|x64
+		{92860DFD-902F-4854-9A16-55A5F5D69B13}.Release|x64.Build.0 = Release|x64
+		{92860DFD-902F-4854-9A16-55A5F5D69B13}.Release|x86.ActiveCfg = Release|Win32
+		{92860DFD-902F-4854-9A16-55A5F5D69B13}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 6
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://wfswriter.visualstudio.com/defaultcollection
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = VeritasEngine\\VeritasEngine.vcxproj
+		SccProjectName1 = VeritasEngine
+		SccLocalPath1 = VeritasEngine
+		SccProjectUniqueName2 = VeritasGame\\VeritasGame.vcxproj
+		SccProjectName2 = VeritasGame
+		SccLocalPath2 = VeritasGame
+		SccProjectUniqueName3 = VeritasEngine_Windows\\VeritasEngine_Windows.vcxproj
+		SccProjectName3 = VeritasEngine_Windows
+		SccLocalPath3 = VeritasEngine_Windows
+		SccProjectUniqueName4 = VeritasEngineBase\\VeritasEngineBase.vcxproj
+		SccProjectName4 = VeritasEngineBase
+		SccLocalPath4 = VeritasEngineBase
+		SccProjectUniqueName5 = VeritasACP\\VeritasACP.vcxproj
+		SccProjectName5 = VeritasACP
+		SccLocalPath5 = VeritasACP
+	EndGlobalSection
+EndGlobal
