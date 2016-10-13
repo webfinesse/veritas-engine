@@ -207,7 +207,7 @@
     <ClInclude Include="DeserializeMapping.h">
       <Filter>Serialization</Filter>
     </ClInclude>
-    <ClInclude Include="RapidJsonHelper.h">
+    <ClInclude Include="JsonValue.h">
       <Filter>Serialization</Filter>
     </ClInclude>
   </ItemGroup>

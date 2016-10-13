@@ -7,7 +7,7 @@
 
 #include "../VeritasEngineBase/Singleton.h"
 #include "../VeritasEngineBase/GameObjectHandle.h"
-#include "RapidJsonHelper.h"
+#include "JsonValue.h"
 #include "DynamicLibraryHelper.h"
 
 

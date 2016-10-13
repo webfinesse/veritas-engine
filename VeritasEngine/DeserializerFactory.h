@@ -13,7 +13,7 @@
 #include "../VeritasEngineBase/Light.h"
 #include "../VeritasEngineBase/MathTypes.h"
 
-#include "RapidJsonHelper.h"
+#include "JsonValue.h"
 #include "MeshSubset.h"
 #include "SceneNodeType.h"
 #include "Vertex.h"
@@ -53,25 +53,25 @@ namespace VeritasEngine
 		{
 			Matrix4x4 m;
 
-			m[0][0] = static_cast<float>(values["_11"].GetDouble());
-			m[0][1] = static_cast<float>(values["_12"].GetDouble());
-			m[0][2] = static_cast<float>(values["_13"].GetDouble());
-			m[0][3] = static_cast<float>(values["_14"].GetDouble());
+			m[0][0] = values.find("_11")->second.get_value<float>();
+			m[0][1] = values.find("_12")->second.get_value<float>();
+			m[0][2] = values.find("_13")->second.get_value<float>();
+			m[0][3] = values.find("_14")->second.get_value<float>();
 
-			m[1][0] = static_cast<float>(values["_21"].GetDouble());
-			m[1][1] = static_cast<float>(values["_22"].GetDouble());
-			m[1][2] = static_cast<float>(values["_23"].GetDouble());
-			m[1][3] = static_cast<float>(values["_24"].GetDouble());
+			m[1][0] = values.find("_21")->second.get_value<float>();
+			m[1][1] = values.find("_22")->second.get_value<float>();
+			m[1][2] = values.find("_23")->second.get_value<float>();
+			m[1][3] = values.find("_24")->second.get_value<float>();
 
-			m[2][0] = static_cast<float>(values["_31"].GetDouble());
-			m[2][1] = static_cast<float>(values["_32"].GetDouble());
-			m[2][2] = static_cast<float>(values["_33"].GetDouble());
-			m[2][3] = static_cast<float>(values["_34"].GetDouble());
+			m[2][0] = values.find("_31")->second.get_value<float>();
+			m[2][1] = values.find("_32")->second.get_value<float>();
+			m[2][2] = values.find("_33")->second.get_value<float>();
+			m[2][3] = values.find("_34")->second.get_value<float>();
 
-			m[3][0] = static_cast<float>(values["_41"].GetDouble());
-			m[3][1] = static_cast<float>(values["_42"].GetDouble());
-			m[3][2] = static_cast<float>(values["_43"].GetDouble());
-			m[3][3] = static_cast<float>(values["_44"].GetDouble());
+			m[3][0] = values.find("_41")->second.get_value<float>();
+			m[3][1] = values.find("_42")->second.get_value<float>();
+			m[3][2] = values.find("_43")->second.get_value<float>();
+			m[3][3] = values.find("_44")->second.get_value<float>();
 
 			return m;
 		}
@@ -91,31 +91,30 @@ namespace VeritasEngine
 	private:
 		static MeshInstance Deserialize(JsonValue& values)
 		{
-			auto& vertexFormat = values["VertexFormat"];
 			MeshInstance m{};
 
-			auto format = vertexFormat.GetUint();
+			auto format = values.find("VertexFormat")->second.get_value<unsigned int>();
 			std::vector<Vertex> verticies;
 			
-			auto& verticiesArray = values["Verticies"];
-			for (rapidjson::SizeType indexIter = 0; indexIter < verticiesArray.Size(); ++indexIter)
+			auto verticiesArray = values.find("Verticies");
+			for (const auto& vertexRoot : verticiesArray->second)
 			{
 				VeritasEngine::Vertex v;
-				auto& vertex = verticiesArray[indexIter];
-				v.Position[0] = static_cast<float>(vertex["x"].GetDouble());
-				v.Position[1] = static_cast<float>(vertex["y"].GetDouble());
-				v.Position[2] = static_cast<float>(vertex["z"].GetDouble());
+				const auto& vertex = vertexRoot.second;
+				v.Position[0] = vertex.find("x")->second.get_value<float>();
+				v.Position[1] = vertex.find("y")->second.get_value<float>();
+				v.Position[2] = vertex.find("z")->second.get_value<float>();
 
-				v.Normal[0] = static_cast<float>(vertex["nx"].GetDouble());
-				v.Normal[1] = static_cast<float>(vertex["ny"].GetDouble());
-				v.Normal[2] = static_cast<float>(vertex["nz"].GetDouble());
+				v.Normal[0] = vertex.find("nx")->second.get_value<float>();
+				v.Normal[1] = vertex.find("ny")->second.get_value<float>();
+				v.Normal[2] = vertex.find("nz")->second.get_value<float>();
 
 				verticies.emplace_back(std::move(v));
 			}
 
-			auto& indiciesArray = values["Subsets"];
+			auto indiciesArray = values.find("Subsets");
 
-			for (auto subsetIter = indiciesArray.Begin(); subsetIter != indiciesArray.End(); ++subsetIter)
+			for (const auto& subsetRoot : indiciesArray->second)
 			{
 				auto& subset = m.CreateSubset();
 
@@ -123,9 +122,9 @@ namespace VeritasEngine
 
 				std::vector<unsigned int> indicies;
 
-				for (rapidjson::SizeType indexIter = 0; indexIter < subsetIter->Size(); ++indexIter)
+				for (const auto& indexIter : subsetRoot.second)
 				{
-					auto value = (*subsetIter)[indexIter].GetUint();
+					auto value = indexIter.second.get_value<unsigned int>();
 					indicies.push_back(value);
 				}
 
@@ -152,7 +151,7 @@ namespace VeritasEngine
 		{
 			auto returnValue = SceneNodeType::None;
 
-			auto nodeTypeName = std::string(values.GetString(), values.GetStringLength());
+			auto nodeTypeName = values.get_value<std::string>();
 			std::transform(nodeTypeName.begin(), nodeTypeName.end(), nodeTypeName.begin(), toupper);
 
 			if (nodeTypeName == "MESH")
@@ -190,7 +189,7 @@ namespace VeritasEngine
 	private:
 		static VeritasEngine::Float3 Deserialize(JsonValue& values)
 		{
-			VeritasEngine::Float3 returnValue(static_cast<float>(values["x"].GetDouble()), static_cast<float>(values["y"].GetDouble()), static_cast<float>(values["z"].GetDouble()));
+			VeritasEngine::Float3 returnValue(values.find("x")->second.get_value<float>(), values.find("y")->second.get_value<float>(), values.find("z")->second.get_value<float>());
 
 			return returnValue;
 		}
@@ -210,7 +209,7 @@ namespace VeritasEngine
 	private:
 		static VeritasEngine::Float4 Deserialize(JsonValue& values)
 		{
-			VeritasEngine::Float4 returnValue(static_cast<float>(values["x"].GetDouble()), static_cast<float>(values["y"].GetDouble()), static_cast<float>(values["z"].GetDouble()), static_cast<float>(values["w"].GetDouble()));
+			VeritasEngine::Float4 returnValue(values.find("x")->second.get_value<float>(), values.find("y")->second.get_value<float>(), values.find("z")->second.get_value<float>(), values.find("w")->second.get_value<float>());
 
 			return returnValue;
 		}
@@ -228,23 +227,54 @@ namespace VeritasEngine
 		}
 
 	private:
+		template <typename T>
+		static T GetDeserialzedValue(JsonValue& values, std::string jsonTag, T defaultValue)
+		{
+			auto const& value = values.find(jsonTag);
+
+			if(value != values.not_found())
+			{
+				return DeserializerFactory<T>::GetDeserializer()(value->second);
+			}
+			else
+			{
+				return defaultValue;
+			}
+		}
+
+		template <typename T>
+		static T GetValue(JsonValue& values, std::string jsonTag, T defaultValue)
+		{
+			auto const& value = values.find(jsonTag);
+
+			if (value != values.not_found())
+			{
+				return value->second.get_value<T>();
+			}
+			else
+			{
+				return defaultValue;
+			}
+		}
+
 		static VeritasEngine::Light Deserialize(JsonValue& values)
 		{
 			VeritasEngine::Light returnValue;
 
-			returnValue.Position = values.HasMember("position") ? (DeserializerFactory<VeritasEngine::Float4>::GetDeserializer())(values["position"]) : Float4();
-			returnValue.Direction = values.HasMember("direction") ? (DeserializerFactory<VeritasEngine::Float4>::GetDeserializer())(values["direction"]) : Float4();
-			returnValue.Color = values.HasMember("color") ? (DeserializerFactory<VeritasEngine::Float4>::GetDeserializer())(values["color"]) : Float4();
-			returnValue.SpotAngle = values.HasMember("spotangle") ? static_cast<float>(values["spotangle"].GetDouble()) : 0.0f;
-			returnValue.ConstantAttenuation = values.HasMember("constantattenuation") ? static_cast<float>(values["constantattenuation"].GetDouble()) : 0.0f;
-			returnValue.QuadraticAttenuation = values.HasMember("quadraticattenuation") ? static_cast<float>(values["quadraticattenuation"].GetDouble()) : 0.0f;
-			returnValue.Enabled = returnValue.SpotAngle = values.HasMember("enabled") ? values["enabled"].GetInt() : 1;
+			returnValue.Position = GetDeserialzedValue(values, "position", Float4());
+			returnValue.Direction = GetDeserialzedValue(values, "direction", Float4());
+			returnValue.Color = GetDeserialzedValue(values, "color", Float4());
+			returnValue.SpotAngle = GetValue(values, "spotAngle", 0.0f);
+			returnValue.ConstantAttenuation = GetValue(values, "constantattenuation", 0.0f);
+			returnValue.QuadraticAttenuation = GetValue(values, "quadraticattenuation", 0.0f);
+			returnValue.Enabled = GetValue(values, "enabled", 1);
 
 			auto type = LightType::Directional;
 
-			if (values.HasMember("type"))
+			const auto& typeValue = values.find("type");
+			if (typeValue != values.not_found())
 			{
-				auto typeString = values["type"].GetString();
+				auto typeString = typeValue->second.get_value<std::string>();
 
 				if (typeString == "spotlight")
 				{
@@ -276,7 +306,7 @@ namespace VeritasEngine
 	private:
 		static ResourceHandle* Deserialize(JsonValue& values)
 		{
-			auto resourceId = values.GetString();
+			auto resourceId = values.get_value<std::string>();
 			auto resource = Engine::Instance().GetResourceManager().GetResource(resourceId);
 
 			return resource;

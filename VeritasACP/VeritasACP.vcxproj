@@ -108,8 +108,7 @@
       <AdditionalDependencies>Shlwapi.lib;nvtt.lib;assimp-vc130-mt.lib;zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y $(SolutionDir)Includes\assimp\bin\*.dll $(TargetDir)
-xcopy /y $(SolutionDir)Includes\FreeImage\Dist\$(PlatformShortName)\*.dll $(TargetDir)</Command>
+      <Command>xcopy /y $(SolutionDir)Includes\assimp\bin\*.dll $(TargetDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -126,8 +125,7 @@ xcopy /y $(SolutionDir)Includes\FreeImage\Dist\$(PlatformShortName)\*.dll $(Targ
       <AdditionalDependencies>Shlwapi.lib;nvtt.lib;assimp-vc130-mt.lib;zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y $(SolutionDir)Includes\assimp\bin\*.dll $(TargetDir)
-xcopy /y $(SolutionDir)Includes\FreeImage\Dist\$(PlatformShortName)\*.dll $(TargetDir)</Command>
+      <Command>xcopy /y $(SolutionDir)Includes\assimp\bin\*.dll $(TargetDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -148,8 +146,7 @@ xcopy /y $(SolutionDir)Includes\FreeImage\Dist\$(PlatformShortName)\*.dll $(Targ
       <AdditionalDependencies>Shlwapi.lib;nvtt.lib;assimp-vc130-mt.lib;zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y $(SolutionDir)Includes\assimp\bin\*.dll $(TargetDir)
-xcopy /y $(SolutionDir)Includes\FreeImage\Dist\$(PlatformShortName)\*.dll $(TargetDir)</Command>
+      <Command>xcopy /y $(SolutionDir)Includes\assimp\bin\*.dll $(TargetDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -170,8 +167,7 @@ xcopy /y $(SolutionDir)Includes\FreeImage\Dist\$(PlatformShortName)\*.dll $(Targ
       <AdditionalDependencies>Shlwapi.lib;nvtt.lib;assimp-vc130-mt.lib;zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y $(SolutionDir)Includes\assimp\bin\*.dll $(TargetDir)
-xcopy /y $(SolutionDir)Includes\FreeImage\Dist\$(PlatformShortName)\*.dll $(TargetDir)</Command>
+      <Command>xcopy /y $(SolutionDir)Includes\assimp\bin\*.dll $(TargetDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

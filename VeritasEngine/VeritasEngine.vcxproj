@@ -225,7 +225,7 @@
     <ClInclude Include="MeshSubset.h" />
     <ClInclude Include="Process.h" />
     <ClInclude Include="ProcessManager.h" />
-    <ClInclude Include="RapidJsonHelper.h" />
+    <ClInclude Include="JsonValue.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="RendererProperties.h" />
     <ClInclude Include="RenderingServices.h" />
