@@ -19,7 +19,7 @@ struct VeritasEngine::VertexBuffer::Impl : public VeritasEngine::SmallObject<>
 	}
 
 	VertexBufferImpl m_buffer;
-	vector<gsl::byte> m_verticies;
+	vector<unsigned char> m_verticies;
 	size_t m_sizeOfVertex;
 	size_t m_numVerticies;
 };
@@ -38,9 +38,9 @@ VeritasEngine::VertexBuffer::VertexBuffer(size_t sizeOfVertex)
 
 VeritasEngine::VertexBuffer::~VertexBuffer() = default;
 
-VeritasEngine::BufferIndicies VeritasEngine::VertexBuffer::AddVerticies(gsl::byte* verticies, size_t numVerticies)
+VeritasEngine::BufferIndicies VeritasEngine::VertexBuffer::AddVerticies(unsigned char* verticies, size_t numVerticies)
 {
-	auto bytesPerVertex = m_impl->m_sizeOfVertex / sizeof(gsl::byte);
+	auto bytesPerVertex = m_impl->m_sizeOfVertex / sizeof(unsigned char);
 
 	auto end = m_impl->m_verticies.end();
 	m_impl->m_verticies.insert(end, verticies, verticies + (bytesPerVertex * numVerticies));

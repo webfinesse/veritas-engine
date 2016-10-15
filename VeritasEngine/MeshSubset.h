@@ -2,7 +2,6 @@
 #define H_MESHSUBSET
 
 #include <memory>
-#include "../Includes/gsl/include/gsl.h"
 #include "../VeritasEngineBase/SmallObject.h"
 
 #include "VertexTypeHandle.h"
@@ -19,7 +18,7 @@ namespace VeritasEngine
 		MeshSubset();
 		~MeshSubset();
 
-		void SetVertices(VertexTypeHandle handle, gsl::byte* verticies, unsigned int numOfVertices);
+		void SetVertices(VertexTypeHandle handle, unsigned char* verticies, unsigned int numOfVertices);
 		std::size_t GetVertexSize() const;
 		unsigned int GetVertexCount() const;
 		VertexBuffer& GetVertexBuffer() const;

@@ -1,14 +1,10 @@
 #ifndef H_DESERIALIZERFACTORY
 #define H_DESERIALIZERFACTORY
 
-#include <string>
 #include <algorithm>
 #include <vector>
 
-#include "../Includes/gsl/include/gsl.h"
-
 #include "MeshInstance.h"
-#include "MeshNode.h"
 
 #include "../VeritasEngineBase/Light.h"
 #include "../VeritasEngineBase/MathTypes.h"
@@ -118,7 +114,7 @@ namespace VeritasEngine
 			{
 				auto& subset = m.CreateSubset();
 
-				subset.SetVertices(format, reinterpret_cast<gsl::byte*>(&verticies[0]), verticies.size());
+				subset.SetVertices(format, reinterpret_cast<unsigned char*>(&verticies[0]), verticies.size());
 
 				std::vector<unsigned int> indicies;
 

@@ -3,7 +3,6 @@
 
 #include <memory>
 
-#include "../Includes/gsl/include/gsl.h"
 #include "../VeritasEngineBase/SmallObject.h"
 
 namespace VeritasEngine
@@ -17,7 +16,7 @@ namespace VeritasEngine
 		VertexBuffer(size_t sizeOfVertex);
 		~VertexBuffer();
 
-		BufferIndicies AddVerticies(gsl::byte* verticies, size_t numVerticies);
+		BufferIndicies AddVerticies(unsigned char* verticies, size_t numVerticies);
 		size_t GetVertexSize() const;
 
 		void* GetNativeBuffer();

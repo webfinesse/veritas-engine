@@ -9,7 +9,6 @@
 #include "../Includes/cereal-1.1.2/include/cereal/archives/binary.hpp"
 
 #include <memory>
-#include "../Includes/gsl/include/gsl.h"
 
 #include "../VeritasEngineBase/ResourceHandle.h"
 #include "ResourceManager.h"
@@ -30,7 +29,7 @@ void VeritasEngine::MeshResourceLoader::LoadResource(ResourceManager& manager, s
 	{
 		auto& instanceSubset = mesh.CreateSubset();
 
-		instanceSubset.SetVertices(Vertex::Type, reinterpret_cast<gsl::byte*>(&serializedSubset.m_verticies[0]), serializedSubset.m_verticies.size());
+		instanceSubset.SetVertices(Vertex::Type, reinterpret_cast<unsigned char*>(&serializedSubset.m_verticies[0]), serializedSubset.m_verticies.size());
 
 		if (serializedSubset.m_faces.size() > 0)
 		{

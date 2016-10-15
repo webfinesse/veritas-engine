@@ -36,7 +36,7 @@ VeritasEngine::MeshSubset::~MeshSubset()
 
 }
 
-void VeritasEngine::MeshSubset::SetVertices(VertexTypeHandle handle, gsl::byte* verticies, unsigned int numOfVertices)
+void VeritasEngine::MeshSubset::SetVertices(VertexTypeHandle handle, unsigned char* verticies, unsigned int numOfVertices)
 {
 	m_impl->m_vertexBuffer = VeritasEngine::Engine::Instance().GetRenderingServices().GetVertexBufferManager().GetBuffer(handle);
 	m_impl->m_vertexBufferIndicies = m_impl->m_vertexBuffer->AddVerticies(verticies, numOfVertices);
