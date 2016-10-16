@@ -20,7 +20,7 @@ There some features that have been written that are under iteration, however the
 
 There are several 3rd party libraries the engine relies on including:
 
-* Boost 1.60+ (Property tree, Filesystem)
+* Boost 1.60+ (Property map, Filesystem, any)
 * Cereal
 * NVidia Texture Tools (NVTT)
 * Assimp
@@ -29,6 +29,10 @@ There are several 3rd party libraries the engine relies on including:
 
 # Sources
 Parts of the code are inspired from several sources
+
+# Running the Code
+
+TODO
 
 ## Books
 
@@ -40,8 +44,18 @@ Parts of the code are inspired from several sources
 
 ## Online Resources
 
-* DDSTextureLoader by Microsoft
+* DDSTextureLoader by Microsoft (https://github.com/Microsoft/DirectXTK/wiki/DDSTextureLoader)
 * Miniz-CPP (https://github.com/tfussell/miniz-cpp)
 * Jill model and Cat Model from turbo squid (http://www.turbosquid.com)
+* RasterTek (http://www.rastertek.com/)
 
-## Architecture
+# Architecture
+
+TODO
+
+# Future Work
+
+* asynchronous/fibered processes
+* asynchronous resource loading
+* string hashing
+* Scripting/Console interface
