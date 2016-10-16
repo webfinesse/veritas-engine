@@ -51,7 +51,25 @@ Parts of the code are inspired from several sources
 
 # Architecture
 
-TODO
+## Packages
+
+![Package Diagram](http://i.imgur.com/hjZL1DR.png)
+
+### VeritasEngine
+
+This is a dynamic linked library that is that main interface the game executable talks to. It exposes interfaces for the process manager, scene graph, and resource manager. This code is platform agnostic and compiles using Clang. This links with VeritasEngine_Windows to hook up a DirectX renderer. 
+
+### VeritasEngine_Windows
+
+This is a static lib that is linked into VeritasEngine. Its goal is to contain all platform specific code. It contains a series of Impl units that hook up the rendering bits of the engine as well as any additional platform specific code.
+
+### VeritasEngineBase
+
+This is a static lib that provides shared facilities amongst the VeritasACP and VeritasEngine. Examples include reading files from disk, the small object allocator. Additonally it has the types that are serialized and deserialized in the ACP and engine.
+
+### VertiasACP
+
+This is an application that iterates over a directory and creates resource files that can be loaded by the engine. It currently exports models, materials, specular maps, diffuse maps, and normal maps. Additional types will be added as the engine adds support for them.
 
 # Future Work
 
