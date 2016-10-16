@@ -59,3 +59,7 @@ TODO
 * asynchronous resource loading
 * string hashing
 * Scripting/Console interface
+* Model Animations
+* Height maps
+* Integrate physics engine
+* more when I get there....
