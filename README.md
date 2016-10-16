@@ -9,4 +9,9 @@ There some features that have been written that are under iteration, however the
 * A simple asset conditioning pipeline - Recursively iterates over a directory and exports models (using Assimp) and textures files (using NVTT) into a file format Veritas Engine can load and display
 * World Setup using JSON - Describe the scene using JSON to position of lights and models in the world.
 * Renders models using diffuse, specular, and normal maps
-* Recursive scene graph for adding removing GameObjects from the scene
+* Recursive scene graph for adding removing entities from the scene
+* Recursive resource loader to load models, and textures into the engine
+* A process manager
+
+# External Dependencies
+
