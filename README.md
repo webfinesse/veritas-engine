@@ -27,12 +27,12 @@ There are several 3rd party libraries the engine relies on including:
 * GLM
 * Miniz-CPP
 
-# Sources
-Parts of the code are inspired from several sources
-
 # Running the Code
 
 TODO
+
+# Sources
+Parts of the code are inspired from several sources
 
 ## Books
 
