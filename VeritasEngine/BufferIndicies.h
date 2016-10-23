@@ -1,7 +1,7 @@
 #ifndef H_BUFFERINDICIES
 #define H_BUFFERINDICIES
 
-#include "../VeritasEngineBase/SmallObject.h"
+#include "SmallObject.h"
 
 namespace VeritasEngine
 {

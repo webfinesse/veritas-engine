@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 Brett Knapik. All rights reserved.
 //
 
-#include <stack>
+#include <vector>
 #include "MatrixStack.h"
 
 struct VeritasEngine::MatrixStack::Impl : public VeritasEngine::SmallObject<>

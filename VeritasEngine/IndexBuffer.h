@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "../VeritasEngineBase/SmallObject.h"
+#include "SmallObject.h"
 
 namespace VeritasEngine
 {

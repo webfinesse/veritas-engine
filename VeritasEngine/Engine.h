@@ -4,7 +4,7 @@
 #include <memory>
 #include "DynamicLibraryHelper.h"
 #include "../VeritasEngineBase/Singleton.h"
-#include "../VeritasEngineBase/SmallObject.h"
+#include "SmallObject.h"
 
 using namespace std;
 

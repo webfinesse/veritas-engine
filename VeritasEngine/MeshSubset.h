@@ -2,7 +2,7 @@
 #define H_MESHSUBSET
 
 #include <memory>
-#include "../VeritasEngineBase/SmallObject.h"
+#include "SmallObject.h"
 
 #include "VertexTypeHandle.h"
 

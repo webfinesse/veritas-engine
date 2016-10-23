@@ -1,8 +1,9 @@
 #pragma once
 
 #include <memory>
-#include <vector>
-#include "Singleton.h"
+#include "../VeritasEngineBase/Singleton.h"
+
+#include "DynamicLibraryHelper.h"
 
 // based on Loki's Small Object Allocator
 
@@ -34,7 +35,7 @@ namespace VeritasEngine
 	};
 
 	template<std::size_t chunkSize = DEFAULT_CHUNK_SIZE, std::size_t maxSmallObjectSize = MAX_SMALL_OBJECT_SIZE>
-	class SmallObject
+	class EXPORT SmallObject
 	{
 	public:
 		static void* operator new(std::size_t size)
@@ -63,7 +64,7 @@ namespace VeritasEngine
 	};
 
 	template<std::size_t chunkSize = DEFAULT_CHUNK_SIZE, std::size_t maxSmallObjectSize = MAX_SMALL_OBJECT_SIZE>
-	class SmallPODObject
+	class EXPORT SmallPODObject
 	{
 	public:
 		static void* operator new(std::size_t size)

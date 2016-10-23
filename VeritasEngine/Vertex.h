@@ -2,7 +2,7 @@
 #define H_VERTEX
 
 #include "../VeritasEngineBase/MathTypes.h"
-#include "../VeritasEngineBase/SmallObject.h"
+#include "SmallObject.h"
 
 namespace VeritasEngine
 {

@@ -2,7 +2,7 @@
 
 #include <boost/any.hpp>
 
-struct VeritasEngine::ResourceHandle::Impl: public VeritasEngine::SmallObject<>
+struct VeritasEngine::ResourceHandle::Impl
 {
 	boost::any m_any;
 };

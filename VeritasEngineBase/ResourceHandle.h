@@ -1,11 +1,10 @@
 #pragma once
 
 #include <memory>
-#include "SmallObject.h"
 
 namespace VeritasEngine
 {
-	class ResourceHandle : public SmallPODObject<>
+	class ResourceHandle
 	{
 	public:
 		ResourceHandle();

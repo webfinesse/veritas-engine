@@ -84,9 +84,6 @@
     <ClInclude Include="ResourceHandle_details.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SmallObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FileHelper.cpp">
@@ -102,9 +99,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MaterialInstance.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SmallObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

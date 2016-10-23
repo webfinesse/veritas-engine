@@ -2,7 +2,7 @@
 #define H_CLOCK
 
 #include <memory>
-#include "../VeritasEngineBase/SmallObject.h"
+#include "SmallObject.h"
 
 namespace VeritasEngine
 {

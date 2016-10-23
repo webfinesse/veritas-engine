@@ -38,7 +38,6 @@
     <ClInclude Include="ResourceHandle_details.h" />
     <ClInclude Include="ResourceId.h" />
     <ClInclude Include="Singleton.h" />
-    <ClInclude Include="SmallObject.h" />
     <ClInclude Include="TextureResourceLoaderImpl.h" />
     <ClInclude Include="VertexBufferImpl.h" />
     <ClInclude Include="zip_file.hpp" />
@@ -48,7 +47,6 @@
     <ClCompile Include="MaterialInstance.cpp" />
     <ClCompile Include="miniz.c" />
     <ClCompile Include="ResourceHandle.cpp" />
-    <ClCompile Include="SmallObject.cpp" />
     <ClCompile Include="zip_file.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

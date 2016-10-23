@@ -3,7 +3,7 @@
 
 #include <memory>
 #include "DynamicLibraryHelper.h"
-#include "../VeritasEngineBase/SmallObject.h"
+#include "SmallObject.h"
 
 using namespace std;
 

@@ -100,6 +100,9 @@
     <ClCompile Include="SceneGraphProperties.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="SmallObject.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Clock.h">
@@ -209,6 +212,9 @@
     </ClInclude>
     <ClInclude Include="JsonValue.h">
       <Filter>Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="SmallObject.h">
+      <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

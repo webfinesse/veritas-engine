@@ -1,13 +1,12 @@
 #ifndef H_I_GAME_OBJECT_PROPERTY
 #define H_I_GAME_OBJECT_PROPERTY
 
-#include <string>
+#include "../Includes/AssocVector/AssocVector.hpp"
+
 #include <memory>
-#include <utility>
-#include <unordered_map>
 
 #include "../VeritasEngineBase/GameObjectHandle.h"
-#include "../VeritasEngineBase/SmallObject.h"
+#include "SmallObject.h"
 
 #include "DeserializerFactory.h"
 #include "DeserializeMapping.h"
@@ -82,7 +81,7 @@ namespace VeritasEngine
 	private:
 		long m_propertyId;
 		wstring m_name;
-		unordered_map<GameObjectHandle, shared_ptr<T>> m_properties;
+		AssocVector<GameObjectHandle, shared_ptr<T>> m_properties;
 	};
 
 	template <typename T>
@@ -146,7 +145,7 @@ namespace VeritasEngine
 	private:
 		long m_propertyId;
 		wstring m_name;
-		unordered_map<GameObjectHandle, T*> m_properties;
+		AssocVector<GameObjectHandle, T*> m_properties;
 	};
 }
 

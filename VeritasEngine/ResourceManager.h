@@ -5,7 +5,7 @@
 
 #include "DynamicLibraryHelper.h"
 #include "../VeritasEngineBase/ResourceId.h"
-#include "../VeritasEngineBase/SmallObject.h"
+#include "SmallObject.h"
 
 #pragma warning(push)
 #pragma warning(disable: 4251)

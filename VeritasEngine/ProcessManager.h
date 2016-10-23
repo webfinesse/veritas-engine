@@ -3,7 +3,7 @@
 
 #include <memory>
 #include "Process.h"
-#include "../VeritasEngineBase/SmallObject.h"
+#include "SmallObject.h"
 #include "DynamicLibraryHelper.h"
 
 #pragma warning(push)

@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "../VeritasEngineBase/GameObjectHandle.h"
-#include "../VeritasEngineBase/SmallObject.h"
+#include "SmallObject.h"
 
 namespace VeritasEngine {
 	class SceneNode : public SmallObject<>

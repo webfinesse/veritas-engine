@@ -2,7 +2,7 @@
 #define H_VERTEXBUFFERMANAGER
 
 #include "VertexTypeHandle.h"
-#include "../VeritasEngineBase/SmallObject.h"
+#include "SmallObject.h"
 #include <memory>
 
 
