@@ -1,6 +1,7 @@
 #include <Windows.h>
 #include <crtdbg.h>
 #include <memory>
+#include <tchar.h>
 
 #include "../VeritasEngine/Engine.h"
 #include "../VeritasEngine/ProcessManager.h"
@@ -133,8 +134,10 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 	// Run the message loop.
 	MSG msg{};
+	unsigned int loopCount = 0;
 	while (msg.message != WM_QUIT)
 	{
+		loopCount++;
 		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
 		{
 			TranslateMessage(&msg);
@@ -143,6 +146,15 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		else
 		{
 			engine.Loop();
+		}
+
+		if(loopCount > 2500)
+		{
+			wstring newTitle(L"FPS: ");
+			newTitle += std::to_wstring(engine.GetCurrentFps());
+
+			SetWindowText(hwnd, newTitle.c_str());
+			loopCount = 0;
 		}
 	}
 

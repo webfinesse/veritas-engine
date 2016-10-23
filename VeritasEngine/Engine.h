@@ -29,6 +29,7 @@ namespace VeritasEngine
 		void TogglePause();
 		void SetIsPaused(bool isPaused);
 		bool IsInitialized() const;
+		float GetCurrentFps() const;
 		RenderingServices& GetRenderingServices() const;
 		ProcessManager& GetProcessManager() const;
 		ResourceManager& GetResourceManager() const;

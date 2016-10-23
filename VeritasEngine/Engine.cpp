@@ -31,6 +31,7 @@ struct VeritasEngine::Engine::Impl : public VeritasEngine::SmallObject<>
 	unique_ptr<VeritasEngine::RenderingServices> m_renderingServices;
 
 	unsigned long long m_lastTicks;
+	float m_currentFps { 0 };
 	bool m_isInitialized;
 };
 
@@ -91,6 +92,8 @@ void VeritasEngine::Engine::Loop()
 	auto ticks = (newTime - m_impl->m_lastTicks);
 	auto delta = static_cast<float>(ticks) / Clock::GetFrequency();
 
+	m_impl->m_currentFps = 1 / delta;
+
 	if (delta > 1) {
 		delta = 1.0f / 60.0f;
 	}
@@ -127,6 +130,11 @@ void VeritasEngine::Engine::SetIsPaused(bool isPaused)
 bool VeritasEngine::Engine::IsInitialized() const
 {
 	return m_impl->m_isInitialized;
+}
+
+float VeritasEngine::Engine::GetCurrentFps() const
+{
+	return m_impl->m_currentFps;
 }
 
 void VeritasEngine::Engine::Shutdown()

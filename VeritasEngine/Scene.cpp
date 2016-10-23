@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <array>
-#include <unordered_map>
+#include "../Includes/AssocVector/assocvector.hpp"
 
 #include "Renderer.h"
 #include "MatrixStack.h"
@@ -17,7 +17,6 @@
 #include "../VeritasEngineBase/Material.h"
 #include "../VeritasEngineBase/PerObjectBuffer.h"
 #include "../VeritasEngineBase/ResourceHandle.h"
-#include "../VeritasEngineBase/MeshInfo.h"
 #include "../VeritasEngineBase/Light.h"
 
 
@@ -30,7 +29,7 @@ struct SceneNode : public VeritasEngine::SmallObject<>
 	}
 
 	VeritasEngine::GameObjectHandle m_handle;
-	std::vector<std::shared_ptr<SceneNode>> m_children;
+	std::vector<SceneNode> m_children;
 };
 
 struct VeritasEngine::Scene::Impl
@@ -116,9 +115,9 @@ struct VeritasEngine::Scene::Impl
 			}
 		}
 
-		for (auto& child : node.m_children)
+		for (const auto& child : node.m_children)
 		{
-			Render(renderer, *child);
+			Render(renderer, child);
 		}
 
 		if (matrix != nullptr)
@@ -130,8 +129,8 @@ struct VeritasEngine::Scene::Impl
 	GameObjectHandle m_cameraHandle;
 	std::vector<GameObjectHandle> m_lightHandles;
 	std::array<Light, Light::MAX_LIGHTS> m_lightData;
-	std::unordered_map<GameObjectHandle, std::shared_ptr<SceneNode>> m_mapping;
-	std::vector<std::shared_ptr<SceneNode>> m_root;
+	AssocVector<GameObjectHandle, SceneNode*> m_mapping;
+	std::vector<SceneNode> m_root;
 	VeritasEngine::MatrixStack m_matrixStack;
 	VeritasEngine::Material m_material;
 	std::shared_ptr<VeritasEngine::IMeshShader> m_meshShader;
@@ -199,9 +198,9 @@ void VeritasEngine::Scene::OnRender(Renderer& renderer)
 
 			m_impl->m_meshShader->SetLightParameters(m_impl->m_lightData);
 
-			for (auto sceneNode : m_impl->m_root)
+			for (const auto& sceneNode : m_impl->m_root)
 			{
-				m_impl->Render(renderer, *sceneNode);
+				m_impl->Render(renderer, sceneNode);
 			}
 		}
 	}
@@ -218,8 +217,8 @@ void VeritasEngine::Scene::Add(const GameObjectHandle handle)
 
 	auto ptr = std::make_shared<SceneNode>(handle);
 
-	m_impl->m_root.push_back(ptr);
-	m_impl->m_mapping[handle] = ptr;
+	m_impl->m_root.emplace_back(handle);
+	m_impl->m_mapping[handle] = &m_impl->m_root.back();
 
 	auto type = *SceneGraphProperties::Type.GetProperty(handle);
 
@@ -242,9 +241,7 @@ void VeritasEngine::Scene::AddChild(const GameObjectHandle parentHandle, const G
 
 	assert(item != end); // "could not find the parent"
 	assert(existingChild == end); // "child already exists in the graph"
-	
-	auto ptr = std::make_shared<SceneNode>(child);
 
-	item->second->m_children.push_back(ptr);
-	m_impl->m_mapping[child] = ptr;
+	item->second->m_children.emplace_back(child);
+	m_impl->m_mapping[child] = &item->second->m_children.back();
 }
