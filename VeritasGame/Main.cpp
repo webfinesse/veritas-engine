@@ -15,6 +15,9 @@
 #include "RotateCameraProcess.h"
 #include "RotateObjectProcess.h"
 
+#include <chrono>
+#include <iostream>
+
 bool windowResizing = false;
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -111,6 +114,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 	ShowWindow(hwnd, nShowCmd);
 
+	auto start = chrono::high_resolution_clock::now();
+
 	auto& engine = VeritasEngine::Engine::Instance();
 	engine.Init(hwnd, width, height);
 
@@ -131,6 +136,15 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	WorldSetup::LoadFile("Resources\\\\WorldSetup4.json");
 	auto cameraProcess = std::make_shared<RotateCameraProcess>();
 	engine.GetProcessManager().AttachProcess(cameraProcess);
+
+	auto end = chrono::high_resolution_clock::now();
+
+	auto startTimeString = std::wstring(L"\r\nStart up time: ");
+	auto duration = chrono::duration_cast<chrono::milliseconds>(end - start);
+	startTimeString += std::to_wstring(duration.count());
+	startTimeString += std::wstring(L" ms");
+
+	OutputDebugString(startTimeString.c_str());
 
 	// Run the message loop.
 	MSG msg{};

@@ -2,12 +2,16 @@
 #include <istream>
 
 #include "../VeritasEngineBase/TextureResourceLoaderImpl.h"
+#include "../VeritasEngineBase/ResourceHandle.h"
 
 VeritasEngine::TextureResourceLoader::~TextureResourceLoader() = default;
 
-void VeritasEngine::TextureResourceLoader::LoadResource(ResourceManager& manager, std::istream& data, ResourceHandle& handle)
+VeritasEngine::ResourceHandle VeritasEngine::TextureResourceLoader::LoadResource(ResourceManager& manager, std::istream& data)
 {
 	TextureResourceLoaderImpl impl;
 
+	ResourceHandle handle;
 	impl.Load(data, handle);
+
+	return handle;
 }

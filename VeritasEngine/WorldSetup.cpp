@@ -23,9 +23,10 @@ void VeritasEngine::WorldSetup::LoadFile(const char* filename)
 			
 			for (const auto& sceneItem : rootItem.second)
 			{
-				if (strncmp(sceneItem.first.c_str(), "Id", 2) != 0)
+				if (sceneItem.first != "Id")
 				{
-					auto deserializer = mapping.GetDeserializer(sceneItem.first);
+					auto deserializer = mapping.GetDeserializer(Hash(sceneItem.first.c_str()));
+					assert(deserializer != nullptr);
 					(*deserializer)(id, sceneItem.second);
 				}
 			}

@@ -1,5 +1,3 @@
-#include <unordered_map>
-
 #include "ResourceManager.h"
 #include "../VeritasEngineBase/FileHelper.h"
 
@@ -10,6 +8,8 @@
 #include "MeshResourceLoader.h"
 #include "MaterialResourceLoader.h"
 #include "TextureResourceLoader.h"
+#include "StringHash.h"
+#include "../Includes/AssocVector/AssocVector.hpp"
 
 struct ResourcePathParts
 {
@@ -25,8 +25,10 @@ struct VeritasEngine::ResourceManager::Impl : public VeritasEngine::SmallPODObje
 		m_files = FileHelper::FindAllResourceFilesInDirectory(basePath);
 	}
 
-	void GetResourcePathParts(const std::string& path, ResourcePathParts& parts)
+	ResourcePathParts GetResourcePathParts(const std::string& path)
 	{
+		ResourcePathParts parts;
+
 		std::string::size_type pos = path.find('/');
 		if (pos != std::string::npos)
 		{
@@ -50,22 +52,24 @@ struct VeritasEngine::ResourceManager::Impl : public VeritasEngine::SmallPODObje
 			parts.m_zipPath = m_emptyZipName;
 			parts.m_extension = m_emptyZipName;
 		}
+
+		return parts;
 	}
 
-	std::unordered_map<VeritasEngine::ResourceId, ResourceHandle> m_resources;
+	AssocVector<VeritasEngine::ResourceId, ResourceHandle> m_resources;
 	static const std::string m_emptyZipName;
-	static const std::unordered_map<std::string, std::shared_ptr<IResourceLoader>> m_loaders;
+	static const AssocVector<StringHash, std::shared_ptr<IResourceLoader>> m_loaders;
 
 private:
 	std::unordered_map<std::string, std::string> m_files;
 };
 
 const std::string VeritasEngine::ResourceManager::Impl::m_emptyZipName = "";
-const std::unordered_map<std::string, std::shared_ptr<VeritasEngine::IResourceLoader>> VeritasEngine::ResourceManager::Impl::m_loaders 
+const AssocVector<VeritasEngine::StringHash, std::shared_ptr<VeritasEngine::IResourceLoader>> VeritasEngine::ResourceManager::Impl::m_loaders 
 {
-	{ ".vem", std::make_shared<MeshResourceLoader>() },
-	{ ".mat", std::make_shared<MaterialResourceLoader>() },
-	{ ".dds", std::make_shared<TextureResourceLoader>() },
+	{ VESTRINGHASH(".vem"), std::make_shared<MeshResourceLoader>() },
+	{ VESTRINGHASH(".mat"), std::make_shared<MaterialResourceLoader>() },
+	{ VESTRINGHASH(".dds"), std::make_shared<TextureResourceLoader>() },
 };
 
 VeritasEngine::ResourceManager::ResourceManager()
@@ -91,21 +95,17 @@ VeritasEngine::ResourceHandle* VeritasEngine::ResourceManager::GetResource(const
 		result = &resourceIter->second;
 	}
 	else
-	{
-		ResourcePathParts parts;
-		m_impl->GetResourcePathParts(resourcePath, parts);
+	{		
+		auto parts = m_impl->GetResourcePathParts(resourcePath);
 
 		zip_file zip(parts.m_zipPath);
 		auto& stream = zip.open(parts.m_archivePath);
 
-		auto loader = Impl::m_loaders.find(parts.m_extension);
+		auto loader = Impl::m_loaders.find(Hash(parts.m_extension));
 
 		if(loader != Impl::m_loaders.end())
 		{
-			m_impl->m_resources.emplace(resourcePath, ResourceHandle());
-
-			result = &(m_impl->m_resources[resourcePath]);
-			loader->second->LoadResource(*this, stream, *result);
+			m_impl->m_resources[resourcePath] = loader->second->LoadResource(*this, stream);
 		}
 	}
 

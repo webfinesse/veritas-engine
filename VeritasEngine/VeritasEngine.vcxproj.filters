@@ -216,5 +216,8 @@
     <ClInclude Include="SmallObject.h">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="StringHash.h">
+      <Filter>Core</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -15,7 +15,7 @@
 
 VeritasEngine::MeshResourceLoader::~MeshResourceLoader() = default;
 
-void VeritasEngine::MeshResourceLoader::LoadResource(ResourceManager& manager, std::istream& data, ResourceHandle& handle)
+VeritasEngine::ResourceHandle VeritasEngine::MeshResourceLoader::LoadResource(ResourceManager& manager, std::istream& data)
 {
 	cereal::BinaryInputArchive archive(data);
 
@@ -52,5 +52,8 @@ void VeritasEngine::MeshResourceLoader::LoadResource(ResourceManager& manager, s
 		rootNode.AddChild({ child });
 	}
 
+	ResourceHandle handle;
 	handle.SetData(std::move(mesh));
+
+	return handle;
 }

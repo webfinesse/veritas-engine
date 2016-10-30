@@ -1,4 +1,7 @@
 #include "RendererProperties.h"
 
-VeritasEngine::GameObjectProperty<VeritasEngine::MeshInstance> VeritasEngine::RendererProperties::ObjectMesh((long)0x8e478f3e, L"Object Mesh", "ObjectMesh");
-VeritasEngine::GameObjectProperty<VeritasEngine::ResourceHandle*> VeritasEngine::RendererProperties::ResourcedMesh((long)0x8e476a3a, L"Resourced Mesh", "ResourcedMesh");
+const VeritasEngine::StringHash objectMeshHash = VESTRINGHASH("ObjectMesh");
+const VeritasEngine::StringHash resourcedMeshHash = VESTRINGHASH("ResourcedMesh");
+
+VeritasEngine::GameObjectProperty<VeritasEngine::MeshInstance> VeritasEngine::RendererProperties::ObjectMesh("Object Mesh", objectMeshHash);
+VeritasEngine::GameObjectProperty<VeritasEngine::ResourceHandle*> VeritasEngine::RendererProperties::ResourcedMesh("Resourced Mesh", resourcedMeshHash);

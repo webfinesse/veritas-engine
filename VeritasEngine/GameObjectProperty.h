@@ -18,14 +18,11 @@ namespace VeritasEngine
 	template <typename T>
 	class GameObjectProperty: public SmallObject<> {
 	public:
-		template<typename U, typename L>
-		explicit GameObjectProperty(long propertyId, U&& name, L&& jsonTag)
-			: m_propertyId{ propertyId }, m_name(std::forward<U>(name))
+		explicit GameObjectProperty(const char* name, StringHash jsonTag)
+			: m_propertyId{ VESTRINGHASH(name) }, m_name(name)
 		{
-			string tag(std::forward<L>(jsonTag));
-			auto localThis = this;
-			DeserializeMapping::Instance().Register(tag, [localThis](GameObjectHandle handle, JsonValue& values) -> void {
-				localThis->Deserialize(handle, values);
+			DeserializeMapping::Instance().Register(jsonTag, [this](GameObjectHandle handle, JsonValue& values) -> void {
+				this->Deserialize(handle, values);
 			});
 		}
 
@@ -79,22 +76,19 @@ namespace VeritasEngine
 		}
 
 	private:
-		long m_propertyId;
-		wstring m_name;
+		StringHash m_propertyId;
+		string m_name;
 		AssocVector<GameObjectHandle, shared_ptr<T>> m_properties;
 	};
 
 	template <typename T>
 	class GameObjectProperty<T*> : public SmallObject<> {
 	public:
-		template<typename U, typename L>
-		explicit GameObjectProperty(long propertyId, U&& name, L&& jsonTag)
-			: m_propertyId{ propertyId }, m_name(std::forward<U>(name))
+		explicit GameObjectProperty(const char* name, StringHash jsonTag)
+			: m_propertyId{ VESTRINGHASH(name) }, m_name(name)
 		{
-			string tag(std::forward<L>(jsonTag));
-			auto localThis = this;
-			DeserializeMapping::Instance().Register(tag, [localThis](GameObjectHandle handle, JsonValue& values) -> void {
-				localThis->Deserialize(handle, values);
+			DeserializeMapping::Instance().Register(jsonTag, [this](GameObjectHandle handle, JsonValue& values) -> void {
+				this->Deserialize(handle, values);
 			});
 		}
 
@@ -143,8 +137,8 @@ namespace VeritasEngine
 		}
 
 	private:
-		long m_propertyId;
-		wstring m_name;
+		StringHash m_propertyId;
+		string m_name;
 		AssocVector<GameObjectHandle, T*> m_properties;
 	};
 }

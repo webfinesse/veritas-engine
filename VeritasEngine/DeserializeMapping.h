@@ -2,13 +2,13 @@
 #define H_DESERIALIZEMAPPING
 
 #include <functional>
-#include <string>
 #include <memory>
 
 #include "../VeritasEngineBase/Singleton.h"
 #include "../VeritasEngineBase/GameObjectHandle.h"
 #include "JsonValue.h"
 #include "DynamicLibraryHelper.h"
+#include "StringHash.h"
 
 
 using namespace std;
@@ -24,8 +24,8 @@ namespace VeritasEngine
 		friend class Singleton<DeserializeMapping>;
 
 	public:
-		void Register(const string& jsonTag, const DESERIALIZEFUNCTION function);
-		DESERIALIZEFUNCTION* const GetDeserializer(const string& jsonTag);
+		void Register(StringHash jsonTag, const DESERIALIZEFUNCTION function);
+		DESERIALIZEFUNCTION* const GetDeserializer(StringHash jsonTag);
 
 	private:
 		DeserializeMapping();

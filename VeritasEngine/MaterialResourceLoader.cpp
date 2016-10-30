@@ -17,7 +17,7 @@ VeritasEngine::MaterialResourceLoader::MaterialResourceLoader()
 VeritasEngine::MaterialResourceLoader::~MaterialResourceLoader() = default;
 
 
-void VeritasEngine::MaterialResourceLoader::LoadResource(ResourceManager& manager, std::istream& data, ResourceHandle& handle)
+VeritasEngine::ResourceHandle VeritasEngine::MaterialResourceLoader::LoadResource(ResourceManager& manager, std::istream& data)
 {
 	cereal::BinaryInputArchive archive(data);
 
@@ -44,5 +44,9 @@ void VeritasEngine::MaterialResourceLoader::LoadResource(ResourceManager& manage
 		materialInstance.SpecularMap = specular;
 	}
 
+	ResourceHandle handle;
+
 	handle.SetData(std::move(materialInstance));
+
+	return handle;
 }

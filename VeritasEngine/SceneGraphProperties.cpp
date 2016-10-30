@@ -1,9 +1,16 @@
 #include "SceneGraphProperties.h"
+#include "StringHash.h"
 
-VeritasEngine::GameObjectProperty<VeritasEngine::SceneNodeType> VeritasEngine::SceneGraphProperties::Type((long)(0x2f548106), L"Scene Node Type", "SceneNodeType");
-VeritasEngine::GameObjectProperty<VeritasEngine::Matrix4x4> VeritasEngine::SceneGraphProperties::WorldPosition((long)0x8e478f3d, L"World Position", "WorldPosition");
+const VeritasEngine::StringHash sceneNodeTypeHash = VESTRINGHASH("SceneNodeType");
+const VeritasEngine::StringHash worldPositionHash = VESTRINGHASH("WorldPosition");
+const VeritasEngine::StringHash cameraTargetHash = VESTRINGHASH("CameraTarget");
+const VeritasEngine::StringHash cameraPositionHash = VESTRINGHASH("CameraPosition");
+const VeritasEngine::StringHash lightHash = VESTRINGHASH("Light");
 
-VeritasEngine::GameObjectProperty<VeritasEngine::Float3> VeritasEngine::SceneGraphProperties::CameraTarget((long)0x98fac11a, L"Camera Target", "CameraTarget");
-VeritasEngine::GameObjectProperty<VeritasEngine::Float3> VeritasEngine::SceneGraphProperties::CameraPosition((long)0x98fac11b, L"Camera Position", "CameraPosition");
+VeritasEngine::GameObjectProperty<VeritasEngine::SceneNodeType> VeritasEngine::SceneGraphProperties::Type("Scene Node Type", sceneNodeTypeHash);
+VeritasEngine::GameObjectProperty<VeritasEngine::Matrix4x4> VeritasEngine::SceneGraphProperties::WorldPosition("World Position", worldPositionHash);
 
-VeritasEngine::GameObjectProperty<VeritasEngine::Light> VeritasEngine::SceneGraphProperties::Light((long)0x98fac11c, L"Light", "Light");
+VeritasEngine::GameObjectProperty<VeritasEngine::Float3> VeritasEngine::SceneGraphProperties::CameraTarget("Camera Target", cameraTargetHash);
+VeritasEngine::GameObjectProperty<VeritasEngine::Float3> VeritasEngine::SceneGraphProperties::CameraPosition("Camera Position", cameraPositionHash);
+
+VeritasEngine::GameObjectProperty<VeritasEngine::Light> VeritasEngine::SceneGraphProperties::Light("Light", lightHash);

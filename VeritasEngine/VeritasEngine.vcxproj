@@ -206,6 +206,7 @@
   <ItemGroup>
     <ClInclude Include="BufferIndicies.h" />
     <ClInclude Include="Clock.h" />
+    <ClInclude Include="StringHash.h" />
     <ClInclude Include="DeserializeMapping.h" />
     <ClInclude Include="DeserializerFactory.h" />
     <ClInclude Include="DynamicLibraryHelper.h" />
