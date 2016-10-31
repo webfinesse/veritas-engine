@@ -56,7 +56,7 @@ struct VeritasEngine::ResourceManager::Impl : public VeritasEngine::SmallPODObje
 		return parts;
 	}
 
-	AssocVector<VeritasEngine::ResourceId, ResourceHandle> m_resources;
+	std::unordered_map<VeritasEngine::ResourceId, ResourceHandle> m_resources;
 	static const std::string m_emptyZipName;
 	static const AssocVector<StringHash, std::shared_ptr<IResourceLoader>> m_loaders;
 
@@ -105,7 +105,10 @@ VeritasEngine::ResourceHandle* VeritasEngine::ResourceManager::GetResource(const
 
 		if(loader != Impl::m_loaders.end())
 		{
-			m_impl->m_resources[resourcePath] = loader->second->LoadResource(*this, stream);
+			m_impl->m_resources.emplace(resourcePath, ResourceHandle());
+
+			result = &(m_impl->m_resources[resourcePath]);
+			loader->second->LoadResource(*this, stream, *result);
 		}
 	}
 

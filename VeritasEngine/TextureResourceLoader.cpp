@@ -6,12 +6,9 @@
 
 VeritasEngine::TextureResourceLoader::~TextureResourceLoader() = default;
 
-VeritasEngine::ResourceHandle VeritasEngine::TextureResourceLoader::LoadResource(ResourceManager& manager, std::istream& data)
+void VeritasEngine::TextureResourceLoader::LoadResource(ResourceManager& manager, std::istream& data, ResourceHandle& handle)
 {
 	TextureResourceLoaderImpl impl;
 
-	ResourceHandle handle;
 	impl.Load(data, handle);
-
-	return handle;
 }

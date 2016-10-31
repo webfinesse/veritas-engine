@@ -12,6 +12,6 @@ namespace VeritasEngine
 	public:
 		virtual ~IResourceLoader() = default;
 
-		virtual ResourceHandle LoadResource(ResourceManager& manager, std::istream& data) = 0;
+		virtual void LoadResource(ResourceManager& manager, std::istream& data, ResourceHandle& handle) = 0;
 	};
 }

@@ -8,6 +8,6 @@ namespace VeritasEngine
 	{
 	public:
 		virtual ~MeshResourceLoader() override;
-		virtual ResourceHandle LoadResource(ResourceManager& manager, std::istream& data) override;
+		virtual void LoadResource(ResourceManager& manager, std::istream& data, ResourceHandle& handle) override;
 	};
 }
