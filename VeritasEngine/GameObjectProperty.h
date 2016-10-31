@@ -19,7 +19,7 @@ namespace VeritasEngine
 	class GameObjectProperty: public SmallObject<> {
 	public:
 		explicit GameObjectProperty(const char* name, StringHash jsonTag)
-			: m_propertyId{ VESTRINGHASH(name) }, m_name(name)
+			: m_propertyId{ Hash(name) }, m_name(name)
 		{
 			DeserializeMapping::Instance().Register(jsonTag, [this](GameObjectHandle handle, JsonValue& values) -> void {
 				this->Deserialize(handle, values);
@@ -85,7 +85,7 @@ namespace VeritasEngine
 	class GameObjectProperty<T*> : public SmallObject<> {
 	public:
 		explicit GameObjectProperty(const char* name, StringHash jsonTag)
-			: m_propertyId{ VESTRINGHASH(name) }, m_name(name)
+			: m_propertyId{ Hash(name) }, m_name(name)
 		{
 			DeserializeMapping::Instance().Register(jsonTag, [this](GameObjectHandle handle, JsonValue& values) -> void {
 				this->Deserialize(handle, values);

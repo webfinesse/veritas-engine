@@ -1,12 +1,12 @@
 #include "DeserializeMapping.h"
-#include <unordered_map>
+#include "../Includes/AssocVector/AssocVector.hpp"
 
 struct VeritasEngine::DeserializeMapping::Impl
 {
-	static unordered_map<VeritasEngine::StringHash, DESERIALIZEFUNCTION> m_mapping;
+	static AssocVector<VeritasEngine::StringHash, DESERIALIZEFUNCTION> m_mapping;
 };
 
-unordered_map<VeritasEngine::StringHash, DESERIALIZEFUNCTION> VeritasEngine::DeserializeMapping::Impl::m_mapping{};
+AssocVector<VeritasEngine::StringHash, DESERIALIZEFUNCTION> VeritasEngine::DeserializeMapping::Impl::m_mapping{};
 
 VeritasEngine::DeserializeMapping::DeserializeMapping()
 	: m_impl(make_unique<Impl>())

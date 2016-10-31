@@ -1,8 +1,7 @@
-#include <unordered_map>
-
 #include "VertexBufferManager.h"
 #include "VertexBuffer.h"
 #include "VertexTypeHandle.h"
+#include "../Includes/AssocVector/AssocVector.hpp"
 
 struct VeritasEngine::VertexBufferManager::Impl: public VeritasEngine::SmallObject<>
 {
@@ -12,7 +11,7 @@ struct VeritasEngine::VertexBufferManager::Impl: public VeritasEngine::SmallObje
 
 	}
 
-	std::unordered_map<VertexTypeHandle, std::shared_ptr<VertexBuffer>> m_buffers;
+	AssocVector<VertexTypeHandle, std::shared_ptr<VertexBuffer>> m_buffers;
 };
 
 void VeritasEngine::VertexBufferManager::RegisterVertexFormat(VertexTypeHandle handle, size_t sizeOfVertex)
