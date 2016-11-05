@@ -20,7 +20,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CameraBuffer.h" />
-    <ClInclude Include="ClockUtil.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="FileHelper.h" />
     <ClInclude Include="GameObjectHandle.h" />

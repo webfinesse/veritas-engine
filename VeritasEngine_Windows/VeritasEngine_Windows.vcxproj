@@ -25,7 +25,6 @@
     <ClInclude Include="WindowsUtil.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ClockUtil.cpp" />
     <ClCompile Include="DDSTextureLoader\DDSTextureLoader.cpp" />
     <ClCompile Include="IndexBufferImpl.cpp" />
     <ClCompile Include="MeshShaderImpl.cpp" />

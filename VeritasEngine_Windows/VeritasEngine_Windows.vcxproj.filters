@@ -32,9 +32,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ClockUtil.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="RendererImpl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

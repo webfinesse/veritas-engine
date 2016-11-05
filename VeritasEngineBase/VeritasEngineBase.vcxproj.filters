@@ -36,9 +36,6 @@
     <ClInclude Include="FileHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ClockUtil.h">
-      <Filter>Platform Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="RendererImpl.h">
       <Filter>Platform Header Files</Filter>
     </ClInclude>
