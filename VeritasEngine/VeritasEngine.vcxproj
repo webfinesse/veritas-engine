@@ -76,23 +76,23 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>D:\boost_1_60_0;$(SolutionDir)Includes\cereal-1.1.2\include;$(SolutionDir)Includes\glm\glm;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\boost_1_60_0\stage\lib\$(PlatformShortName);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(BOOSTDIR);$(SolutionDir)Includes\cereal-1.1.2\include;$(SolutionDir)Includes\glm\glm;$(IncludePath)</IncludePath>
+    <LibraryPath>$(BOOSTDIR)\stage\lib\$(PlatformShortName);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)Includes\cereal-1.1.2\include;$(SolutionDir)Includes\glm\glm;$(IncludePath)</IncludePath>
-    <LibraryPath>$(HOMEDRIVE)\boost_1_60_0\stage\lib\$(PlatformShortName);$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(BOOSTDIR)\stage\lib\$(PlatformShortName);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>D:\boost_1_60_0;$(SolutionDir)Includes\cereal-1.1.2\include;$(SolutionDir)Includes\glm\glm;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\boost_1_60_0\stage\lib\$(PlatformShortName);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(BOOSTDIR);$(SolutionDir)Includes\cereal-1.1.2\include;$(SolutionDir)Includes\glm\glm;$(IncludePath)</IncludePath>
+    <LibraryPath>$(BOOSTDIR)\stage\lib\$(PlatformShortName);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir)Includes\cereal-1.1.2\include;$(SolutionDir)Includes\glm\glm;$(IncludePath)</IncludePath>
-    <LibraryPath>$(HOMEDRIVE)\boost_1_60_0\stage\lib\$(PlatformShortName);$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(BOOSTDIR)\stage\lib\$(PlatformShortName);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -175,9 +175,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BufferIndicies.cpp" />
-    <ClCompile Include="Clock.cpp" />
     <ClCompile Include="DeserializeMapping.cpp" />
     <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="GameClock.cpp" />
     <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="IndexBufferManager.cpp" />
     <ClCompile Include="MaterialResourceLoader.cpp" />
@@ -205,7 +205,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BufferIndicies.h" />
-    <ClInclude Include="Clock.h" />
+    <ClInclude Include="ClockUnits.h" />
+    <ClInclude Include="GameClock.h" />
     <ClInclude Include="StringHash.h" />
     <ClInclude Include="DeserializeMapping.h" />
     <ClInclude Include="DeserializerFactory.h" />

@@ -6,10 +6,14 @@
 class RotateCameraProcess : public VeritasEngine::Process
 {
 public:
+	RotateCameraProcess(float cameraDistance, chrono::milliseconds interval);
+
 	void OnInitialized() override;
-	void OnUpdate(float delta) override;
+	void OnUpdate(VeritasEngine::TimeDuration delta) override;
 private:
-	float lastUpdate;
+	float m_cameraDistance;
+	VeritasEngine::TimeDuration m_interval;
+	VeritasEngine::TimeDuration m_lastUpdate;
 };
 
 #endif

@@ -87,20 +87,20 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)Includes\cereal-1.1.2\include;D:\boost_1_60_0;$(SolutionDir)Includes\glm\glm;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\boost_1_60_0\stage\lib\$(PlatformShortName)</LibraryPath>
+    <IncludePath>$(SolutionDir)Includes\cereal-1.1.2\include;$(BOOSTDIR);$(SolutionDir)Includes\glm\glm;$(IncludePath)</IncludePath>
+    <LibraryPath>$(BOOSTDIR)\stage\lib\$(PlatformShortName)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(SolutionDir)Includes\cereal-1.1.2\include;D:\boost_1_60_0;$(SolutionDir)Includes\glm\glm;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\boost_1_60_0\stage\lib\$(PlatformShortName)</LibraryPath>
+    <IncludePath>$(SolutionDir)Includes\cereal-1.1.2\include;$(BOOSTDIR);$(SolutionDir)Includes\glm\glm;$(IncludePath)</IncludePath>
+    <LibraryPath>$(BOOSTDIR)\stage\lib\$(PlatformShortName)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)Includes\cereal-1.1.2\include;$(HOMEDRIVE)\boost_1_60_0;$(SolutionDir)Includes\glm\glm;$(IncludePath)</IncludePath>
-    <LibraryPath>$(HOMEDRIVE)\boost_1_60_0\stage\lib\$(PlatformShortName)</LibraryPath>
+    <IncludePath>$(SolutionDir)Includes\cereal-1.1.2\include;$(BOOSTDIR);$(SolutionDir)Includes\glm\glm;$(IncludePath)</IncludePath>
+    <LibraryPath>$(BOOSTDIR)\stage\lib\$(PlatformShortName)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)Includes\cereal-1.1.2\include;$(HOMEDRIVE)\boost_1_60_0;$(SolutionDir)Includes\glm\glm;$(IncludePath)</IncludePath>
-    <LibraryPath>$(HOMEDRIVE)\boost_1_60_0\stage\lib\$(PlatformShortName)</LibraryPath>
+    <IncludePath>$(SolutionDir)Includes\cereal-1.1.2\include;$(BOOSTDIR);$(SolutionDir)Includes\glm\glm;$(IncludePath)</IncludePath>
+    <LibraryPath>$(BOOSTDIR)\stage\lib\$(PlatformShortName)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>

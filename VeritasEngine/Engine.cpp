@@ -1,5 +1,4 @@
 #include "Engine.h"
-#include "Clock.h"
 #include "ProcessManager.h"
 #include "Vertex.h"
 #include "RenderingServices.h"
@@ -12,7 +11,7 @@
 
 #include "RendererProperties.h"
 
-#include "../VeritasEngineBase/ClockUtil.h"
+#include "GameClock.h"
 
 using namespace std;
 
@@ -24,13 +23,11 @@ struct VeritasEngine::Engine::Impl : public VeritasEngine::SmallObject<>
 
 	}
 
-	unique_ptr<VeritasEngine::Clock> m_gameClock;
-	unique_ptr<VeritasEngine::Clock> m_wallClock;
+	unique_ptr<VeritasEngine::GameClock> m_gameClock;
 	unique_ptr<VeritasEngine::ProcessManager> m_processManager;	
 	unique_ptr<VeritasEngine::ResourceManager> m_resourceManager;
 	unique_ptr<VeritasEngine::RenderingServices> m_renderingServices;
 
-	unsigned long long m_lastTicks;
 	float m_currentFps { 0 };
 	bool m_isInitialized;
 };
@@ -60,9 +57,7 @@ VeritasEngine::ResourceManager& VeritasEngine::Engine::GetResourceManager() cons
 
 void VeritasEngine::Engine::Init(void* osData, unsigned int bufferWidth, unsigned int bufferHeight)
 {
-	Clock::Init();
-	m_impl->m_gameClock = std::make_unique<Clock>();
-	m_impl->m_wallClock = std::make_unique<Clock>();
+	m_impl->m_gameClock = std::make_unique<GameClock>();
 	
 	m_impl->m_renderingServices = std::make_unique<RenderingServices>();
 	m_impl->m_renderingServices->GetRenderer().Init(osData, bufferWidth, bufferHeight);
@@ -87,34 +82,20 @@ void VeritasEngine::Engine::Reinit(unsigned int bufferWidth, unsigned int buffer
 
 void VeritasEngine::Engine::Loop()
 {
-	auto newTime = ClockUtil::ReadClock();
+	auto delta = m_impl->m_gameClock->GetDelta();
 
-	auto ticks = (newTime - m_impl->m_lastTicks);
-	auto delta = static_cast<float>(ticks) / Clock::GetFrequency();
+	m_impl->m_currentFps = 1 / delta.count();
 
-	m_impl->m_currentFps = 1 / delta;
-
-	if (delta > 1) {
-		delta = 1.0f / 60.0f;
+	if (delta > OneFrame) {
+		delta = OneFrame;
 	}
 
 	if (!m_impl->m_gameClock->GetIsPaused())
 	{
-		m_impl->m_wallClock->Update(delta);
-	}
-
-	auto gameDelta = m_impl->m_wallClock->CalculateDelta(*m_impl->m_gameClock);
-
-	if (!m_impl->m_gameClock->GetIsPaused())
-	{
-		m_impl->m_processManager->UpdateProcesses(gameDelta);
+		m_impl->m_processManager->UpdateProcesses(delta);
 	}
 
 	m_impl->m_renderingServices->GetScene().OnRender(m_impl->m_renderingServices->GetRenderer());
-
-	m_impl->m_gameClock->Update(delta);
-
-	m_impl->m_lastTicks = newTime;
 }
 
 void VeritasEngine::Engine::TogglePause()
@@ -140,7 +121,6 @@ float VeritasEngine::Engine::GetCurrentFps() const
 void VeritasEngine::Engine::Shutdown()
 {
 	m_impl->m_gameClock = nullptr;
-	m_impl->m_wallClock = nullptr;
 	m_impl->m_processManager = nullptr;
 	m_impl->m_resourceManager = nullptr;
 	m_impl->m_renderingServices = nullptr;

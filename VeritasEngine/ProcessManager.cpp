@@ -25,7 +25,7 @@ void VeritasEngine::ProcessManager::AttachProcess(ProcessPtr ptr)
 	m_impl->m_processes.emplace_back(ptr);
 }
 
-void VeritasEngine::ProcessManager::UpdateProcesses(float delta)
+void VeritasEngine::ProcessManager::UpdateProcesses(TimeDuration delta)
 {
 	auto it = m_impl->m_processes.begin();
 	while (it != m_impl->m_processes.end())

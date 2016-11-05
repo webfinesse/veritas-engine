@@ -1,9 +1,11 @@
 #ifndef H_PROCESS
 #define H_PROCESS
 
+#include <chrono>
 #include <memory>
 #include "DynamicLibraryHelper.h"
 #include "SmallObject.h"
+#include "ClockUnits.h"
 
 using namespace std;
 
@@ -38,7 +40,7 @@ namespace VeritasEngine
 
 	protected:
 		virtual void OnInitialized();
-		virtual void OnUpdate(float delta) = 0;
+		virtual void OnUpdate(TimeDuration delta) = 0;
 		virtual void OnSuccess();
 		virtual void OnFail();
 		virtual void OnAbort();

@@ -134,7 +134,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	engine.GetResourceManager().Init(workingDirectory);
 
 	WorldSetup::LoadFile("Resources\\\\WorldSetup4.json");
-	auto cameraProcess = std::make_shared<RotateCameraProcess>();
+	auto cameraProcess = std::make_shared<RotateCameraProcess>(200.0f, 10s);
 	engine.GetProcessManager().AttachProcess(cameraProcess);
 
 	auto end = chrono::high_resolution_clock::now();

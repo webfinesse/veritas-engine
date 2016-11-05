@@ -13,19 +13,17 @@ RotateObjectProcess::RotateObjectProcess(GameObjectHandle handle)
 
 void RotateObjectProcess::OnInitialized()
 {
-	this->lastUpdate = 0;
 	Process::OnInitialized();
 }
 
-void RotateObjectProcess::OnUpdate(float delta)
+void RotateObjectProcess::OnUpdate(TimeDuration delta)
 {
 	auto worldMatrix = VeritasEngine::SceneGraphProperties::WorldPosition.GetProperty(m_handle);
-	
-	auto rotationMatrix = VeritasEngine::MathHelpers::CreateRotationRollPitchYawMatrix(0.5 * delta, 0.0, 0.0);
+
+	auto count = chrono::duration_cast<chrono::seconds>(delta).count();
+	auto rotationMatrix = VeritasEngine::MathHelpers::CreateRotationRollPitchYawMatrix(0.5 * count, 0.0, 0.0);
 
 	auto result = *worldMatrix * rotationMatrix;
 	
 	*worldMatrix = result;
-	
-	this->lastUpdate += delta;
 }

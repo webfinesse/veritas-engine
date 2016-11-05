@@ -5,6 +5,7 @@
 #include "Process.h"
 #include "SmallObject.h"
 #include "DynamicLibraryHelper.h"
+#include "ClockUnits.h"
 
 #pragma warning(push)
 #pragma warning(disable: 4251)
@@ -20,7 +21,7 @@ namespace VeritasEngine
 		~ProcessManager();
 
 		void AttachProcess(ProcessPtr ptr);
-		void UpdateProcesses(float delta);
+		void UpdateProcesses(TimeDuration delta);
 	private:
 		ProcessManager(ProcessManager& rhs) = delete;
 		ProcessManager& operator=(ProcessManager& rhs) = delete;

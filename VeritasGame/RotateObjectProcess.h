@@ -11,9 +11,8 @@ class RotateObjectProcess : public VeritasEngine::Process
 public:
 	RotateObjectProcess(GameObjectHandle handle);
 	void OnInitialized() override;
-	void OnUpdate(float delta) override;
+	void OnUpdate(TimeDuration delta) override;
 private:
-	float lastUpdate;
 	GameObjectHandle m_handle;
 };
 
