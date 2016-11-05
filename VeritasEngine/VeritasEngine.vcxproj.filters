@@ -103,6 +103,9 @@
     <ClCompile Include="GameClock.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="AnimationClock.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DynamicLibraryHelper.h">
@@ -220,6 +223,9 @@
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="GameClock.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationClock.h">
       <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>

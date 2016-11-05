@@ -2,18 +2,18 @@
 #define H_ROTATE_CAMERA_PROCESS
 
 #include "../VeritasEngine/Process.h"
+#include "../VeritasEngine/AnimationClock.h"
 
 class RotateCameraProcess : public VeritasEngine::Process
 {
 public:
-	RotateCameraProcess(float cameraDistance, chrono::milliseconds interval);
+	RotateCameraProcess(float cameraDistance, chrono::seconds duration);
 
 	void OnInitialized() override;
 	void OnUpdate(VeritasEngine::TimeDuration delta) override;
 private:
 	float m_cameraDistance;
-	VeritasEngine::TimeDuration m_interval;
-	VeritasEngine::TimeDuration m_lastUpdate;
+	VeritasEngine::AnimationClock m_clock;
 };
 
 #endif

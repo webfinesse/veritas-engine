@@ -1,13 +1,12 @@
 #include "RotateCameraProcess.h"
 
 #include "../VeritasEngine/GameObjectProperty.h"
-#include "../VeritasEngineBase/GameObjectHandle.h"
 
 #include "../VeritasEngine/SceneGraphProperties.h"
 #include "../VeritasEngineBase/MathTypes.h"
 
-RotateCameraProcess::RotateCameraProcess(float cameraDistance, chrono::milliseconds interval)
-	: m_cameraDistance{ cameraDistance }, m_interval { interval }
+RotateCameraProcess::RotateCameraProcess(float cameraDistance, chrono::seconds interval)
+	: m_cameraDistance{ cameraDistance }, m_clock { interval, 0s, 1.0f, false }
 {
 	
 }
@@ -15,7 +14,6 @@ RotateCameraProcess::RotateCameraProcess(float cameraDistance, chrono::milliseco
 
 void RotateCameraProcess::OnInitialized()
 {
-	this->m_lastUpdate = 0ms;
 	Process::OnInitialized();
 }
 
@@ -23,12 +21,12 @@ void RotateCameraProcess::OnUpdate(VeritasEngine::TimeDuration delta)
 {
 	auto cameraPosition = VeritasEngine::SceneGraphProperties::CameraPosition.GetProperty(1);
 
-	auto percentComplete = fmod(this->m_lastUpdate.count(), this->m_interval.count()) / this->m_interval.count();
+	auto percentComplete = m_clock.GetPercentComplete();
 
-	float nextRadians = glm::two_pi<float>() * percentComplete;
+	float nextRadians = glm::three_over_two_pi<float>() + (glm::two_pi<float>() * percentComplete);
 	
 	cameraPosition->x = m_cameraDistance * cos(nextRadians);
 	cameraPosition->z = m_cameraDistance * sin(nextRadians);
 	
-	this->m_lastUpdate += delta;
+	m_clock.Update(delta);
 }

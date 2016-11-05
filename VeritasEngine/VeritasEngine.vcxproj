@@ -174,6 +174,7 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AnimationClock.cpp" />
     <ClCompile Include="BufferIndicies.cpp" />
     <ClCompile Include="DeserializeMapping.cpp" />
     <ClCompile Include="Engine.cpp" />
@@ -204,6 +205,7 @@
     <ClCompile Include="WorldSetup.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AnimationClock.h" />
     <ClInclude Include="BufferIndicies.h" />
     <ClInclude Include="ClockUnits.h" />
     <ClInclude Include="GameClock.h" />
