@@ -41,14 +41,16 @@ void ProcessMesh(fs::path& path)
 		{
 			VeritasEngine::SerializedMeshSubset newSubset;
 
-			newSubset.m_verticies = std::move(subset.m_vertices);
-			newSubset.m_faces = std::move(subset.m_faces);
-			newSubset.m_materialId = std::move(subset.m_material);
+			//newSubset.m_verticies = move(subset.m_vertices);
+			newSubset.m_faces = move(subset.m_faces);
+			newSubset.m_materialId = move(subset.m_material);
 
 			mi.m_subsets.emplace_back(newSubset);
 		}
 
 		SerializeMeshNodes(meshInfo->m_root, mi.m_root);
+
+		mi.m_skeletonId = {};
 
 		auto& outputPath = path.replace_extension(L".vem");
 
@@ -63,6 +65,8 @@ void ProcessMesh(fs::path& path)
 
 void ProcessSubDirectory(fs::path& path)
 {
+	const static std::unordered_set<std::wstring> meshExtensionMap = { /* L".obj" */ L".dae" };
+
 	for (auto& item : fs::directory_iterator(path))
 	{
 		auto itemPath = item.path();
@@ -74,7 +78,8 @@ void ProcessSubDirectory(fs::path& path)
 		else if (fs::is_regular_file(itemPath) && itemPath.has_extension())
 		{
 			auto extension = itemPath.extension();
-			if (extension == fs::path(".obj") || extension == fs::path(".fbx") || extension == fs::path(".max"))
+			auto fileExtensionMapIter = meshExtensionMap.find(std::wstring(extension.c_str()));
+			if (fileExtensionMapIter != meshExtensionMap.end())
 			{
 				ProcessMesh(itemPath);
 			}

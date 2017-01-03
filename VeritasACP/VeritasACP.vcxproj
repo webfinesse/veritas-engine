@@ -185,6 +185,7 @@
     <ClInclude Include="ExportMesh.h" />
     <ClInclude Include="ExportTexture.h" />
     <ClInclude Include="MeshExporterResult.h" />
+    <ClInclude Include="MeshExporterVertex.h" />
     <ClInclude Include="ResourceIdGenerator.h" />
   </ItemGroup>
   <ItemGroup>

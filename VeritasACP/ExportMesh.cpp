@@ -5,6 +5,7 @@
 #include "ExportMesh.h"
 #include "ExportMaterial.h"
 #include "../VeritasEngine/Vertex.h"
+#include "../VeritasEngine/StringHash.h"
 #include "MeshExporterResult.h"
 
 
@@ -94,19 +95,22 @@ struct VeritasACP::ExportMesh::Impl
 
 	void ProcessMaterial(const aiScene* scene, aiMesh* mesh, std::shared_ptr<MeshExporterResult> meshInfo)
 	{
-		auto item = m_processedMaterials.find(mesh->mMaterialIndex);
-
-		if (item == m_processedMaterials.end())
+		if (scene->HasMaterials())
 		{
-			ExportMaterial materialExporter;
+			auto item = m_processedMaterials.find(mesh->mMaterialIndex);
 
-			meshInfo->m_subsets.back().m_material = materialExporter.Export(m_basePath, scene, mesh);
+			if (item == m_processedMaterials.end())
+			{
+				ExportMaterial materialExporter;
 
-			m_processedMaterials.emplace(mesh->mMaterialIndex, meshInfo->m_subsets.back().m_material);
-		}
-		else
-		{
-			meshInfo->m_subsets.back().m_material = item->second;
+				meshInfo->m_subsets.back().m_material = materialExporter.Export(m_basePath, scene, mesh);
+
+				m_processedMaterials.emplace(mesh->mMaterialIndex, meshInfo->m_subsets.back().m_material);
+			}
+			else
+			{
+				meshInfo->m_subsets.back().m_material = item->second;
+			}
 		}
 	}
 
@@ -137,9 +141,43 @@ struct VeritasACP::ExportMesh::Impl
 		return result;
 	}
 
-	void ProcessNode(const aiNode* node, MeshExporterNode& meshNode)
+	VeritasEngine::Float3 ConvertVec3(const aiVector3D& assImpVec)
+	{
+		static_assert(sizeof(VeritasEngine::Float3) == sizeof(aiVector3D));
+
+		VeritasEngine::Float3 result{};
+
+		result.x = assImpVec.x;
+		result.y = assImpVec.y;
+		result.z = assImpVec.z;
+
+		return result;
+	}
+
+	VeritasEngine::Quaternion ConvertQuaternion(const aiQuaternion& assImpQuaternion)
+	{
+		static_assert(sizeof(VeritasEngine::Quaternion) == sizeof(aiQuaternion));
+
+		VeritasEngine::Quaternion result{};
+
+		result.w = assImpQuaternion.w;
+		result.x = assImpQuaternion.x;
+		result.y = assImpQuaternion.y;
+		result.z = assImpQuaternion.z;
+
+		return result;
+	}
+
+	void ProcessNode(const aiNode* node, MeshExporterNode& meshNode, MeshExporterResult& result, int currentJointIndex)
 	{
 		meshNode.m_transform = ConvertTransform(node->mTransformation);
+
+		
+		if(node->mName.length > 0)
+		{
+			auto nodeName = std::string(node->mName.C_Str());
+			currentJointIndex = ProcessSkeletonBoneName(nodeName, result, currentJointIndex);
+		}
 		
 		for (unsigned int i = 0; i < node->mNumMeshes; ++i)
 		{
@@ -150,12 +188,96 @@ struct VeritasACP::ExportMesh::Impl
 		{
 			meshNode.m_children.emplace_back();
 
-			auto& currentChild = meshNode.m_children.back();
+			MeshExporterNode& currentChild = meshNode.m_children.back();
 
-			ProcessNode(node->mChildren[i], currentChild);
+			ProcessNode(node->mChildren[i], currentChild, result, currentJointIndex);
 		}
 	}
 
+	int ProcessSkeletonBoneName(std::string& nodeName, MeshExporterResult& result, int currentJointIndex)
+	{
+		for(auto& subset : result.m_subsets)
+		{
+			for(auto& skeleton : subset.m_skeletons)
+			{
+				auto matchingJoint = skeleton.JointIndexMap.find(nodeName);
+
+				if(matchingJoint != skeleton.JointIndexMap.end())
+				{
+					skeleton.Joints[matchingJoint->second].ParentIndex = currentJointIndex;
+					return matchingJoint->second;
+				}
+			}
+		}
+
+		return currentJointIndex;
+	}
+
+	void ProcessBones(aiMesh* mesh, MeshExporterSubset& meshInfo)
+	{
+		if(mesh->HasBones())
+		{
+			meshInfo.m_skeletons.emplace_back();
+			auto& skeleton = meshInfo.m_skeletons.back();
+
+			for(unsigned int boneIndex = 0; boneIndex < mesh->mNumBones; boneIndex++)
+			{
+				auto& currentBone = mesh->mBones[boneIndex];
+				
+				MeshExporterSkeletonJoint joint;
+				joint.Name = std::string(currentBone->mName.C_Str());
+				joint.InverseBindPose = ConvertTransform(currentBone->mOffsetMatrix);
+				joint.ParentIndex = -1;
+
+				for(unsigned int weightIndex = 0; weightIndex < currentBone->mNumWeights; weightIndex++)
+				{
+					auto& currentWeight = currentBone->mWeights[weightIndex];
+					auto& vertex = meshInfo.m_vertices[currentWeight.mVertexId];
+					vertex.JointWeights.emplace_back(currentWeight.mWeight);
+					vertex.JointIndicies.emplace_back(boneIndex);
+				}
+
+				skeleton.Joints.emplace_back(joint);
+				skeleton.JointIndexMap[joint.Name] = skeleton.Joints.size() - 1;
+			}
+		}
+	}
+
+	void ProcessAnimations(const aiScene* scene, MeshExporterResult& result)
+	{
+		if(scene->HasAnimations())
+		{
+			for(unsigned int animationIndex = 0; animationIndex < scene->mNumAnimations; animationIndex++)
+			{
+				auto animation = scene->mAnimations[animationIndex];
+
+				AnimationClipExporterResult clip;
+				clip.m_duration = animation->mTicksPerSecond == 0 ? animation->mDuration : (animation->mDuration / animation->mTicksPerSecond);
+				clip.m_hashedName = VeritasEngine::Hash(animation->mName.C_Str());
+
+				for(unsigned int boneIndex = 0; boneIndex < animation->mNumChannels; boneIndex++)
+				{
+					clip.m_poses.emplace_back();
+					auto& currentPose = clip.m_poses.back();
+
+					auto channel = animation->mChannels[boneIndex];
+					for (unsigned int poseIndex = 0; poseIndex < channel->mNumScalingKeys; poseIndex++)
+					{
+						currentPose.m_jointPoses.emplace_back();
+						auto& jointPose = currentPose.m_jointPoses.back();
+
+						jointPose.m_timeSample = channel->mScalingKeys[poseIndex].mTime;
+						jointPose.m_scale = ConvertVec3(channel->mScalingKeys[poseIndex].mValue);
+						jointPose.m_rotation = ConvertQuaternion(channel->mRotationKeys[poseIndex].mValue);
+						jointPose.m_translation = ConvertVec3(channel->mPositionKeys[poseIndex].mValue);
+					}
+				}
+
+				result.m_animations.emplace(make_pair(std::string(animation->mName.C_Str()), clip));
+				
+			}
+		}
+	}
 
 	fs::path m_basePath;
 	std::unordered_map<unsigned int, VeritasEngine::ResourceId> m_processedMaterials;
@@ -197,21 +319,13 @@ std::shared_ptr<VeritasACP::MeshExporterResult> VeritasACP::ExportMesh::Export(f
 				m_impl->ProcessVertex(mesh, currentSubset);
 				m_impl->ProcessNormals(mesh, currentSubset);
 				m_impl->ProcessUVCoords(mesh, currentSubset);
-
-				if (scene->HasMaterials())
-				{
-					m_impl->ProcessMaterial(scene, mesh, result);
-				}
-
+				m_impl->ProcessMaterial(scene, mesh, result);
 				m_impl->ProcessFaces(mesh, currentSubset);
+				m_impl->ProcessBones(mesh, currentSubset);
 			}
 
-			m_impl->ProcessNode(scene->mRootNode, result->m_root);
-
-			if (scene->mNumAnimations > 0)
-			{
-
-			}
+			m_impl->ProcessNode(scene->mRootNode, result->m_root, *result, -1);
+			m_impl->ProcessAnimations(scene, *result);
 
 			return result;
 		}

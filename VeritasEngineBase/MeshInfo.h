@@ -7,18 +7,20 @@
 
 #include "../Includes/cereal-1.1.2/include/cereal/types/vector.hpp"
 #include "../Includes/cereal-1.1.2/include/cereal/types/string.hpp"
+#include "../VeritasEngine/SkinnedVertex.h"
 
 namespace VeritasEngine
 {
-	struct SerializedMeshSubset
+	template<typename VertexFormat>
+	struct SerializedMeshSubsetGeneric
 	{
-		SerializedMeshSubset()
+		SerializedMeshSubsetGeneric()
 			: m_verticies{}, m_faces {}, m_materialId{}
 		{
 
 		}
 
-		std::vector<VeritasEngine::Vertex> m_verticies;
+		std::vector<VertexFormat> m_verticies;
 		std::vector<unsigned int> m_faces;
 		ResourceId m_materialId;
 
@@ -48,17 +50,25 @@ namespace VeritasEngine
 		}
 	};
 
-	struct MeshInfo
+	template<typename VertexFormat>
+	struct MeshInfoGeneric
 	{
 		SerializedMeshNode m_root;
-		std::vector<VeritasEngine::SerializedMeshSubset> m_subsets;
+		std::vector<SerializedMeshSubsetGeneric<VertexFormat>> m_subsets;
+		ResourceId m_skeletonId;
 
 		template <class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_root, m_subsets);
+			archive(m_root, m_subsets, m_skeletonId);
 		}
 	};
+
+	using MeshInfo = MeshInfoGeneric<Vertex>;
+	using SerializedMeshSubset = SerializedMeshSubsetGeneric<Vertex>;
+
+	using SkinnedMeshInfo = MeshInfoGeneric<SkinnedVertex>;
+	using SerializedSkinnedMeshSubset = SerializedMeshSubsetGeneric<SkinnedVertex>;
 }
 
 #endif

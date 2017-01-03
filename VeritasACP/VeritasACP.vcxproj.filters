@@ -36,6 +36,9 @@
     <ClInclude Include="ExportMaterial.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MeshExporterVertex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="VeritasACP.cpp">

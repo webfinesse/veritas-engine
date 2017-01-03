@@ -199,7 +199,6 @@
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneGraphProperties.cpp" />
     <ClCompile Include="SceneNode.cpp" />
-    <ClCompile Include="Vertex.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="VertexBufferManager.cpp" />
     <ClCompile Include="WorldSetup.cpp" />
@@ -209,6 +208,9 @@
     <ClInclude Include="BufferIndicies.h" />
     <ClInclude Include="ClockUnits.h" />
     <ClInclude Include="GameClock.h" />
+    <ClInclude Include="Skeleton.h" />
+    <ClInclude Include="SkeletonJoint.h" />
+    <ClInclude Include="SkinnedVertex.h" />
     <ClInclude Include="StringHash.h" />
     <ClInclude Include="DeserializeMapping.h" />
     <ClInclude Include="DeserializerFactory.h" />

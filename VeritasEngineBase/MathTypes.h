@@ -15,6 +15,7 @@ namespace VeritasEngine
 	using Float2 = glm::vec2;
 	using Float3 = glm::vec3;
 	using Float4 = glm::vec4;
+	using Quaternion = glm::quat;
 
 	class MathHelpers
 	{
