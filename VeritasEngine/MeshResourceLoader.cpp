@@ -46,7 +46,6 @@ void VeritasEngine::MeshResourceLoader::LoadResource(ResourceManager& manager, s
 	rootNode.SetTransform(info.m_root.m_transform);
 	rootNode.SetMeshIndices(info.m_root.meshIndicies);
 
-
 	for (auto& child : info.m_root.m_children)
 	{
 		rootNode.AddChild({ child });

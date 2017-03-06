@@ -31,14 +31,13 @@ namespace VeritasACP
 	struct MeshExporterSubset
 	{
 		MeshExporterSubset()
-			: m_vertices{}, m_faces {}, m_skeletons{}, m_material{}
+			: m_vertices{}, m_faces {}, m_material{}
 		{
 
 		}
 
 		std::vector<MeshExporterVertex> m_vertices;
 		std::vector<unsigned int> m_faces;
-		std::vector<MeshExporterSkeleton> m_skeletons;
 		VeritasEngine::ResourceId m_material;
 	};
 
@@ -61,6 +60,7 @@ namespace VeritasACP
 		VeritasEngine::Quaternion m_rotation; // 96 - 224
 		VeritasEngine::Float3 m_translation; // 224 - 320
 		float m_timeSample; // 320 - 352
+		std::string m_jointName;
 	};
 
 	struct AnimationPoseExporterResult
@@ -73,13 +73,14 @@ namespace VeritasACP
 		VeritasEngine::StringHash m_hashedName;
 		float m_duration;
 		std::vector<AnimationPoseExporterResult> m_poses;
+		std::string m_name;
 	};
 	
 
 	struct MeshExporterResult
 	{
 		MeshExporterResult()
-			: m_subsets{}, m_animations{}, m_root{}
+			: m_subsets{}, m_animations{}, m_root{}, m_skeleton{}
 		{
 
 		}
@@ -87,6 +88,7 @@ namespace VeritasACP
 		std::vector<MeshExporterSubset> m_subsets;
 		std::unordered_map<std::string, AnimationClipExporterResult> m_animations;
 		MeshExporterNode m_root;
+		MeshExporterSkeleton m_skeleton;
 	};
 }
 

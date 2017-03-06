@@ -53,8 +53,11 @@ namespace VeritasEngine
 	template<typename VertexFormat>
 	struct MeshInfoGeneric
 	{
+		using VertexType = VertexFormat;
+		using SubsetType = SerializedMeshSubsetGeneric<VertexFormat>;
+
 		SerializedMeshNode m_root;
-		std::vector<SerializedMeshSubsetGeneric<VertexFormat>> m_subsets;
+		std::vector<SubsetType> m_subsets;
 		ResourceId m_skeletonId;
 
 		template <class Archive>
@@ -65,10 +68,7 @@ namespace VeritasEngine
 	};
 
 	using MeshInfo = MeshInfoGeneric<Vertex>;
-	using SerializedMeshSubset = SerializedMeshSubsetGeneric<Vertex>;
-
 	using SkinnedMeshInfo = MeshInfoGeneric<SkinnedVertex>;
-	using SerializedSkinnedMeshSubset = SerializedMeshSubsetGeneric<SkinnedVertex>;
 }
 
 #endif

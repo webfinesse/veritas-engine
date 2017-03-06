@@ -189,6 +189,7 @@
     <ClCompile Include="MeshShader.cpp" />
     <ClCompile Include="MeshSubset.cpp" />
     <ClCompile Include="RendererProperties.cpp" />
+    <ClCompile Include="SkeletonResourceLoader.cpp" />
     <ClCompile Include="SmallObject.cpp" />
     <ClCompile Include="TextureResourceLoader.cpp" />
     <ClCompile Include="Process.cpp" />
@@ -210,6 +211,7 @@
     <ClInclude Include="GameClock.h" />
     <ClInclude Include="Skeleton.h" />
     <ClInclude Include="SkeletonJoint.h" />
+    <ClInclude Include="SkeletonResourceLoader.h" />
     <ClInclude Include="SkinnedVertex.h" />
     <ClInclude Include="StringHash.h" />
     <ClInclude Include="DeserializeMapping.h" />

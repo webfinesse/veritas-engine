@@ -4,10 +4,14 @@
 
 namespace VeritasEngine
 {
-	class MeshResourceLoader : public IResourceLoader
+	class SkeletonResourceLoader: public IResourceLoader
 	{
 	public:
-		~MeshResourceLoader() override;
+		SkeletonResourceLoader();
+		~SkeletonResourceLoader() override;
+
 		void LoadResource(ResourceManager& manager, std::istream& data, ResourceHandle& handle) override;
 	};
 }
+
+

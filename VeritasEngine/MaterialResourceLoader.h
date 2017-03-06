@@ -8,8 +8,8 @@ namespace VeritasEngine
 	{
 	public:
 		MaterialResourceLoader();
-		virtual ~MaterialResourceLoader() override;
+		~MaterialResourceLoader() override;
 
-		virtual void LoadResource(ResourceManager& manager, std::istream& data, ResourceHandle& handle) override;
+		void LoadResource(ResourceManager& manager, std::istream& data, ResourceHandle& handle) override;
 	};
 }

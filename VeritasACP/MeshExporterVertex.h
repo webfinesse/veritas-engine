@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "../VeritasEngineBase/MathTypes.h"
 
-constexpr unsigned int MAX_JOINT_WEIGHTS{ 4 };
+//constexpr unsigned int MAX_JOINT_WEIGHTS{ 4 };
 
 namespace VeritasACP
 {

@@ -1,12 +1,24 @@
-#pragma once
-#include "../VeritasEngine/SmallObject.h"
+#ifndef H_SKELETON
+#define H_SKELETON
+
 #include <vector>
+
+#include "../Includes/cereal-1.1.2/include/cereal/types/vector.hpp"
+
 #include "SkeletonJoint.h"
 
 namespace VeritasEngine
 {
-	struct Skeleton final : SmallPODObject<>
+	struct Skeleton
 	{
-		vector<SkeletonJoint> Joints;
+		std::vector<SkeletonJoint> Joints;
+
+		template <class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(Joints);
+		}
 	};
 }
+
+#endif

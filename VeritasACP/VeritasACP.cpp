@@ -4,27 +4,11 @@
 #include "ACPState.h"
 #include "ExportMesh.h"
 #include "../VeritasEngineBase/MeshInfo.h"
-
-#include "../Includes/cereal-1.1.2/include/cereal/archives/binary.hpp"
 #include "../VeritasEngineBase/zip_file.hpp"
 #include <boost/filesystem.hpp>
+#include "MeshSerializer.h"
 
 namespace fs = boost::filesystem;
-
-void SerializeMeshNodes(VeritasACP::MeshExporterNode& node, VeritasEngine::SerializedMeshNode& targetNode)
-{
-	targetNode.m_transform = node.m_transform;
-	targetNode.meshIndicies = node.meshIndicies;
-	
-	for (auto& childNode : node.m_children)
-	{
-		targetNode.m_children.emplace_back();
-
-		auto& targetChildNode = targetNode.m_children.back();
-
-		SerializeMeshNodes(childNode, targetChildNode);
-	}
-}
 
 void ProcessMesh(fs::path& path) 
 {
@@ -33,33 +17,8 @@ void ProcessMesh(fs::path& path)
 
 	if (meshInfo != nullptr)
 	{
-		VeritasEngine::MeshInfo mi;
-
-		mi.m_subsets.reserve(meshInfo->m_subsets.size());
-
-		for (auto& subset : meshInfo->m_subsets)
-		{
-			VeritasEngine::SerializedMeshSubset newSubset;
-
-			//newSubset.m_verticies = move(subset.m_vertices);
-			newSubset.m_faces = move(subset.m_faces);
-			newSubset.m_materialId = move(subset.m_material);
-
-			mi.m_subsets.emplace_back(newSubset);
-		}
-
-		SerializeMeshNodes(meshInfo->m_root, mi.m_root);
-
-		mi.m_skeletonId = {};
-
-		auto& outputPath = path.replace_extension(L".vem");
-
-		std::ofstream file(outputPath.generic_string(), std::ios::binary);
-		cereal::BinaryOutputArchive archive(file);
-
-		VeritasACP::ACPState::Instance().GetAssetList().push_back(outputPath);
-
-		archive(mi);
+		VeritasACP::MeshSerializer serializer;
+		serializer.Serialize(*meshInfo, path);		
 	}
 }
 

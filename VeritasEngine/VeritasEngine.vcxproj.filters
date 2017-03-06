@@ -67,9 +67,6 @@
     <ClCompile Include="SceneNode.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="Vertex.cpp">
-      <Filter>Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="VertexBuffer.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
@@ -106,6 +103,7 @@
     <ClCompile Include="AnimationClock.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="SkeletonResourceLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DynamicLibraryHelper.h">
@@ -226,6 +224,18 @@
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="AnimationClock.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Skeleton.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="SkeletonJoint.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="SkinnedVertex.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="SkeletonResourceLoader.h">
       <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>

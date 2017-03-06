@@ -10,6 +10,7 @@ namespace VeritasEngine
 	class VertexBuffer;
 	class MeshSubset;
 	class MeshNode;
+	struct Skeleton;
 
 	class MeshInstance: public SmallObject<> {
 	public:
@@ -21,6 +22,9 @@ namespace VeritasEngine
 		MeshSubset& CreateSubset();
 		MeshSubset& GetSubset(unsigned int index) const;
 		unsigned int GetSubsetCount() const;
+
+		void SetSkeleton(const Skeleton& skeleton);
+		const Skeleton& GetSkeleton() const;
 
 		MeshInstance(const MeshInstance& rhs);
 		MeshInstance& operator=(const MeshInstance& rhs);

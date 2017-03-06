@@ -175,6 +175,7 @@
     <ClCompile Include="ExportMaterial.cpp" />
     <ClCompile Include="ExportMesh.cpp" />
     <ClCompile Include="ExportTexture.cpp" />
+    <ClCompile Include="MeshSerializer.cpp" />
     <ClCompile Include="ResourceIdGenerator.cpp" />
     <ClCompile Include="VeritasACP.cpp" />
   </ItemGroup>
@@ -186,6 +187,7 @@
     <ClInclude Include="ExportTexture.h" />
     <ClInclude Include="MeshExporterResult.h" />
     <ClInclude Include="MeshExporterVertex.h" />
+    <ClInclude Include="MeshSerializer.h" />
     <ClInclude Include="ResourceIdGenerator.h" />
   </ItemGroup>
   <ItemGroup>

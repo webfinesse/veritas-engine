@@ -8,8 +8,10 @@
 #include "MeshResourceLoader.h"
 #include "MaterialResourceLoader.h"
 #include "TextureResourceLoader.h"
+#include "SkeletonResourceLoader.h"
 #include "StringHash.h"
 #include "../Includes/AssocVector/AssocVector.hpp"
+
 
 struct ResourcePathParts
 {
@@ -18,7 +20,7 @@ struct ResourcePathParts
 	std::string m_extension;
 };
 
-struct VeritasEngine::ResourceManager::Impl : public VeritasEngine::SmallPODObject<>
+struct VeritasEngine::ResourceManager::Impl : public VeritasEngine::SmallObject<>
 {
 	void SetBase(const std::string& basePath)
 	{
@@ -70,6 +72,7 @@ const AssocVector<VeritasEngine::StringHash, std::shared_ptr<VeritasEngine::IRes
 	{ VESTRINGHASH(".vem"), std::make_shared<MeshResourceLoader>() },
 	{ VESTRINGHASH(".mat"), std::make_shared<MaterialResourceLoader>() },
 	{ VESTRINGHASH(".dds"), std::make_shared<TextureResourceLoader>() },
+	{ VESTRINGHASH(".vesh"), std::make_shared<SkeletonResourceLoader>() }
 };
 
 VeritasEngine::ResourceManager::ResourceManager()

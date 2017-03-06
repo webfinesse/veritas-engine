@@ -4,20 +4,20 @@
 
 #include "BufferIndicies.h"
 #include "Engine.h"
-#include "RenderingServices.h"
-#include "Vertex.h"
 #include "MeshSubset.h"
 #include "MeshNode.h"
+#include "Skeleton.h"
 
 
-struct VeritasEngine::MeshInstance::Impl: public VeritasEngine::SmallObject<>
+struct VeritasEngine::MeshInstance::Impl: SmallObject<>
 {
 	Impl()
-		: m_root{}, m_subsets{}
+		: m_root{}, m_skeleton{}, m_subsets{}
 	{
 	}
 
 	MeshNode m_root;
+	Skeleton m_skeleton;
 	std::vector<MeshSubset> m_subsets;
 };
 
@@ -49,6 +49,17 @@ unsigned int VeritasEngine::MeshInstance::GetSubsetCount() const
 {
 	return m_impl->m_subsets.size();
 }
+
+void VeritasEngine::MeshInstance::SetSkeleton(const Skeleton& skeleton)
+{
+	m_impl->m_skeleton = skeleton;
+}
+
+const VeritasEngine::Skeleton& VeritasEngine::MeshInstance::GetSkeleton() const
+{
+	return m_impl->m_skeleton;
+}
+
 
 VeritasEngine::MeshInstance::MeshInstance(const MeshInstance& rhs)
 	: m_impl(std::make_unique<Impl>(*rhs.m_impl))

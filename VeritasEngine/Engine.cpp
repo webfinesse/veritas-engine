@@ -12,6 +12,7 @@
 #include "RendererProperties.h"
 
 #include "GameClock.h"
+#include "SkinnedVertex.h"
 
 using namespace std;
 
@@ -71,6 +72,7 @@ void VeritasEngine::Engine::Init(void* osData, unsigned int bufferWidth, unsigne
 	m_impl->m_resourceManager = std::make_unique<ResourceManager>();
 
 	m_impl->m_renderingServices->GetVertexBufferManager().RegisterVertexFormat(Vertex::Type, sizeof(Vertex));
+	m_impl->m_renderingServices->GetVertexBufferManager().RegisterVertexFormat(SkinnedVertex::Type, sizeof(SkinnedVertex));
 
 	m_impl->m_isInitialized = true;
 }

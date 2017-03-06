@@ -6,7 +6,7 @@
 
 namespace VeritasEngine
 {
-	struct Vertex final : SmallPODObject<>
+	struct Vertex
 	{
 		static const unsigned int Type{ 0x4f34e757 };
 		Float3 Position; // 0-96
