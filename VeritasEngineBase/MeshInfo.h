@@ -8,6 +8,7 @@
 #include "../Includes/cereal-1.1.2/include/cereal/types/vector.hpp"
 #include "../Includes/cereal-1.1.2/include/cereal/types/string.hpp"
 #include "../VeritasEngine/SkinnedVertex.h"
+#include "../VeritasEngine/VertexTypeHandle.h"
 
 namespace VeritasEngine
 {
@@ -59,11 +60,12 @@ namespace VeritasEngine
 		SerializedMeshNode m_root;
 		std::vector<SubsetType> m_subsets;
 		ResourceId m_skeletonId;
+		VertexTypeHandle m_vertexType = VertexType::Type;
 
 		template <class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_root, m_subsets, m_skeletonId);
+			archive(m_root, m_subsets, m_skeletonId, m_vertexType);
 		}
 	};
 

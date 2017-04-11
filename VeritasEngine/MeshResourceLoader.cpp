@@ -29,7 +29,7 @@ void VeritasEngine::MeshResourceLoader::LoadResource(ResourceManager& manager, s
 	{
 		auto& instanceSubset = mesh.CreateSubset();
 
-		instanceSubset.SetVertices(Vertex::Type, reinterpret_cast<unsigned char*>(&serializedSubset.m_verticies[0]), serializedSubset.m_verticies.size());
+		instanceSubset.SetVertices(info.m_vertexType, reinterpret_cast<unsigned char*>(&serializedSubset.m_verticies[0]), serializedSubset.m_verticies.size());
 
 		if (serializedSubset.m_faces.size() > 0)
 		{

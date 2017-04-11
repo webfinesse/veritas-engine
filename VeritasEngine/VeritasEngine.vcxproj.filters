@@ -103,7 +103,12 @@
     <ClCompile Include="AnimationClock.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="SkeletonResourceLoader.cpp" />
+    <ClCompile Include="SkeletonResourceLoader.cpp">
+      <Filter>ResourceManager</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimatedMeshResourceLoader.cpp">
+      <Filter>ResourceManager</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DynamicLibraryHelper.h">
@@ -237,6 +242,9 @@
     </ClInclude>
     <ClInclude Include="SkeletonResourceLoader.h">
       <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimatedMeshResourceLoader.h">
+      <Filter>ResourceManager</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

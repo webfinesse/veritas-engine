@@ -9,6 +9,7 @@
 #include "MaterialResourceLoader.h"
 #include "TextureResourceLoader.h"
 #include "SkeletonResourceLoader.h"
+#include "AnimatedMeshResourceLoader.h"
 #include "StringHash.h"
 #include "../Includes/AssocVector/AssocVector.hpp"
 
@@ -72,7 +73,8 @@ const AssocVector<VeritasEngine::StringHash, std::shared_ptr<VeritasEngine::IRes
 	{ VESTRINGHASH(".vem"), std::make_shared<MeshResourceLoader>() },
 	{ VESTRINGHASH(".mat"), std::make_shared<MaterialResourceLoader>() },
 	{ VESTRINGHASH(".dds"), std::make_shared<TextureResourceLoader>() },
-	{ VESTRINGHASH(".vesh"), std::make_shared<SkeletonResourceLoader>() }
+	{ VESTRINGHASH(".vesh"), std::make_shared<SkeletonResourceLoader>() },
+	{ VESTRINGHASH(".veam"), std::make_shared<AnimatedMeshResourceLoader>() }
 };
 
 VeritasEngine::ResourceManager::ResourceManager()
