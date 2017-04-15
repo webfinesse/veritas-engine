@@ -7,7 +7,7 @@
 #include "BoostFilesystemHelper.h"
 #include "../VeritasEngineBase/ResourceId.h"
 
-#include "../Includes/assimp/include/assimp/scene.h"
+#include <assimp/scene.h>
 
 namespace VeritasACP
 {

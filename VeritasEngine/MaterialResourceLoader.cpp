@@ -1,7 +1,7 @@
 ﻿#include "MaterialResourceLoader.h"
 
-#include "../Includes/cereal-1.1.2/include/cereal/cereal.hpp"
-#include "../Includes/cereal-1.1.2/include/cereal/archives/binary.hpp"
+#include "cereal/cereal.hpp"
+#include "cereal/archives/binary.hpp"
 
 #include "../VeritasEngineBase/Material.h"
 #include "../VeritasEngineBase/ResourceHandle.h"

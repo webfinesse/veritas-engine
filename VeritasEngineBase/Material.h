@@ -4,7 +4,7 @@
 #include "MathTypes.h"
 #include "ResourceId.h"
 
-#include "../Includes/cereal-1.1.2/include/cereal/types/string.hpp"
+#include "cereal/types/string.hpp"
 
 namespace VeritasEngine
 {

@@ -9,11 +9,11 @@
 #include "MeshExporterResult.h"
 
 
-#define ASSIMP_DLL
+//#define ASSIMP_DLL
 
-#include "../Includes/assimp/include/assimp/Importer.hpp"
-#include "../Includes/assimp/include/assimp/scene.h"
-#include "../Includes/assimp/include/assimp/postprocess.h"
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 #include <boost/filesystem.hpp>
 

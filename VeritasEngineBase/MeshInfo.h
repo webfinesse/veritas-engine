@@ -5,8 +5,8 @@
 #include "../VeritasEngine/Vertex.h"
 #include "../VeritasEngineBase/ResourceId.h"
 
-#include "../Includes/cereal-1.1.2/include/cereal/types/vector.hpp"
-#include "../Includes/cereal-1.1.2/include/cereal/types/string.hpp"
+#include "cereal/types/vector.hpp"
+#include "cereal/types/string.hpp"
 #include "../VeritasEngine/SkinnedVertex.h"
 #include "../VeritasEngine/VertexTypeHandle.h"
 

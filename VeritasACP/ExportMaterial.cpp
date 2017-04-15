@@ -6,13 +6,12 @@
 
 #include <string>
 
-#define ASSIMP_DLL
+//#define ASSIMP_DLL
 
-#include "../Includes/assimp/include/assimp/Importer.hpp"
-#include "../Includes/assimp/include/assimp/scene.h"
-#include "../Includes/assimp/include/assimp/postprocess.h"
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
 
-#include "../Includes/cereal-1.1.2/include/cereal/archives/binary.hpp"
+#include "cereal/archives/binary.hpp"
 
 #include <boost/filesystem.hpp>
 

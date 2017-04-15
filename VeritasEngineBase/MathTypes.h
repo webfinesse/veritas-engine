@@ -1,12 +1,10 @@
 #ifndef H_MATHTYPES
 #define H_MATHTYPES
 
-#include "../Includes/glm/glm/mat4x4.hpp"
-#include "../Includes/glm/glm/matrix.hpp"
-#include "../Includes/glm/glm/vec3.hpp"
-#include "../Includes/glm/glm/vec4.hpp"
-#include "../Includes/glm/glm/gtc/matrix_transform.hpp"
-#include "../Includes/glm/glm/gtx/euler_angles.hpp"
+#include <glm/mat4x4.hpp>
+#include <glm/matrix.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/euler_angles.hpp>
 
 namespace VeritasEngine
 {

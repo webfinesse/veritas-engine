@@ -1,5 +1,5 @@
 #include <boost/filesystem.hpp>
-#include "../Includes/cereal-1.1.2/include/cereal/archives/binary.hpp"
+#include <cereal/archives/binary.hpp>
 
 #include "../VeritasEngineBase/MeshInfo.h"
 #include "../VeritasEngineBase/ResourceId.h"

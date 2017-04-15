@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "../Includes/cereal-1.1.2/include/cereal/types/vector.hpp"
+#include "cereal/types/vector.hpp"
 
 #include "SkeletonJoint.h"
 
