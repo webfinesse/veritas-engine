@@ -8,14 +8,8 @@
 
 #include <boost/filesystem.hpp>
 
-#ifdef _WIN32
-#include "../Includes/nvtt/x86/include/nvtt/nvtt.h"
-#include "../Includes/nvtt/x86/include/nvtt/nvtt_wrapper.h"
-#endif
-#ifdef _WIN64
-#include "../Includes/nvtt/x64/include/nvtt/nvtt.h"
-#include "../Includes/nvtt/x64/include/nvtt/nvtt_wrapper.h"
-#endif
+#include "../Includes/nvtt/include/nvtt/nvtt.h"
+#include "../Includes/nvtt/include/nvtt/nvtt_wrapper.h"
 
 struct VeritasACP::ExportTexture::Impl
 {

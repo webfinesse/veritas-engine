@@ -119,18 +119,18 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(BOOSTDIR);$(SolutionDir)Includes\cereal-1.1.2\include;$(SolutionDir)Includes\glm\glm;$(IncludePath)</IncludePath>
-    <LibraryPath>$(BOOSTDIR)\stage\lib\$(PlatformShortName);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(BOOSTDIR);$(SolutionDir)Includes\cereal-1.1.2\include;$(SolutionDir)Includes\glm\glm;$(IncludePath)</IncludePath>
-    <LibraryPath>$(BOOSTDIR)\stage\lib\$(PlatformShortName);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)Includes\cereal-1.1.2\include;$(SolutionDir)Includes\glm\glm;$(IncludePath)</IncludePath>
+    <IncludePath>$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)Includes\cereal-1.1.2\include;$(SolutionDir)Includes\glm\glm;$(IncludePath)</IncludePath>
+    <IncludePath>$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
