@@ -8,10 +8,10 @@ namespace VeritasEngine
 	class BufferIndicies : SmallObject<>
 	{
 	public:
-		BufferIndicies(unsigned int startIndex, unsigned int numberOfElements);
+		BufferIndicies(size_t startIndex, size_t numberOfElements);
 
-		unsigned int StartIndex;
-		unsigned int NumberOfElements;
+		size_t StartIndex;
+		size_t NumberOfElements;
 	};
 }
 

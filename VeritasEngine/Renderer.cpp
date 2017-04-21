@@ -58,7 +58,7 @@ void VeritasEngine::Renderer::RenderSubset(const MeshInstance& mesh, unsigned in
 {
 	auto& subset = mesh.GetSubset(subsetIndex);
 
-	const unsigned int strides[1] = { subset.GetVertexSize() };
+	const unsigned int strides[1] = { static_cast<unsigned int>(subset.GetVertexSize()) };
 	const unsigned int offsets[1] = { 0 };
 
 	m_impl->m_platformRenderer.SetVertexBuffer(subset.GetVertexBuffer().GetNativeBuffer(), strides, offsets);

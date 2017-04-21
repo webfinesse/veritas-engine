@@ -9,7 +9,7 @@ namespace VeritasEngine
 	{
 	public:
 		VertexBufferImpl();
-		void SetData(unsigned int numOfElements, unsigned int sizeOfEachVertex, void* bufferData);
+		void SetData(size_t numOfElements, size_t sizeOfEachVertex, void* bufferData);
 		void* GetNativeBuffer() const;
 		~VertexBufferImpl();
 

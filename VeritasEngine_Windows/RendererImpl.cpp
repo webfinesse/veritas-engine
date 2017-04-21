@@ -175,9 +175,9 @@ void VeritasEngine::RendererImpl::SetIndexBuffer(void* buffer)
 	g_context->IASetIndexBuffer(static_cast<ID3D11Buffer*>(buffer), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
 }
 
-void VeritasEngine::RendererImpl::DrawIndexed(unsigned int indexCount, unsigned int indexOffset, unsigned int baseVertexIndex)
+void VeritasEngine::RendererImpl::DrawIndexed(size_t indexCount, size_t indexOffset, size_t baseVertexIndex)
 {
-	g_context->DrawIndexed(indexCount, indexOffset, baseVertexIndex);
+	g_context->DrawIndexed(static_cast<UINT>(indexCount), static_cast<UINT>(indexOffset), static_cast<UINT>(baseVertexIndex));
 }
 
 void VeritasEngine::RendererImpl::Present()

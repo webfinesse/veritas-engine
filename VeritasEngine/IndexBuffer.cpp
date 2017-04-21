@@ -29,7 +29,7 @@ VeritasEngine::IndexBuffer::IndexBuffer()
 
 VeritasEngine::IndexBuffer::~IndexBuffer() = default;
 
-VeritasEngine::BufferIndicies VeritasEngine::IndexBuffer::AddIndicies(unsigned int* indicies, unsigned int numOfIndicies)
+VeritasEngine::BufferIndicies VeritasEngine::IndexBuffer::AddIndicies(unsigned int* indicies, size_t numOfIndicies)
 {
 	BufferIndicies result(m_impl->m_indicies.size(), numOfIndicies);
 

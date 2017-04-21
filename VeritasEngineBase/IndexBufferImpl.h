@@ -9,7 +9,7 @@ namespace VeritasEngine
 	{
 	public:
 		IndexBufferImpl();
-		void SetData(unsigned int numOfElements, void* bufferData);
+		void SetData(size_t numOfElements, void* bufferData);
 		void* GetNativeBuffer() const;
 		~IndexBufferImpl();
 

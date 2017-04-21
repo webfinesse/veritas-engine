@@ -21,7 +21,7 @@ namespace VeritasEngine
 
 		MeshSubset& CreateSubset();
 		MeshSubset& GetSubset(unsigned int index) const;
-		unsigned int GetSubsetCount() const;
+		size_t GetSubsetCount() const;
 
 		void SetSkeleton(const Skeleton& skeleton);
 		const Skeleton& GetSkeleton() const;

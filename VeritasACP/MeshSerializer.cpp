@@ -156,7 +156,7 @@ VeritasEngine::ResourceId SerializeSkeleton(VeritasACP::MeshExporterResult& mesh
 		VeritasEngine::SkeletonJoint joint;
 		joint.Name = exporterJoint.Name;
 		joint.InverseBindPose = exporterJoint.InverseBindPose;
-		joint.ParentIndex = exporterJoint.ParentIndex;
+		joint.ParentIndex = static_cast<int>(exporterJoint.ParentIndex);
 
 		skel.Joints.emplace_back(joint);
 	}

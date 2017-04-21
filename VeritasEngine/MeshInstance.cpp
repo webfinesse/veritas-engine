@@ -45,7 +45,7 @@ VeritasEngine::MeshSubset& VeritasEngine::MeshInstance::GetSubset(unsigned int i
 	return m_impl->m_subsets[index];
 }
 
-unsigned int VeritasEngine::MeshInstance::GetSubsetCount() const
+size_t VeritasEngine::MeshInstance::GetSubsetCount() const
 {
 	return m_impl->m_subsets.size();
 }

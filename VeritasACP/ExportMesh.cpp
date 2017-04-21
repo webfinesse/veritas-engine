@@ -168,7 +168,7 @@ struct VeritasACP::ExportMesh::Impl
 		return result;
 	}
 
-	void ProcessNode(const aiNode* node, MeshExporterNode& meshNode, MeshExporterResult& result, int currentJointIndex)
+	void ProcessNode(const aiNode* node, MeshExporterNode& meshNode, MeshExporterResult& result, size_t currentJointIndex)
 	{
 		meshNode.m_transform = ConvertTransform(node->mTransformation);
 		
@@ -192,7 +192,7 @@ struct VeritasACP::ExportMesh::Impl
 		}
 	}
 
-	int static ProcessSkeletonBoneName(std::string& nodeName, MeshExporterResult& result, int currentJointIndex)
+	size_t static ProcessSkeletonBoneName(std::string& nodeName, MeshExporterResult& result, size_t currentJointIndex)
 	{
 		auto matchingJoint = result.m_skeleton.JointIndexMap.find(nodeName);
 
@@ -245,7 +245,7 @@ struct VeritasACP::ExportMesh::Impl
 				auto animation = scene->mAnimations[animationIndex];
 
 				AnimationClipExporterResult clip;
-				clip.m_duration = animation->mTicksPerSecond == 0 ? animation->mDuration : (animation->mDuration / animation->mTicksPerSecond);
+				clip.m_duration = animation->mTicksPerSecond == 0 ? static_cast<float>(animation->mDuration) : static_cast<float>(animation->mDuration / animation->mTicksPerSecond);
 				clip.m_hashedName = VeritasEngine::Hash(animation->mName.C_Str());
 				clip.m_name = std::string(animation->mName.C_Str());
 
@@ -261,7 +261,7 @@ struct VeritasACP::ExportMesh::Impl
 						auto& jointPose = currentPose.m_jointPoses.back();
 
 						jointPose.m_jointName = std::string(channel->mNodeName.C_Str());
-						jointPose.m_timeSample = channel->mScalingKeys[poseIndex].mTime;
+						jointPose.m_timeSample = static_cast<float>(channel->mScalingKeys[poseIndex].mTime);
 						jointPose.m_scale = ConvertVec3(channel->mScalingKeys[poseIndex].mValue);
 						jointPose.m_rotation = ConvertQuaternion(channel->mRotationKeys[poseIndex].mValue);
 						jointPose.m_translation = ConvertVec3(channel->mPositionKeys[poseIndex].mValue);

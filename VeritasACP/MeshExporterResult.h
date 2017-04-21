@@ -12,7 +12,7 @@ namespace VeritasACP
 	struct MeshExporterSkeletonJoint
 	{
 		std::string Name;
-		int ParentIndex;
+		size_t ParentIndex;
 		VeritasEngine::Matrix4x4 InverseBindPose;
 	};
 
@@ -25,7 +25,7 @@ namespace VeritasACP
 		}
 
 		std::vector<MeshExporterSkeletonJoint> Joints;
-		std::unordered_map<std::string, unsigned int> JointIndexMap;
+		std::unordered_map<std::string, size_t> JointIndexMap;
 	};
 
 	struct MeshExporterSubset

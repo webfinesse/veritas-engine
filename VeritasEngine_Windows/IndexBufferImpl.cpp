@@ -33,11 +33,11 @@ void* VeritasEngine::IndexBufferImpl::GetNativeBuffer() const
 }
 
 
-void VeritasEngine::IndexBufferImpl::SetData(unsigned int numOfElements, void* bufferData)
+void VeritasEngine::IndexBufferImpl::SetData(size_t numOfElements, void* bufferData)
 {
 	D3D11_BUFFER_DESC bufferDesc;
 	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	bufferDesc.ByteWidth = sizeof(unsigned int) * numOfElements;
+	bufferDesc.ByteWidth = static_cast<UINT>(sizeof(unsigned int) * numOfElements);
 	bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	bufferDesc.CPUAccessFlags = 0;
 	bufferDesc.MiscFlags = 0;

@@ -15,7 +15,7 @@ namespace VeritasEngine
 		IndexBuffer();
 		~IndexBuffer();
 
-		BufferIndicies AddIndicies(unsigned int* indicies, unsigned int numOfIndicies);
+		BufferIndicies AddIndicies(unsigned int* indicies, size_t numOfIndicies);
 
 		void* GetNativeBuffer();
 	private:

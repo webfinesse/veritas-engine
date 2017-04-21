@@ -14,7 +14,7 @@ namespace VeritasEngine
 		
 		void SetVertexBuffer(void* buffer, const unsigned int strides[], const unsigned int offsets[]);
 		void SetIndexBuffer(void* buffer);
-		void DrawIndexed(unsigned int indexCount, unsigned int indexOffset, unsigned int baseVertexIndex);
+		void DrawIndexed(size_t indexCount, size_t indexOffset, size_t baseVertexIndex);
 		void Present();
 
 		RendererImpl();
