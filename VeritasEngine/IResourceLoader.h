@@ -4,7 +4,7 @@
 
 namespace VeritasEngine
 {
-	class ResourceManager;
+	class IResourceManager;
 	class ResourceHandle;
 
 	class IResourceLoader
@@ -12,6 +12,7 @@ namespace VeritasEngine
 	public:
 		virtual ~IResourceLoader() = default;
 
-		virtual void LoadResource(ResourceManager& manager, std::istream& data, ResourceHandle& handle) = 0;
+		virtual const char* GetExtension() const = 0;
+		virtual void LoadResource(IResourceManager& manager, std::istream& data, ResourceHandle& handle) = 0;
 	};
 }

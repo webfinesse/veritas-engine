@@ -9,7 +9,7 @@
 #include "SmallObject.h"
 
 #include "DeserializerFactory.h"
-#include "DeserializeMapping.h"
+#include "IDeserializeMapping.h"
 
 using namespace std;
 
@@ -21,9 +21,9 @@ namespace VeritasEngine
 		explicit GameObjectProperty(const char* name, StringHash jsonTag)
 			: m_propertyId{ Hash(name) }, m_name(name)
 		{
-			DeserializeMapping::Instance().Register(jsonTag, [this](GameObjectHandle handle, JsonValue& values) -> void {
-				this->Deserialize(handle, values);
-			});
+			/*DeserializeMapping::Instance().Register(jsonTag, [this](Engine& engine, GameObjectHandle handle, JsonValue& values) -> void {
+				this->Deserialize(engine, handle, values);
+			});*/
 		}
 
 		bool operator==(const GameObjectProperty& other) const
@@ -68,11 +68,11 @@ namespace VeritasEngine
 			m_properties.clear();
 		}
 
-		void Deserialize(GameObjectHandle handle, JsonValue& values) {
+		void Deserialize(Engine& engine, GameObjectHandle handle, JsonValue& values) {
 
 			auto deserializer = DeserializerFactory<T>::GetDeserializer();
 
-			m_properties.emplace(handle, make_shared<T>(deserializer(values)));
+			m_properties.emplace(handle, make_shared<T>(deserializer(engine, values)));
 		}
 
 	private:
@@ -87,9 +87,9 @@ namespace VeritasEngine
 		explicit GameObjectProperty(const char* name, StringHash jsonTag)
 			: m_propertyId{ Hash(name) }, m_name(name)
 		{
-			DeserializeMapping::Instance().Register(jsonTag, [this](GameObjectHandle handle, JsonValue& values) -> void {
-				this->Deserialize(handle, values);
-			});
+			/*DeserializeMapping::Instance().Register(jsonTag, [this](Engine& engine, GameObjectHandle handle, JsonValue& values) -> void {
+				this->Deserialize(engine, handle, values);
+			});*/
 		}
 
 		bool operator==(const GameObjectProperty& other) const
@@ -129,11 +129,11 @@ namespace VeritasEngine
 			m_properties.clear();
 		}
 
-		void Deserialize(GameObjectHandle handle, JsonValue& values) {
+		void Deserialize(Engine& engine, GameObjectHandle handle, JsonValue& values) {
 
 			auto deserializer = DeserializerFactory<T*>::GetDeserializer();
 
-			m_properties.emplace(handle, deserializer(values));
+			m_properties.emplace(handle, deserializer(engine, values));
 		}
 
 	private:

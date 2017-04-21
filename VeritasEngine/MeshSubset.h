@@ -18,14 +18,14 @@ namespace VeritasEngine
 		MeshSubset();
 		~MeshSubset();
 
-		void SetVertices(VertexTypeHandle handle, unsigned char* verticies, unsigned int numOfVertices);
+		void SetVertices(VertexBuffer* vertexBuffer, unsigned char* verticies, unsigned int numOfVertices);
 		std::size_t GetVertexSize() const;
 		unsigned int GetVertexCount() const;
 		VertexBuffer& GetVertexBuffer() const;
 		unsigned int GetVertexBufferBaseIndex() const;
 
 
-		void SetIndicies(unsigned int* indicies, unsigned int numOfIndicies);
+		void SetIndicies(IndexBuffer* indexBuffer, unsigned int* indicies, unsigned int numOfIndicies);
 		unsigned int IndexCount() const;
 		IndexBuffer& GetIndexBuffer() const;
 		unsigned int GetIndexOffset() const;

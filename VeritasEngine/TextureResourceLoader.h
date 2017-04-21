@@ -9,6 +9,7 @@ namespace VeritasEngine
 	public:
 		virtual ~TextureResourceLoader() override;
 
-		virtual void LoadResource(ResourceManager& manager, std::istream& data, ResourceHandle& handle) override;
+		const char* GetExtension() const override;
+		virtual void LoadResource(IResourceManager& manager, std::istream& data, ResourceHandle& handle) override;
 	};
 }

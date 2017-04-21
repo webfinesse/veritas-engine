@@ -3,34 +3,76 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
-#include "DeserializeMapping.h"
+#include "IDeserializeMapping.h"
 #include "Engine.h"
 #include "Scene.h"
 #include "RenderingServices.h"
 
-void VeritasEngine::WorldSetup::LoadFile(const char* filename)
-{	
+struct VeritasEngine::WorldSetup::Impl
+{
+	Impl(shared_ptr<IDeserializeMapping> deserializeMapping)
+		: m_engine { nullptr }, m_deserializeMapping { deserializeMapping }
+	{
+		
+	}
+
+	void LoadFile(const char* filename)
+	{
 		boost::property_tree::ptree jsonRoot;
 		read_json(std::string(filename), jsonRoot);
 
-		auto& scene = Engine::Instance().GetRenderingServices().GetScene();
-
-		auto& mapping = DeserializeMapping::Instance();
+		auto& scene = m_engine->GetRenderingServices().GetScene();
 
 		for (const auto& rootItem : jsonRoot)
 		{
 			auto id = rootItem.second.find("Id")->second.get_value<int>();
-			
+
 			for (const auto& sceneItem : rootItem.second)
 			{
 				if (sceneItem.first != "Id")
 				{
-					auto deserializer = mapping.GetDeserializer(Hash(sceneItem.first.c_str()));
+					auto deserializer = m_deserializeMapping->GetDeserializer(Hash(sceneItem.first.c_str()));
 					assert(deserializer != nullptr);
-					(*deserializer)(id, sceneItem.second);
+					(*deserializer)(*m_engine, id, sceneItem.second);
 				}
 			}
 
 			scene.Add(id);
 		}
+	}
+
+	Engine* m_engine;
+	shared_ptr<IDeserializeMapping> m_deserializeMapping;
+};
+
+VeritasEngine::WorldSetup::WorldSetup(shared_ptr<IDeserializeMapping> deserializeMapping)
+	: m_impl(make_unique<Impl>(deserializeMapping))
+{
+}
+
+VeritasEngine::WorldSetup::WorldSetup(WorldSetup&& other) noexcept
+	: m_impl{ std::move(other.m_impl) }
+{
+}
+
+VeritasEngine::WorldSetup& VeritasEngine::WorldSetup::operator=(WorldSetup&& other) noexcept
+{
+	if(this != &other)
+	{
+		this->m_impl = std::move(other.m_impl);
+	}
+
+	return *this;
+}
+
+VeritasEngine::WorldSetup::~WorldSetup() = default;
+
+void VeritasEngine::WorldSetup::Init(Engine& engine)
+{
+	m_impl->m_engine = &engine;
+}
+
+void VeritasEngine::WorldSetup::LoadFile(const char* filename)
+{	
+	m_impl->LoadFile(filename);
 }

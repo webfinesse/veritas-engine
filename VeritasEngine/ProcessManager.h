@@ -4,24 +4,21 @@
 #include <memory>
 #include "Process.h"
 #include "SmallObject.h"
-#include "DynamicLibraryHelper.h"
-#include "ClockUnits.h"
+#include "IProcessManager.h"
 
 #pragma warning(push)
 #pragma warning(disable: 4251)
 
 namespace VeritasEngine
 {
-	using ProcessPtr = std::shared_ptr <Process>;
-
-	class EXPORT ProcessManager : public SmallObject<>
+	class ProcessManager : public SmallObject<>, public IProcessManager
 	{
 	public:
 		ProcessManager();
-		~ProcessManager();
+		~ProcessManager() override;
 
-		void AttachProcess(ProcessPtr ptr);
-		void UpdateProcesses(TimeDuration delta);
+		void AttachProcess(ProcessPtr ptr) override;
+		void UpdateProcesses(TimeDuration delta) override;
 	private:
 		ProcessManager(ProcessManager& rhs) = delete;
 		ProcessManager& operator=(ProcessManager& rhs) = delete;

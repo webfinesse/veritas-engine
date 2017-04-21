@@ -1,14 +1,28 @@
 #ifndef H_WORLDSETUP
 #define H_WORLDSETUP
 
-#include "DynamicLibraryHelper.h"
+#include <memory>
+
+#include "IWorldSetup.h"
 
 namespace VeritasEngine
 {
-	class EXPORT WorldSetup
+	class IDeserializeMapping;
+
+	class WorldSetup : public IWorldSetup
 	{
 	public:
-		static void LoadFile(const char* filename);
+		WorldSetup(std::shared_ptr<IDeserializeMapping> deserializeMapping);
+		WorldSetup(WorldSetup&& other) noexcept;
+		WorldSetup& operator=(WorldSetup&& other) noexcept;
+		~WorldSetup() override;
+
+		void Init(Engine& engine) override;
+		void LoadFile(const char* filename) override;
+
+	private:
+		struct Impl;
+		std::unique_ptr<Impl> m_impl;
 	};
 }
 

@@ -179,6 +179,7 @@
     <ClCompile Include="BufferIndicies.cpp" />
     <ClCompile Include="DeserializeMapping.cpp" />
     <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="EngineFactory.cpp" />
     <ClCompile Include="GameClock.cpp" />
     <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="IndexBufferManager.cpp" />
@@ -210,7 +211,14 @@
     <ClInclude Include="AnimationClock.h" />
     <ClInclude Include="BufferIndicies.h" />
     <ClInclude Include="ClockUnits.h" />
+    <ClInclude Include="EngineDepenencyInjector.h" />
+    <ClInclude Include="EngineFactory.h" />
     <ClInclude Include="GameClock.h" />
+    <ClInclude Include="IDeserializeMapping.h" />
+    <ClInclude Include="IProcessManager.h" />
+    <ClInclude Include="IRenderingServices.h" />
+    <ClInclude Include="IResourceManager.h" />
+    <ClInclude Include="IWorldSetup.h" />
     <ClInclude Include="Skeleton.h" />
     <ClInclude Include="SkeletonJoint.h" />
     <ClInclude Include="SkeletonResourceLoader.h" />

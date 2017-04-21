@@ -4,23 +4,19 @@
 #include <memory>
 
 #include "SmallObject.h"
+#include "IRenderingServices.h"
 
 namespace VeritasEngine
 {
-	class VertexBufferManager;
-	class IndexBufferManager;
-	class Scene;
-	class Renderer;
-
-	class RenderingServices : public SmallObject<>
+	class RenderingServices : public SmallObject<>, public IRenderingServices
 	{
 	public:
 		RenderingServices();
-		~RenderingServices();
-		VertexBufferManager& GetVertexBufferManager() const;
-		IndexBufferManager& GetIndexBufferManager() const;
-		Scene& GetScene() const;
-		Renderer& GetRenderer() const;
+		~RenderingServices() override;
+		VertexBufferManager& GetVertexBufferManager() const override;
+		IndexBufferManager& GetIndexBufferManager() const override;
+		Scene& GetScene() const override;
+		Renderer& GetRenderer() const override;
 	private:
 		struct Impl;
 		std::unique_ptr<Impl> m_impl;

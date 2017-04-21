@@ -6,7 +6,12 @@
 
 VeritasEngine::TextureResourceLoader::~TextureResourceLoader() = default;
 
-void VeritasEngine::TextureResourceLoader::LoadResource(ResourceManager& manager, std::istream& data, ResourceHandle& handle)
+const char* VeritasEngine::TextureResourceLoader::GetExtension() const
+{
+	return ".dds";
+}
+
+void VeritasEngine::TextureResourceLoader::LoadResource(IResourceManager& manager, std::istream& data, ResourceHandle& handle)
 {
 	TextureResourceLoaderImpl impl;
 

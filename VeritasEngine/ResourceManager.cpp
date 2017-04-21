@@ -5,11 +5,6 @@
 
 #include "../VeritasEngineBase/zip_file.hpp"
 #include "../VeritasEngineBase/ResourceHandle.h"
-#include "MeshResourceLoader.h"
-#include "MaterialResourceLoader.h"
-#include "TextureResourceLoader.h"
-#include "SkeletonResourceLoader.h"
-#include "AnimatedMeshResourceLoader.h"
 #include "StringHash.h"
 #include "../Includes/AssocVector/AssocVector.hpp"
 
@@ -23,6 +18,14 @@ struct ResourcePathParts
 
 struct VeritasEngine::ResourceManager::Impl : public VeritasEngine::SmallObject<>
 {
+	Impl(std::vector<std::shared_ptr<IResourceLoader>> resourceLoaders)
+	{
+		for(size_t i = 0; i < resourceLoaders.size(); i++)
+		{
+			m_loaders[VeritasEngine::Hash(resourceLoaders[i].get()->GetExtension())] = std::move(resourceLoaders[i]);
+		}
+	}
+
 	void SetBase(const std::string& basePath)
 	{
 		m_files = FileHelper::FindAllResourceFilesInDirectory(basePath);
@@ -61,29 +64,37 @@ struct VeritasEngine::ResourceManager::Impl : public VeritasEngine::SmallObject<
 
 	std::unordered_map<VeritasEngine::ResourceId, ResourceHandle> m_resources;
 	static const std::string m_emptyZipName;
-	static const AssocVector<StringHash, std::shared_ptr<IResourceLoader>> m_loaders;
+	AssocVector<StringHash, std::shared_ptr<IResourceLoader>> m_loaders;
 
 private:
 	std::unordered_map<std::string, std::string> m_files;
 };
 
 const std::string VeritasEngine::ResourceManager::Impl::m_emptyZipName = "";
-const AssocVector<VeritasEngine::StringHash, std::shared_ptr<VeritasEngine::IResourceLoader>> VeritasEngine::ResourceManager::Impl::m_loaders 
-{
-	{ VESTRINGHASH(".vem"), std::make_shared<MeshResourceLoader>() },
-	{ VESTRINGHASH(".mat"), std::make_shared<MaterialResourceLoader>() },
-	{ VESTRINGHASH(".dds"), std::make_shared<TextureResourceLoader>() },
-	{ VESTRINGHASH(".vesh"), std::make_shared<SkeletonResourceLoader>() },
-	{ VESTRINGHASH(".veam"), std::make_shared<AnimatedMeshResourceLoader>() }
-};
 
-VeritasEngine::ResourceManager::ResourceManager()
-	: m_impl{ std::make_unique<Impl>() }
+VeritasEngine::ResourceManager::ResourceManager(std::vector<std::shared_ptr<IResourceLoader>> resourceLoaders)
+	: m_impl{ std::make_unique<Impl>(resourceLoaders) }
+{
+
+}
+
+VeritasEngine::ResourceManager::ResourceManager(ResourceManager&& other) noexcept
+	: m_impl { std::move(other.m_impl) }
 {
 
 }
 
 VeritasEngine::ResourceManager::~ResourceManager() = default;
+
+VeritasEngine::ResourceManager& VeritasEngine::ResourceManager::operator=(ResourceManager&& other) noexcept
+{
+	if(this != &other)
+	{
+		this->m_impl = std::move(other.m_impl);
+	}
+
+	return *this;
+}
 
 void VeritasEngine::ResourceManager::Init(const std::string& path)
 {
@@ -106,9 +117,9 @@ VeritasEngine::ResourceHandle* VeritasEngine::ResourceManager::GetResource(const
 		zip_file zip(parts.m_zipPath);
 		auto& stream = zip.open(parts.m_archivePath);
 
-		auto loader = Impl::m_loaders.find(Hash(parts.m_extension));
+		auto loader = m_impl->m_loaders.find(Hash(parts.m_extension));
 
-		if(loader != Impl::m_loaders.end())
+		if(loader != m_impl->m_loaders.end())
 		{
 			m_impl->m_resources.emplace(resourcePath, ResourceHandle());
 

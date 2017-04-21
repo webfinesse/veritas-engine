@@ -3,10 +3,14 @@
 
 struct VeritasEngine::DeserializeMapping::Impl
 {
-	static AssocVector<VeritasEngine::StringHash, DESERIALIZEFUNCTION> m_mapping;
-};
+	Impl()
+		: m_mapping{}
+	{
+		
+	}
 
-AssocVector<VeritasEngine::StringHash, DESERIALIZEFUNCTION> VeritasEngine::DeserializeMapping::Impl::m_mapping{};
+	AssocVector<StringHash, DESERIALIZEFUNCTION> m_mapping;
+};
 
 VeritasEngine::DeserializeMapping::DeserializeMapping()
 	: m_impl(make_unique<Impl>())
@@ -21,7 +25,7 @@ void VeritasEngine::DeserializeMapping::Register(StringHash jsonTag, const DESER
 	m_impl->m_mapping.emplace(jsonTag, function);
 }
 
-DESERIALIZEFUNCTION* const VeritasEngine::DeserializeMapping::GetDeserializer(StringHash jsonTag)
+VeritasEngine::DESERIALIZEFUNCTION* const VeritasEngine::DeserializeMapping::GetDeserializer(StringHash jsonTag)
 {
 	auto query = m_impl->m_mapping.find(jsonTag);
 

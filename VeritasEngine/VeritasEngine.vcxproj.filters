@@ -109,6 +109,9 @@
     <ClCompile Include="AnimatedMeshResourceLoader.cpp">
       <Filter>ResourceManager</Filter>
     </ClCompile>
+    <ClCompile Include="EngineFactory.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DynamicLibraryHelper.h">
@@ -245,6 +248,27 @@
     </ClInclude>
     <ClInclude Include="AnimatedMeshResourceLoader.h">
       <Filter>ResourceManager</Filter>
+    </ClInclude>
+    <ClInclude Include="EngineFactory.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="EngineDepenencyInjector.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="IWorldSetup.h">
+      <Filter>Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="IProcessManager.h">
+      <Filter>ProcessManager</Filter>
+    </ClInclude>
+    <ClInclude Include="IRenderingServices.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="IResourceManager.h">
+      <Filter>ResourceManager</Filter>
+    </ClInclude>
+    <ClInclude Include="IDeserializeMapping.h">
+      <Filter>Serialization</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

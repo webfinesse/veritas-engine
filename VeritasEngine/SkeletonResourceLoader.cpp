@@ -13,7 +13,12 @@ VeritasEngine::SkeletonResourceLoader::SkeletonResourceLoader()
 
 VeritasEngine::SkeletonResourceLoader::~SkeletonResourceLoader() = default;
 
-void VeritasEngine::SkeletonResourceLoader::LoadResource(ResourceManager& manager, std::istream& data, ResourceHandle& handle)
+const char* VeritasEngine::SkeletonResourceLoader::GetExtension() const
+{
+	return ".vesh";
+}
+
+void VeritasEngine::SkeletonResourceLoader::LoadResource(IResourceManager& manager, std::istream& data, ResourceHandle& handle)
 {
 	cereal::BinaryInputArchive archive(data);
 

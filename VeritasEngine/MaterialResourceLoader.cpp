@@ -16,8 +16,13 @@ VeritasEngine::MaterialResourceLoader::MaterialResourceLoader()
 
 VeritasEngine::MaterialResourceLoader::~MaterialResourceLoader() = default;
 
+const char* VeritasEngine::MaterialResourceLoader::GetExtension() const
+{
+	return ".mat";
+}
 
-void VeritasEngine::MaterialResourceLoader::LoadResource(ResourceManager& manager, std::istream& data, ResourceHandle& handle)
+
+void VeritasEngine::MaterialResourceLoader::LoadResource(IResourceManager& manager, std::istream& data, ResourceHandle& handle)
 {
 	cereal::BinaryInputArchive archive(data);
 

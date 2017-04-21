@@ -5,6 +5,7 @@
 #include "Renderer.h"
 #include "VertexBufferManager.h"
 #include "Scene.h"
+#include "IWorldSetup.h"
 
 #include "MeshShader.h"
 #include "ResourceManager.h"
@@ -18,40 +19,61 @@ using namespace std;
 
 struct VeritasEngine::Engine::Impl : public VeritasEngine::SmallObject<>
 {
-	Impl()
-		: m_isInitialized { false }
+	Impl(shared_ptr<IProcessManager> processManager, shared_ptr<IWorldSetup> worldSetup, shared_ptr<IRenderingServices> renderingServices, shared_ptr<IResourceManager> resourceManager)
+		: m_processManager{ std::move(processManager) }, m_worldSetup{ std::move(worldSetup) }, m_renderingServices{ std::move(renderingServices) }, m_resourceManager{ std::move(resourceManager) }, m_isInitialized { false }
 	{
 
 	}
 
-	unique_ptr<VeritasEngine::GameClock> m_gameClock;
-	unique_ptr<VeritasEngine::ProcessManager> m_processManager;	
-	unique_ptr<VeritasEngine::ResourceManager> m_resourceManager;
-	unique_ptr<VeritasEngine::RenderingServices> m_renderingServices;
+	shared_ptr<GameClock> m_gameClock;
+	shared_ptr<IProcessManager> m_processManager;
+	shared_ptr<IWorldSetup> m_worldSetup;
+	shared_ptr<IResourceManager> m_resourceManager;
+	shared_ptr<IRenderingServices> m_renderingServices;
 
 	float m_currentFps { 0 };
 	bool m_isInitialized;
 };
 
-VeritasEngine::Engine::Engine()
-	: m_impl(std::make_unique<Impl>())
+VeritasEngine::Engine::Engine(shared_ptr<IProcessManager> processManager, shared_ptr<IWorldSetup> worldSetup, shared_ptr<IRenderingServices> renderingServices, shared_ptr<IResourceManager> resourceManager)
+	: m_impl(std::make_unique<Impl>(processManager, worldSetup, renderingServices, resourceManager))
 {
 	
 }
 
+VeritasEngine::Engine::Engine(Engine&& other) noexcept
+	: m_impl { std::move(other.m_impl) }
+{
+}
+
+VeritasEngine::Engine& VeritasEngine::Engine::operator=(Engine&& other) noexcept
+{
+	if(this != &other)
+	{
+		this->m_impl = std::move(other.m_impl);
+	}
+
+	return *this;
+}
+
 VeritasEngine::Engine::~Engine() = default;
 
-VeritasEngine::RenderingServices& VeritasEngine::Engine::GetRenderingServices() const
+VeritasEngine::IRenderingServices& VeritasEngine::Engine::GetRenderingServices() const
 {
 	return *m_impl->m_renderingServices;
 }
 
-VeritasEngine::ProcessManager& VeritasEngine::Engine::GetProcessManager() const
+VeritasEngine::IProcessManager& VeritasEngine::Engine::GetProcessManager() const
 {
 	return *m_impl->m_processManager;
 }
 
-VeritasEngine::ResourceManager& VeritasEngine::Engine::GetResourceManager() const
+VeritasEngine::IWorldSetup& VeritasEngine::Engine::GetWorldSetup() const
+{
+	return *m_impl->m_worldSetup;
+}
+
+VeritasEngine::IResourceManager& VeritasEngine::Engine::GetResourceManager() const
 {
 	return *m_impl->m_resourceManager;
 }
@@ -60,16 +82,13 @@ void VeritasEngine::Engine::Init(void* osData, unsigned int bufferWidth, unsigne
 {
 	m_impl->m_gameClock = std::make_unique<GameClock>();
 	
-	m_impl->m_renderingServices = std::make_unique<RenderingServices>();
+	m_impl->m_worldSetup->Init(*this);
 	m_impl->m_renderingServices->GetRenderer().Init(osData, bufferWidth, bufferHeight);
 
 	auto meshShader = std::make_shared<MeshShader>();
 	meshShader->Init();
 
 	m_impl->m_renderingServices->GetScene().SetMeshShader(meshShader);
-
-	m_impl->m_processManager = std::make_unique<ProcessManager>();
-	m_impl->m_resourceManager = std::make_unique<ResourceManager>();
 
 	m_impl->m_renderingServices->GetVertexBufferManager().RegisterVertexFormat(Vertex::Type, sizeof(Vertex));
 	m_impl->m_renderingServices->GetVertexBufferManager().RegisterVertexFormat(SkinnedVertex::Type, sizeof(SkinnedVertex));

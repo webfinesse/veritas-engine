@@ -3,7 +3,6 @@
 
 #include <memory>
 #include "DynamicLibraryHelper.h"
-#include "../VeritasEngineBase/Singleton.h"
 #include "SmallObject.h"
 
 using namespace std;
@@ -13,15 +12,20 @@ using namespace std;
 
 namespace VeritasEngine
 {
-	class ResourceManager;
-	class RenderingServices;
-	class ProcessManager;
+	class IResourceManager;
+	class IRenderingServices;
+	class IProcessManager;
+	class IResourceManager;
+	class IWorldSetup;
 
-	class EXPORT Engine : public Singleton<Engine>, public SmallObject<>
+	class EXPORT Engine : public SmallObject<>
 	{
-		friend class Singleton<Engine>;
-
 	public:
+		Engine(shared_ptr<IProcessManager> processManager, shared_ptr<IWorldSetup> worldSetup, shared_ptr<IRenderingServices> renderingServices, shared_ptr<IResourceManager> resourceManager);
+		Engine(Engine&& other) noexcept;
+		Engine& operator=(Engine&& other) noexcept;
+		~Engine();
+
 		void Init(void* osData, unsigned int bufferWidth, unsigned int bufferHeight);
 		void Reinit(unsigned int bufferWidth, unsigned int bufferHeight);
 		void Shutdown();
@@ -30,13 +34,11 @@ namespace VeritasEngine
 		void SetIsPaused(bool isPaused);
 		bool IsInitialized() const;
 		float GetCurrentFps() const;
-		RenderingServices& GetRenderingServices() const;
-		ProcessManager& GetProcessManager() const;
-		ResourceManager& GetResourceManager() const;
+		IRenderingServices& GetRenderingServices() const;
+		IProcessManager& GetProcessManager() const;
+		IWorldSetup& GetWorldSetup() const;
+		IResourceManager& GetResourceManager() const;
 	private:
-		Engine();
-		~Engine();
-
 		struct Impl;
 		std::unique_ptr<Impl> m_impl;
 	};

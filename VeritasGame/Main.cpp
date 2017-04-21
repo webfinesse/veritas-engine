@@ -3,13 +3,14 @@
 #include <memory>
 #include <tchar.h>
 
+#include "../VeritasEngine/EngineFactory.h"
 #include "../VeritasEngine/Engine.h"
-#include "../VeritasEngine/ProcessManager.h"
-#include "../VeritasEngine/WorldSetup.h"
+#include "../VeritasEngine/IProcessManager.h"
+#include "../VeritasEngine/IWorldSetup.h"
 #include "../VeritasEngine/RenderingServices.h"
 #include "../VeritasEngine/Renderer.h"
 
-#include "../VeritasEngine/ResourceManager.h"
+#include "../VeritasEngine/IResourceManager.h"
 #include "../VeritasEngineBase/ResourceHandle.h"
 
 #include "RotateCameraProcess.h"
@@ -19,9 +20,15 @@
 #include <iostream>
 
 bool windowResizing = false;
+std::unique_ptr<Engine> engine{nullptr};
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	if(engine == nullptr)
+	{
+		return DefWindowProc(hwnd, uMsg, wParam, lParam);
+	}
+
 	switch (uMsg)
 	{
 	case WM_DESTROY:
@@ -29,39 +36,39 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		return 0;
 	case WM_KEYUP:
 		if (wParam == VK_SPACE) {
-			VeritasEngine::Engine::Instance().TogglePause();
+			engine->TogglePause();
 			return 0;
 		}
 		break;
 	case WM_ENTERSIZEMOVE:
-		VeritasEngine::Engine::Instance().SetIsPaused(true);
+		engine->SetIsPaused(true);
 		windowResizing = true;
 		break;
 	case WM_EXITSIZEMOVE:
-		VeritasEngine::Engine::Instance().SetIsPaused(false);
+		engine->SetIsPaused(false);
 		windowResizing = false;
 		break;
 	case WM_SIZE:
-		if (VeritasEngine::Engine::Instance().IsInitialized())
+		if (engine->IsInitialized())
 		{
 			auto clientWidth = LOWORD(lParam);
 			auto clientHeight = HIWORD(lParam);
 
 			if (wParam == SIZE_MINIMIZED)
 			{
-				VeritasEngine::Engine::Instance().SetIsPaused(true);
+				engine->SetIsPaused(true);
 			}
 			else if (wParam == SIZE_MAXIMIZED)
 			{
-				VeritasEngine::Engine::Instance().SetIsPaused(false);
-				VeritasEngine::Engine::Instance().Reinit(clientWidth, clientHeight);
+				engine->SetIsPaused(false);
+				engine->Reinit(clientWidth, clientHeight);
 			}
 			else if (wParam == SIZE_RESTORED)
 			{
 				if (windowResizing == false)
 				{
-					VeritasEngine::Engine::Instance().SetIsPaused(false);
-					VeritasEngine::Engine::Instance().Reinit(clientWidth, clientHeight);
+					engine->SetIsPaused(false);
+					engine->Reinit(clientWidth, clientHeight);
 				}
 			}
 		}
@@ -116,8 +123,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 	auto start = chrono::high_resolution_clock::now();
 
-	auto& engine = VeritasEngine::Engine::Instance();
-	engine.Init(hwnd, width, height);
+	engine = std::move(VeritasEngine::CreateEngine());
+	engine->Init(hwnd, width, height);
 
 	/*auto objectProcess = std::make_shared<RotateObjectProcess>(2);
 	engine.GetProcessManager().AttachProcess(objectProcess);
@@ -131,11 +138,11 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	std::string workingDirectory(wdBuffer);
 	workingDirectory += "\\Resources";
 
-	engine.GetResourceManager().Init(workingDirectory);
+	engine->GetResourceManager().Init(workingDirectory);
 
-	WorldSetup::LoadFile("Resources\\\\WorldSetup4.json");
+	engine->GetWorldSetup().LoadFile("Resources\\\\WorldSetup4.json");
 	auto cameraProcess = std::make_shared<RotateCameraProcess>(200.0f, 10s);
-	engine.GetProcessManager().AttachProcess(cameraProcess);
+	engine->GetProcessManager().AttachProcess(cameraProcess);
 
 	auto end = chrono::high_resolution_clock::now();
 
@@ -159,20 +166,20 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		}
 		else
 		{
-			engine.Loop();
+			engine->Loop();
 		}
 
 		if(loopCount > 2500)
 		{
 			wstring newTitle(L"FPS: ");
-			newTitle += std::to_wstring(engine.GetCurrentFps());
+			newTitle += std::to_wstring(engine->GetCurrentFps());
 
 			SetWindowText(hwnd, newTitle.c_str());
 			loopCount = 0;
 		}
 	}
 
-	engine.Shutdown();
+	engine->Shutdown();
 
 	return 0;
 }

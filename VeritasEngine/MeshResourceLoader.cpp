@@ -4,6 +4,9 @@
 #include "MeshInstance.h"
 #include "MeshSubset.h"
 #include "MeshNode.h"
+#include "IRenderingServices.h"
+#include "VertexBufferManager.h"
+#include "IndexBufferManager.h"
 
 #include "cereal/cereal.hpp"
 #include "cereal/archives/binary.hpp"
@@ -13,9 +16,30 @@
 #include "../VeritasEngineBase/ResourceHandle.h"
 #include "ResourceManager.h"
 
+struct VeritasEngine::MeshResourceLoader::Impl
+{
+	Impl(std::shared_ptr<IRenderingServices> renderingServices)
+		: m_renderingServices { renderingServices }
+	{
+		
+	}
+
+	std::shared_ptr<IRenderingServices> m_renderingServices;
+};
+
+VeritasEngine::MeshResourceLoader::MeshResourceLoader(std::shared_ptr<IRenderingServices> renderingServices)
+	: m_impl(std::make_unique<Impl>(renderingServices))
+{
+}
+
 VeritasEngine::MeshResourceLoader::~MeshResourceLoader() = default;
 
-void VeritasEngine::MeshResourceLoader::LoadResource(ResourceManager& manager, std::istream& data, ResourceHandle& handle)
+const char* VeritasEngine::MeshResourceLoader::GetExtension() const
+{
+	return ".vem";
+}
+
+void VeritasEngine::MeshResourceLoader::LoadResource(IResourceManager& manager, std::istream& data, ResourceHandle& handle)
 {
 	cereal::BinaryInputArchive archive(data);
 
@@ -29,11 +53,13 @@ void VeritasEngine::MeshResourceLoader::LoadResource(ResourceManager& manager, s
 	{
 		auto& instanceSubset = mesh.CreateSubset();
 
-		instanceSubset.SetVertices(info.m_vertexType, reinterpret_cast<unsigned char*>(&serializedSubset.m_verticies[0]), serializedSubset.m_verticies.size());
+		auto vertexBuffer = m_impl->m_renderingServices->GetVertexBufferManager().GetBuffer(info.m_vertexType);
+
+		instanceSubset.SetVertices(vertexBuffer.get(), reinterpret_cast<unsigned char*>(&serializedSubset.m_verticies[0]), serializedSubset.m_verticies.size());
 
 		if (serializedSubset.m_faces.size() > 0)
 		{
-			instanceSubset.SetIndicies(&serializedSubset.m_faces[0], serializedSubset.m_faces.size());
+			instanceSubset.SetIndicies(&m_impl->m_renderingServices->GetIndexBufferManager().GetBuffer(), &serializedSubset.m_faces[0], serializedSubset.m_faces.size());
 		}
 
 		auto material = manager.GetResource(serializedSubset.m_materialId);

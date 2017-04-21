@@ -1,10 +1,12 @@
-#ifndef H_DESERIALIZERFACTORY
-#define H_DESERIALIZERFACTORY
+#pragma once
 
 #include <algorithm>
 #include <vector>
 
 #include "MeshInstance.h"
+#include "IRenderingServices.h"
+#include "VertexBufferManager.h"
+#include "VertexBuffer.h"
 
 #include "../VeritasEngineBase/Light.h"
 #include "../VeritasEngineBase/MathTypes.h"
@@ -15,6 +17,7 @@
 #include "Vertex.h"
 #include "Engine.h"
 #include "ResourceManager.h"
+#include "IndexBufferManager.h"
 
 
 namespace VeritasEngine
@@ -23,7 +26,7 @@ namespace VeritasEngine
 	class DeserializerFactory
 	{
 	public:
-		using FUNCTIONTYPE = T(*)(JsonValue& values);
+		using FUNCTIONTYPE = T(*)(Engine& engine, JsonValue& values);
 
 		static FUNCTIONTYPE GetDeserializer()
 		{
@@ -37,7 +40,7 @@ namespace VeritasEngine
 	class VeritasEngine::DeserializerFactory < VeritasEngine::Matrix4x4 >
 	{
 	public:
-		using FUNCTIONTYPE = VeritasEngine::Matrix4x4(*)(JsonValue& values);
+		using FUNCTIONTYPE = VeritasEngine::Matrix4x4(*)(Engine& engine, JsonValue& values);
 
 		static FUNCTIONTYPE GetDeserializer()
 		{
@@ -45,7 +48,7 @@ namespace VeritasEngine
 		}
 
 	private:
-		static VeritasEngine::Matrix4x4 Deserialize(JsonValue& values)
+		static VeritasEngine::Matrix4x4 Deserialize(Engine& engine, JsonValue& values)
 		{
 			Matrix4x4 m;
 
@@ -77,7 +80,7 @@ namespace VeritasEngine
 	class VeritasEngine::DeserializerFactory < VeritasEngine::MeshInstance >
 	{
 	public:
-		using FUNCTIONTYPE = MeshInstance(*)(JsonValue& values);
+		using FUNCTIONTYPE = MeshInstance(*)(Engine& engine, JsonValue& values);
 
 		static FUNCTIONTYPE GetDeserializer()
 		{
@@ -85,7 +88,7 @@ namespace VeritasEngine
 		}
 
 	private:
-		static MeshInstance Deserialize(JsonValue& values)
+		static MeshInstance Deserialize(Engine& engine, JsonValue& values)
 		{
 			MeshInstance m{};
 
@@ -114,7 +117,7 @@ namespace VeritasEngine
 			{
 				auto& subset = m.CreateSubset();
 
-				subset.SetVertices(format, reinterpret_cast<unsigned char*>(&verticies[0]), verticies.size());
+				subset.SetVertices(engine.GetRenderingServices().GetVertexBufferManager().GetBuffer(format).get(), reinterpret_cast<unsigned char*>(&verticies[0]), verticies.size());
 
 				std::vector<unsigned int> indicies;
 
@@ -124,7 +127,7 @@ namespace VeritasEngine
 					indicies.push_back(value);
 				}
 
-				subset.SetIndicies(&indicies[0], indicies.size());
+				subset.SetIndicies(&engine.GetRenderingServices().GetIndexBufferManager().GetBuffer(), &indicies[0], indicies.size());
 			}
 
 			return m;
@@ -135,7 +138,7 @@ namespace VeritasEngine
 	class VeritasEngine::DeserializerFactory < VeritasEngine::SceneNodeType >
 	{
 	public:
-		using FUNCTIONTYPE = SceneNodeType(*)(JsonValue& values);
+		using FUNCTIONTYPE = SceneNodeType(*)(Engine& engine, JsonValue& values);
 
 		static FUNCTIONTYPE GetDeserializer()
 		{
@@ -143,7 +146,7 @@ namespace VeritasEngine
 		}
 
 	private:
-		static SceneNodeType Deserialize(JsonValue& values)
+		static SceneNodeType Deserialize(Engine& engine, JsonValue& values)
 		{
 			auto returnValue = SceneNodeType::None;
 
@@ -175,7 +178,7 @@ namespace VeritasEngine
 	class VeritasEngine::DeserializerFactory < VeritasEngine::Float3 >
 	{
 	public:
-		using FUNCTIONTYPE = VeritasEngine::Float3(*)(JsonValue& values);
+		using FUNCTIONTYPE = VeritasEngine::Float3(*)(Engine& engine, JsonValue& values);
 
 		static FUNCTIONTYPE GetDeserializer()
 		{
@@ -183,7 +186,7 @@ namespace VeritasEngine
 		}
 
 	private:
-		static VeritasEngine::Float3 Deserialize(JsonValue& values)
+		static VeritasEngine::Float3 Deserialize(Engine& engine, JsonValue& values)
 		{
 			VeritasEngine::Float3 returnValue(values.find("x")->second.get_value<float>(), values.find("y")->second.get_value<float>(), values.find("z")->second.get_value<float>());
 
@@ -195,7 +198,7 @@ namespace VeritasEngine
 	class VeritasEngine::DeserializerFactory < VeritasEngine::Float4 >
 	{
 	public:
-		using FUNCTIONTYPE = VeritasEngine::Float4(*)(JsonValue& values);
+		using FUNCTIONTYPE = VeritasEngine::Float4(*)(Engine& engine, JsonValue& values);
 
 		static FUNCTIONTYPE GetDeserializer()
 		{
@@ -203,7 +206,7 @@ namespace VeritasEngine
 		}
 
 	private:
-		static VeritasEngine::Float4 Deserialize(JsonValue& values)
+		static VeritasEngine::Float4 Deserialize(Engine& engine, JsonValue& values)
 		{
 			VeritasEngine::Float4 returnValue(values.find("x")->second.get_value<float>(), values.find("y")->second.get_value<float>(), values.find("z")->second.get_value<float>(), values.find("w")->second.get_value<float>());
 
@@ -215,7 +218,7 @@ namespace VeritasEngine
 	class VeritasEngine::DeserializerFactory< VeritasEngine::Light >
 	{
 	public:
-		using FUNCTIONTYPE = Light(*)(JsonValue& values);
+		using FUNCTIONTYPE = Light(*)(Engine& engine, JsonValue& values);
 
 		static FUNCTIONTYPE GetDeserializer()
 		{
@@ -224,13 +227,13 @@ namespace VeritasEngine
 
 	private:
 		template <typename T>
-		static T GetDeserialzedValue(JsonValue& values, std::string jsonTag, T defaultValue)
+		static T GetDeserialzedValue(Engine& engine, JsonValue& values, std::string jsonTag, T defaultValue)
 		{
 			auto const& value = values.find(jsonTag);
 
 			if(value != values.not_found())
 			{
-				return DeserializerFactory<T>::GetDeserializer()(value->second);
+				return DeserializerFactory<T>::GetDeserializer()(engine, value->second);
 			}
 			else
 			{
@@ -253,13 +256,13 @@ namespace VeritasEngine
 			}
 		}
 
-		static VeritasEngine::Light Deserialize(JsonValue& values)
+		static VeritasEngine::Light Deserialize(Engine& engine, JsonValue& values)
 		{
 			VeritasEngine::Light returnValue;
 
-			returnValue.Position = GetDeserialzedValue(values, "position", Float4());
-			returnValue.Direction = GetDeserialzedValue(values, "direction", Float4());
-			returnValue.Color = GetDeserialzedValue(values, "color", Float4());
+			returnValue.Position = GetDeserialzedValue(engine, values, "position", Float4());
+			returnValue.Direction = GetDeserialzedValue(engine, values, "direction", Float4());
+			returnValue.Color = GetDeserialzedValue(engine, values, "color", Float4());
 			returnValue.SpotAngle = GetValue(values, "spotAngle", 0.0f);
 			returnValue.ConstantAttenuation = GetValue(values, "constantattenuation", 0.0f);
 			returnValue.QuadraticAttenuation = GetValue(values, "quadraticattenuation", 0.0f);
@@ -292,7 +295,7 @@ namespace VeritasEngine
 	class VeritasEngine::DeserializerFactory < VeritasEngine::ResourceHandle* >
 	{
 	public:
-		using FUNCTIONTYPE = ResourceHandle*(*)(JsonValue& values);
+		using FUNCTIONTYPE = ResourceHandle*(*)(Engine& engine, JsonValue& values);
 
 		static FUNCTIONTYPE GetDeserializer()
 		{
@@ -300,15 +303,12 @@ namespace VeritasEngine
 		}
 
 	private:
-		static ResourceHandle* Deserialize(JsonValue& values)
+		static ResourceHandle* Deserialize(Engine& engine, JsonValue& values)
 		{
 			auto resourceId = values.get_value<std::string>();
-			auto resource = Engine::Instance().GetResourceManager().GetResource(resourceId);
+			auto resource = engine.GetResourceManager().GetResource(resourceId);
 
 			return resource;
 		}
 	};
 }
-
-
-#endif

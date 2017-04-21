@@ -3,25 +3,21 @@
 #include "../VeritasEngineBase/ResourceHandle.h"
 
 #include "VertexBuffer.h"
-#include "VertexBufferManager.h"
-#include "IndexBufferManager.h"
 #include "IndexBuffer.h"
 #include "BufferIndicies.h"
-#include "Engine.h"
-#include "RenderingServices.h"
-#include "IndexBufferManager.h"
 
 struct VeritasEngine::MeshSubset::Impl : public VeritasEngine::SmallObject<>
 {
 	Impl()
-		: m_vertexBuffer{ nullptr }, m_vertexBufferIndicies{ 0, 0 }, m_indexBufferIndicies { 0, 0 }
+		: m_vertexBuffer{ nullptr }, m_indexBuffer{ nullptr }, m_vertexBufferIndicies { 0, 0 }, m_indexBufferIndicies{ 0, 0 }
 	{
 		
 	}
 
-	std::shared_ptr<VeritasEngine::VertexBuffer> m_vertexBuffer;
-	VeritasEngine::BufferIndicies m_vertexBufferIndicies;
-	VeritasEngine::BufferIndicies m_indexBufferIndicies;
+	VertexBuffer* m_vertexBuffer;
+	IndexBuffer* m_indexBuffer;
+	BufferIndicies m_vertexBufferIndicies;
+	BufferIndicies m_indexBufferIndicies;
 	const ResourceHandle* m_material;
 };
 
@@ -36,9 +32,9 @@ VeritasEngine::MeshSubset::~MeshSubset()
 
 }
 
-void VeritasEngine::MeshSubset::SetVertices(VertexTypeHandle handle, unsigned char* verticies, unsigned int numOfVertices)
+void VeritasEngine::MeshSubset::SetVertices(VertexBuffer* vertexBuffer, unsigned char* verticies, unsigned int numOfVertices)
 {
-	m_impl->m_vertexBuffer = VeritasEngine::Engine::Instance().GetRenderingServices().GetVertexBufferManager().GetBuffer(handle);
+	m_impl->m_vertexBuffer = vertexBuffer;
 	m_impl->m_vertexBufferIndicies = m_impl->m_vertexBuffer->AddVerticies(verticies, numOfVertices);
 }
 
@@ -61,9 +57,10 @@ unsigned int VeritasEngine::MeshSubset::GetVertexBufferBaseIndex() const {
 	return m_impl->m_vertexBufferIndicies.StartIndex;
 }
 
-void VeritasEngine::MeshSubset::SetIndicies(unsigned int* indicies, unsigned int numOfIndicies)
+void VeritasEngine::MeshSubset::SetIndicies(IndexBuffer* indexBuffer, unsigned int* indicies, unsigned int numOfIndicies)
 {
-	m_impl->m_indexBufferIndicies = VeritasEngine::Engine::Instance().GetRenderingServices().GetIndexBufferManager().GetBuffer().AddIndicies(indicies, numOfIndicies);
+	m_impl->m_indexBuffer = indexBuffer;
+	m_impl->m_indexBufferIndicies = indexBuffer->AddIndicies(indicies, numOfIndicies);
 }
 
 unsigned int VeritasEngine::MeshSubset::GetIndexOffset() const
@@ -78,8 +75,7 @@ unsigned int VeritasEngine::MeshSubset::IndexCount() const
 
 VeritasEngine::IndexBuffer& VeritasEngine::MeshSubset::GetIndexBuffer() const
 {
-	auto& manager = VeritasEngine::Engine::Instance().GetRenderingServices().GetIndexBufferManager();
-	return manager.GetBuffer();
+	return *m_impl->m_indexBuffer;
 }
 
 const VeritasEngine::ResourceHandle* const VeritasEngine::MeshSubset::GetMaterial() const

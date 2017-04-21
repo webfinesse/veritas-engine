@@ -10,7 +10,8 @@ namespace VeritasEngine
 		SkeletonResourceLoader();
 		~SkeletonResourceLoader() override;
 
-		void LoadResource(ResourceManager& manager, std::istream& data, ResourceHandle& handle) override;
+		const char* GetExtension() const override;
+		void LoadResource(IResourceManager& manager, std::istream& data, ResourceHandle& handle) override;
 	};
 }
 
