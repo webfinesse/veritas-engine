@@ -1,19 +1,20 @@
 #pragma once
 
 #include <memory>
-#include "ClockUnits.h"
+#include "SmallObject.h"
+#include "IGameClock.h"
 
 namespace VeritasEngine
 {
-	class GameClock
+	class GameClock: public SmallObject<>, public IGameClock
 	{
 	public:
-		explicit GameClock();
-		~GameClock();
+		GameClock();
+		~GameClock() override;
 
-		TimeDuration GetDelta();
-		bool GetIsPaused() const;
-		void SetIsPaused(bool isPaused);
+		TimeDuration GetDelta() override;
+		bool GetIsPaused() const override;
+		void SetIsPaused(bool isPaused) override;
 
 	private:
 		struct Impl;

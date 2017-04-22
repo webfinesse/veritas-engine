@@ -1,31 +1,36 @@
 #include "Engine.h"
-#include "ProcessManager.h"
-#include "Vertex.h"
-#include "RenderingServices.h"
+
+#include "IRenderingServices.h"
+#include "IWorldSetup.h"
+#include "IProcessManager.h"
+#include "IResourceManager.h"
+#include "IGameClock.h"
+
 #include "Renderer.h"
 #include "VertexBufferManager.h"
 #include "Scene.h"
-#include "IWorldSetup.h"
-
 #include "MeshShader.h"
-#include "ResourceManager.h"
+
+#include "SkinnedVertex.h"
+#include "Vertex.h"
 
 #include "RendererProperties.h"
-
-#include "GameClock.h"
-#include "SkinnedVertex.h"
 
 using namespace std;
 
 struct VeritasEngine::Engine::Impl : public VeritasEngine::SmallObject<>
 {
-	Impl(shared_ptr<IProcessManager> processManager, shared_ptr<IWorldSetup> worldSetup, shared_ptr<IRenderingServices> renderingServices, shared_ptr<IResourceManager> resourceManager)
-		: m_processManager{ std::move(processManager) }, m_worldSetup{ std::move(worldSetup) }, m_renderingServices{ std::move(renderingServices) }, m_resourceManager{ std::move(resourceManager) }, m_isInitialized { false }
+	Impl(shared_ptr<IProcessManager> processManager, 
+		 shared_ptr<IWorldSetup> worldSetup, 
+		 shared_ptr<IRenderingServices> renderingServices, 
+	     shared_ptr<IResourceManager> resourceManager,
+		 shared_ptr<IGameClock> gameClock)
+		: m_gameClock{ std::move(gameClock) }, m_processManager{ std::move(processManager) }, m_worldSetup{ std::move(worldSetup) }, m_resourceManager{ std::move(resourceManager) }, m_renderingServices{ std::move(renderingServices) }, m_isInitialized { false }
 	{
 
 	}
 
-	shared_ptr<GameClock> m_gameClock;
+	shared_ptr<IGameClock> m_gameClock;
 	shared_ptr<IProcessManager> m_processManager;
 	shared_ptr<IWorldSetup> m_worldSetup;
 	shared_ptr<IResourceManager> m_resourceManager;
@@ -35,8 +40,12 @@ struct VeritasEngine::Engine::Impl : public VeritasEngine::SmallObject<>
 	bool m_isInitialized;
 };
 
-VeritasEngine::Engine::Engine(shared_ptr<IProcessManager> processManager, shared_ptr<IWorldSetup> worldSetup, shared_ptr<IRenderingServices> renderingServices, shared_ptr<IResourceManager> resourceManager)
-	: m_impl(std::make_unique<Impl>(processManager, worldSetup, renderingServices, resourceManager))
+VeritasEngine::Engine::Engine(shared_ptr<IProcessManager> processManager, 
+							  shared_ptr<IWorldSetup> worldSetup, 
+						      shared_ptr<IRenderingServices> renderingServices, 
+							  shared_ptr<IResourceManager> resourceManager,
+						      shared_ptr<IGameClock> gameClock)
+	: m_impl(std::make_unique<Impl>(processManager, worldSetup, renderingServices, resourceManager, gameClock))
 {
 	
 }
@@ -56,7 +65,11 @@ VeritasEngine::Engine& VeritasEngine::Engine::operator=(Engine&& other) noexcept
 	return *this;
 }
 
-VeritasEngine::Engine::~Engine() = default;
+VeritasEngine::Engine::~Engine()
+{
+	VeritasEngine::RendererProperties::ResourcedMesh.Clear();
+	VeritasEngine::RendererProperties::ObjectMesh.Clear();
+};
 
 VeritasEngine::IRenderingServices& VeritasEngine::Engine::GetRenderingServices() const
 {
@@ -80,8 +93,6 @@ VeritasEngine::IResourceManager& VeritasEngine::Engine::GetResourceManager() con
 
 void VeritasEngine::Engine::Init(void* osData, unsigned int bufferWidth, unsigned int bufferHeight)
 {
-	m_impl->m_gameClock = std::make_unique<GameClock>();
-	
 	m_impl->m_worldSetup->Init(*this);
 	m_impl->m_renderingServices->GetRenderer().Init(osData, bufferWidth, bufferHeight);
 
@@ -137,15 +148,4 @@ bool VeritasEngine::Engine::IsInitialized() const
 float VeritasEngine::Engine::GetCurrentFps() const
 {
 	return m_impl->m_currentFps;
-}
-
-void VeritasEngine::Engine::Shutdown()
-{
-	m_impl->m_gameClock = nullptr;
-	m_impl->m_processManager = nullptr;
-	m_impl->m_resourceManager = nullptr;
-	m_impl->m_renderingServices = nullptr;
-
-	VeritasEngine::RendererProperties::ResourcedMesh.Clear();
-	VeritasEngine::RendererProperties::ObjectMesh.Clear();
 }

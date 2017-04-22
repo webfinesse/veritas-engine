@@ -215,6 +215,7 @@
     <ClInclude Include="EngineFactory.h" />
     <ClInclude Include="GameClock.h" />
     <ClInclude Include="IDeserializeMapping.h" />
+    <ClInclude Include="IGameClock.h" />
     <ClInclude Include="IProcessManager.h" />
     <ClInclude Include="IRenderingServices.h" />
     <ClInclude Include="IResourceManager.h" />

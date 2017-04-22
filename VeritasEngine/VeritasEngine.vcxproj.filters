@@ -270,5 +270,8 @@
     <ClInclude Include="IDeserializeMapping.h">
       <Filter>Serialization</Filter>
     </ClInclude>
+    <ClInclude Include="IGameClock.h">
+      <Filter>Core</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

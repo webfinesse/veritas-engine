@@ -17,18 +17,23 @@ namespace VeritasEngine
 	class IProcessManager;
 	class IResourceManager;
 	class IWorldSetup;
+	class IGameClock;
 
 	class EXPORT Engine : public SmallObject<>
 	{
 	public:
-		Engine(shared_ptr<IProcessManager> processManager, shared_ptr<IWorldSetup> worldSetup, shared_ptr<IRenderingServices> renderingServices, shared_ptr<IResourceManager> resourceManager);
+		Engine(shared_ptr<IProcessManager> processManager, 
+			   shared_ptr<IWorldSetup> worldSetup, 
+			   shared_ptr<IRenderingServices> renderingServices, 
+			   shared_ptr<IResourceManager> resourceManager,
+			   shared_ptr<IGameClock> gameClock);
+
 		Engine(Engine&& other) noexcept;
 		Engine& operator=(Engine&& other) noexcept;
 		~Engine();
 
 		void Init(void* osData, unsigned int bufferWidth, unsigned int bufferHeight);
 		void Reinit(unsigned int bufferWidth, unsigned int bufferHeight);
-		void Shutdown();
 		void Loop();
 		void TogglePause();
 		void SetIsPaused(bool isPaused);

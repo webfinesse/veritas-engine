@@ -4,10 +4,8 @@
 
 #include "ProcessManager.h"
 
-#include "IDeserializeMapping.h"
 #include "DeserializeMapping.h"
 
-#include "Engine.h"
 #include "RenderingServices.h"
 
 #include "ResourceManager.h"
@@ -17,16 +15,15 @@
 #include "TextureResourceLoader.h"
 #include "SkeletonResourceLoader.h"
 
-#include "SmallObject.h"
-
-#include "IWorldSetup.h"
 #include "WorldSetup.h"
+#include "GameClock.h"
 
 namespace di = boost::di;
 
 inline auto CreateEngineDependencyInjector()
 {
 	return di::make_injector(
+		di::bind<VeritasEngine::IGameClock>().to<VeritasEngine::GameClock>(),
 		di::bind<VeritasEngine::IProcessManager>().to<VeritasEngine::ProcessManager>(),
 		di::bind<VeritasEngine::IDeserializeMapping>().to<VeritasEngine::DeserializeMapping>(),
 		di::bind<VeritasEngine::IWorldSetup>().to<VeritasEngine::WorldSetup>(),
