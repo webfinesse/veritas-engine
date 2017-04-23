@@ -22,6 +22,7 @@
     <ClInclude Include="DDSTextureLoader\DDSTextureLoader.h" />
     <ClInclude Include="DirectXTextureData.h" />
     <ClInclude Include="ExternalDirectXVariables.h" />
+    <ClInclude Include="WindowsDependencyInjector.h" />
     <ClInclude Include="WindowsUtil.h" />
   </ItemGroup>
   <ItemGroup>

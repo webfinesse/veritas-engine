@@ -7,11 +7,11 @@
 
 struct VeritasEngine::RenderingServices::Impl : public VeritasEngine::SmallObject<>
 {
-	Impl()
+	Impl(std::shared_ptr<IScene> scene)
 		: m_renderer{ std::make_unique<Renderer>() },
 		m_vertexBufferManager{ std::make_unique<VertexBufferManager>() },
 		m_indexBufferManager { std::make_unique<IndexBufferManager>() },
-		m_scene { std::make_unique<Scene>() }
+		m_scene { scene }
 	{
 
 	}
@@ -19,16 +19,31 @@ struct VeritasEngine::RenderingServices::Impl : public VeritasEngine::SmallObjec
 	std::unique_ptr<Renderer> m_renderer;
 	std::unique_ptr<VertexBufferManager> m_vertexBufferManager;
 	std::unique_ptr<IndexBufferManager> m_indexBufferManager;
-	std::unique_ptr<Scene> m_scene;
+	std::shared_ptr<IScene> m_scene;
 };
 
-VeritasEngine::RenderingServices::RenderingServices()
-	: m_impl { std::make_unique<Impl>() }
+VeritasEngine::RenderingServices::RenderingServices(std::shared_ptr<IScene> scene)
+	: m_impl { std::make_unique<Impl>(scene) }
 {
 
 }
 
 VeritasEngine::RenderingServices::~RenderingServices() = default;
+
+VeritasEngine::RenderingServices::RenderingServices(RenderingServices&& other) noexcept
+	: m_impl{ std::move(other.m_impl) }
+{
+}
+
+VeritasEngine::RenderingServices& VeritasEngine::RenderingServices::operator=(RenderingServices&& other) noexcept
+{
+	if(this != &other)
+	{
+		m_impl = std::move(other.m_impl);
+	}
+
+	return *this;
+}
 
 VeritasEngine::VertexBufferManager& VeritasEngine::RenderingServices::GetVertexBufferManager() const
 {
@@ -40,7 +55,7 @@ VeritasEngine::IndexBufferManager& VeritasEngine::RenderingServices::GetIndexBuf
 	return *m_impl->m_indexBufferManager;
 }
 
-VeritasEngine::Scene& VeritasEngine::RenderingServices::GetScene() const
+VeritasEngine::IScene& VeritasEngine::RenderingServices::GetScene() const
 {
 	return *m_impl->m_scene;
 }

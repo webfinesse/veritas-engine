@@ -273,5 +273,8 @@
     <ClInclude Include="IGameClock.h">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="IScene.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

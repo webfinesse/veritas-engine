@@ -2,9 +2,9 @@
 #define H_SCENE
 
 #include <memory>
-#include "../VeritasEngineBase/GameObjectHandle.h"
 #include "SmallObject.h"
-#include "DynamicLibraryHelper.h"
+
+#include "IScene.h"
 
 #pragma warning(push)
 #pragma warning(disable: 4251)
@@ -14,28 +14,25 @@ namespace VeritasEngine
 	class Renderer;
 	class IMeshShader;
 
-	class EXPORT Scene: public SmallObject<>
+	class Scene: public SmallObject<>, public IScene
 	{
 	public:
 		Scene();
-		~Scene();
+		~Scene() override;
 
-		void OnUpdate(const float deltaTime);
-		void OnRender(Renderer& renderer);
+		Scene(Scene&& other) noexcept;
+		Scene& operator=(Scene&& other) noexcept;
 
-		void SetMeshShader(std::shared_ptr<IMeshShader> shader);
+		void OnUpdate(const float deltaTime) override;
+		void OnRender(Renderer& renderer) override;
 
-		void Add(const GameObjectHandle handle);
-		void AddChild(const GameObjectHandle parentHandle, const GameObjectHandle child);
+		void SetMeshShader(std::shared_ptr<IMeshShader> shader) override;
+
+		void Add(const GameObjectHandle handle) override;
+		void AddChild(const GameObjectHandle parentHandle, const GameObjectHandle child) override;
 
 
 	private:
-		Scene(const Scene& rhs) = delete;
-		Scene& operator=(const Scene& rhs) = delete;
-
-		Scene(const Scene&& rhs) = delete;
-		Scene& operator=(const Scene&& rhs) = delete;
-
 		struct Impl;
 		std::unique_ptr<Impl> m_impl;
 	};

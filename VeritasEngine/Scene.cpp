@@ -148,6 +148,22 @@ VeritasEngine::Scene::~Scene()
 	m_impl->m_currentShader->Deactivate();
 }
 
+VeritasEngine::Scene::Scene(Scene&& other) noexcept
+	: m_impl { std::move(other.m_impl) }
+{
+
+}
+
+VeritasEngine::Scene& VeritasEngine::Scene::operator=(Scene&& other) noexcept
+{
+	if(this != &other)
+	{
+		m_impl = std::move(other.m_impl);
+	}
+
+	return *this;
+}
+
 void VeritasEngine::Scene::OnUpdate(float deltaTime)
 {
 

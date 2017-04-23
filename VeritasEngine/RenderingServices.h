@@ -8,14 +8,20 @@
 
 namespace VeritasEngine
 {
+	class IScene;
+
 	class RenderingServices : public SmallObject<>, public IRenderingServices
 	{
 	public:
-		RenderingServices();
+		RenderingServices(std::shared_ptr<IScene> scene);
 		~RenderingServices() override;
+
+		RenderingServices(RenderingServices&& other) noexcept;
+		RenderingServices& operator=(RenderingServices&& other) noexcept;
+
 		VertexBufferManager& GetVertexBufferManager() const override;
 		IndexBufferManager& GetIndexBufferManager() const override;
-		Scene& GetScene() const override;
+		IScene& GetScene() const override;
 		Renderer& GetRenderer() const override;
 	private:
 		struct Impl;
