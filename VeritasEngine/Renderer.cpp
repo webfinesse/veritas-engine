@@ -1,6 +1,6 @@
 #include "Renderer.h"
 
-#include "VertexBuffer.h"
+#include "IVertexBuffer.h"
 #include "IIndexBuffer.h"
 #include "RendererProperties.h"
 

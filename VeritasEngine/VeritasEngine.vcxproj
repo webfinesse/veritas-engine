@@ -200,7 +200,6 @@
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneGraphProperties.cpp" />
     <ClCompile Include="SceneNode.cpp" />
-    <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="VertexBufferManager.cpp" />
     <ClCompile Include="WorldSetup.cpp" />
   </ItemGroup>
@@ -219,6 +218,8 @@
     <ClInclude Include="IRenderingServices.h" />
     <ClInclude Include="IResourceManager.h" />
     <ClInclude Include="IScene.h" />
+    <ClInclude Include="IVertexBuffer.h" />
+    <ClInclude Include="IVertexBufferFactory.h" />
     <ClInclude Include="IVertexBufferManager.h" />
     <ClInclude Include="IWorldSetup.h" />
     <ClInclude Include="Skeleton.h" />
@@ -255,7 +256,6 @@
     <ClInclude Include="SceneNode.h" />
     <ClInclude Include="SceneNodeType.h" />
     <ClInclude Include="Vertex.h" />
-    <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="VertexBufferManager.h" />
     <ClInclude Include="VertexTypeHandle.h" />
     <ClInclude Include="WorldSetup.h" />

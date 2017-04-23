@@ -7,7 +7,7 @@
 
 namespace VeritasEngine
 {
-	class VertexBuffer;
+	class IVertexBuffer;
 
 	class EXPORT IVertexBufferManager
 	{
@@ -15,6 +15,6 @@ namespace VeritasEngine
 		virtual ~IVertexBufferManager() = default;
 
 		virtual void RegisterVertexFormat(VertexTypeHandle handle, size_t sizeOfVertex) = 0;
-		virtual std::shared_ptr<VeritasEngine::VertexBuffer> GetBuffer(VertexTypeHandle handle) const = 0;
+		virtual VeritasEngine::IVertexBuffer* GetBuffer(VertexTypeHandle handle) const = 0;
 	};
 }

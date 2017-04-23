@@ -6,7 +6,7 @@
 #include "MeshInstance.h"
 #include "IRenderingServices.h"
 #include "VertexBufferManager.h"
-#include "VertexBuffer.h"
+#include "IVertexBuffer.h"
 
 #include "../VeritasEngineBase/Light.h"
 #include "../VeritasEngineBase/MathTypes.h"
@@ -117,7 +117,7 @@ namespace VeritasEngine
 			{
 				auto& subset = m.CreateSubset();
 
-				subset.SetVertices(engine.GetRenderingServices().GetVertexBufferManager().GetBuffer(format).get(), reinterpret_cast<unsigned char*>(&verticies[0]), verticies.size());
+				subset.SetVertices(engine.GetRenderingServices().GetVertexBufferManager().GetBuffer(format), reinterpret_cast<unsigned char*>(&verticies[0]), verticies.size());
 
 				std::vector<unsigned int> indicies;
 

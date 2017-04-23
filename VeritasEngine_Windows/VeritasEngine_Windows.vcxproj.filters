@@ -36,6 +36,12 @@
     <ClInclude Include="IndexBufferImpl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="VertexBufferImpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexBufferFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RendererImpl.cpp">
@@ -54,6 +60,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DDSTextureLoader\DDSTextureLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexBufferFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

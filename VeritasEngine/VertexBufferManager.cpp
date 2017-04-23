@@ -1,33 +1,35 @@
 #include "VertexBufferManager.h"
-#include "VertexBuffer.h"
+#include "IVertexBuffer.h"
 #include "VertexTypeHandle.h"
+#include "IVertexBufferFactory.h"
 #include "../Includes/AssocVector/AssocVector.hpp"
 
 struct VeritasEngine::VertexBufferManager::Impl: public VeritasEngine::SmallObject<>
 {
-	Impl()
-		: m_buffers{}
+	Impl(std::shared_ptr<IVertexBufferFactory> factory)
+		: m_factory{ factory }, m_buffers {}
 	{
 
 	}
 
-	AssocVector<VertexTypeHandle, std::shared_ptr<VertexBuffer>> m_buffers;
+	std::shared_ptr<IVertexBufferFactory> m_factory;
+	AssocVector<VertexTypeHandle, std::shared_ptr<IVertexBuffer>> m_buffers;
 };
 
 void VeritasEngine::VertexBufferManager::RegisterVertexFormat(VertexTypeHandle handle, size_t sizeOfVertex)
 {
-	auto buffer = std::make_shared<VertexBuffer>(sizeOfVertex);
+	auto buffer = m_impl->m_factory->Create(sizeOfVertex);
 
 	m_impl->m_buffers[handle] = buffer;
 }
 
-std::shared_ptr<VeritasEngine::VertexBuffer> VeritasEngine::VertexBufferManager::GetBuffer(VertexTypeHandle handle) const
+VeritasEngine::IVertexBuffer* VeritasEngine::VertexBufferManager::GetBuffer(VertexTypeHandle handle) const
 {
 	auto find = m_impl->m_buffers.find(handle);
 
 	if (find != m_impl->m_buffers.end())
 	{
-		return find->second;
+		return find->second.get();
 	}
 	else
 	{
@@ -35,10 +37,26 @@ std::shared_ptr<VeritasEngine::VertexBuffer> VeritasEngine::VertexBufferManager:
 	}
 }
 
-VeritasEngine::VertexBufferManager::VertexBufferManager()
-	: m_impl(std::make_unique<Impl>())
+VeritasEngine::VertexBufferManager::VertexBufferManager(std::shared_ptr<IVertexBufferFactory> factory)
+	: m_impl(std::make_unique<Impl>(factory))
+{
+	
+}
+
+VeritasEngine::VertexBufferManager::VertexBufferManager(VertexBufferManager&& other) noexcept
+	: m_impl{ std::move(other.m_impl) }
 {
 	
 }
 
 VeritasEngine::VertexBufferManager::~VertexBufferManager() = default;
+
+VeritasEngine::VertexBufferManager& VeritasEngine::VertexBufferManager::operator=(VertexBufferManager&& other) noexcept
+{
+	if(this != &other)
+	{
+		m_impl = std::move(other.m_impl);
+	}
+
+	return *this;
+}

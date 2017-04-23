@@ -37,7 +37,6 @@
     <ClInclude Include="ResourceId.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="TextureResourceLoaderImpl.h" />
-    <ClInclude Include="VertexBufferImpl.h" />
     <ClInclude Include="zip_file.hpp" />
   </ItemGroup>
   <ItemGroup>

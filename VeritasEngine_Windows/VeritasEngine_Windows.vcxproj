@@ -23,6 +23,8 @@
     <ClInclude Include="DirectXTextureData.h" />
     <ClInclude Include="ExternalDirectXVariables.h" />
     <ClInclude Include="IndexBufferImpl.h" />
+    <ClInclude Include="VertexBufferFactory.h" />
+    <ClInclude Include="VertexBufferImpl.h" />
     <ClInclude Include="WindowsDependencyInjector.h" />
     <ClInclude Include="WindowsUtil.h" />
   </ItemGroup>
@@ -32,6 +34,7 @@
     <ClCompile Include="MeshShaderImpl.cpp" />
     <ClCompile Include="RendererImpl.cpp" />
     <ClCompile Include="TextureResourceLoaderImpl.cpp" />
+    <ClCompile Include="VertexBufferFactory.cpp" />
     <ClCompile Include="VertexBufferImpl.cpp" />
   </ItemGroup>
   <ItemGroup>

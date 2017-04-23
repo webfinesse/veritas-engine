@@ -6,5 +6,5 @@
 
 std::unique_ptr<VeritasEngine::Engine> VeritasEngine::CreateEngine()
 {
-	return di::make_injector(CreateEngineDependencyInjector(), CreateWindowsWindowsDependencyInjector()).create<unique_ptr<Engine>>();
+	return di::make_injector(CreateWindowsWindowsDependencyInjector(), CreateEngineDependencyInjector()).create<unique_ptr<Engine>>();
 }

@@ -39,9 +39,6 @@
     <ClInclude Include="RendererImpl.h">
       <Filter>Platform Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VertexBufferImpl.h">
-      <Filter>Platform Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="MathTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>

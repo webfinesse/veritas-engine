@@ -61,9 +61,6 @@
     <ClCompile Include="SceneNode.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="VertexBuffer.cpp">
-      <Filter>Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="VertexBufferManager.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
@@ -177,9 +174,6 @@
     <ClInclude Include="Vertex.h">
       <Filter>Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="VertexBuffer.h">
-      <Filter>Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="VertexBufferManager.h">
       <Filter>Rendering</Filter>
     </ClInclude>
@@ -268,6 +262,12 @@
       <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="IVertexBufferManager.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="IVertexBuffer.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="IVertexBufferFactory.h">
       <Filter>Rendering</Filter>
     </ClInclude>
   </ItemGroup>

@@ -59,7 +59,7 @@ void VeritasEngine::AnimatedMeshResourceLoader::LoadResource(IResourceManager& m
 
 		auto vertexBuffer = m_impl->m_renderingServices->GetVertexBufferManager().GetBuffer(info.m_vertexType);
 
-		instanceSubset.SetVertices(vertexBuffer.get(), reinterpret_cast<unsigned char*>(&serializedSubset.m_verticies[0]), serializedSubset.m_verticies.size());
+		instanceSubset.SetVertices(vertexBuffer, reinterpret_cast<unsigned char*>(&serializedSubset.m_verticies[0]), serializedSubset.m_verticies.size());
 
 		if (serializedSubset.m_faces.size() > 0)
 		{

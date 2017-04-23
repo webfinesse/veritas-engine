@@ -8,7 +8,7 @@
 
 namespace VeritasEngine
 {
-	class VertexBuffer;
+	class IVertexBuffer;
 	class IIndexBuffer;
 	class ResourceHandle;
 
@@ -18,10 +18,10 @@ namespace VeritasEngine
 		MeshSubset();
 		~MeshSubset();
 
-		void SetVertices(VertexBuffer* vertexBuffer, unsigned char* verticies, size_t numOfVertices);
+		void SetVertices(IVertexBuffer* vertexBuffer, unsigned char* verticies, size_t numOfVertices);
 		size_t GetVertexSize() const;
 		size_t GetVertexCount() const;
-		VertexBuffer& GetVertexBuffer() const;
+		IVertexBuffer& GetVertexBuffer() const;
 		size_t GetVertexBufferBaseIndex() const;
 
 

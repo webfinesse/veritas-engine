@@ -2,7 +2,7 @@
 
 #include "../VeritasEngineBase/ResourceHandle.h"
 
-#include "VertexBuffer.h"
+#include "IVertexBuffer.h"
 #include "IIndexBuffer.h"
 #include "BufferIndicies.h"
 
@@ -14,7 +14,7 @@ struct VeritasEngine::MeshSubset::Impl : public VeritasEngine::SmallObject<>
 		
 	}
 
-	VertexBuffer* m_vertexBuffer;
+	IVertexBuffer* m_vertexBuffer;
 	IIndexBuffer* m_indexBuffer;
 	BufferIndicies m_vertexBufferIndicies;
 	BufferIndicies m_indexBufferIndicies;
@@ -32,7 +32,7 @@ VeritasEngine::MeshSubset::~MeshSubset()
 
 }
 
-void VeritasEngine::MeshSubset::SetVertices(VertexBuffer* vertexBuffer, unsigned char* verticies, size_t numOfVertices)
+void VeritasEngine::MeshSubset::SetVertices(IVertexBuffer* vertexBuffer, unsigned char* verticies, size_t numOfVertices)
 {
 	m_impl->m_vertexBuffer = vertexBuffer;
 	m_impl->m_vertexBufferIndicies = m_impl->m_vertexBuffer->AddVerticies(verticies, numOfVertices);
@@ -48,7 +48,7 @@ std::size_t VeritasEngine::MeshSubset::GetVertexSize() const
 	return m_impl->m_vertexBuffer->GetVertexSize();
 }
 
-VeritasEngine::VertexBuffer& VeritasEngine::MeshSubset::GetVertexBuffer() const
+VeritasEngine::IVertexBuffer& VeritasEngine::MeshSubset::GetVertexBuffer() const
 {
 	return *m_impl->m_vertexBuffer;
 }
