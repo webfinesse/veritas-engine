@@ -1,23 +1,24 @@
 #ifndef H_VERTEXBUFFERMANAGER
 #define H_VERTEXBUFFERMANAGER
 
-#include "VertexTypeHandle.h"
-#include "SmallObject.h"
 #include <memory>
+
+#include "IVertexBufferManager.h"
+#include "SmallObject.h"
+
+
 
 
 namespace VeritasEngine
 {
-	class VertexBuffer;
-
-	class VertexBufferManager: public SmallObject<>
+	class VertexBufferManager: public IVertexBufferManager, public SmallObject<>
 	{
 	public:
 		VertexBufferManager();
-		~VertexBufferManager();
+		~VertexBufferManager() override;
 
-		void RegisterVertexFormat(VertexTypeHandle handle, size_t sizeOfVertex);
-		std::shared_ptr<VeritasEngine::VertexBuffer> GetBuffer(VertexTypeHandle handle) const;
+		void RegisterVertexFormat(VertexTypeHandle handle, size_t sizeOfVertex) override;
+		std::shared_ptr<VeritasEngine::VertexBuffer> GetBuffer(VertexTypeHandle handle) const override;
 
 	private:
 		struct Impl;

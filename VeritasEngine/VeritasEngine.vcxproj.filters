@@ -267,5 +267,8 @@
     <ClInclude Include="IIndexBuffer.h">
       <Filter>Rendering</Filter>
     </ClInclude>
+    <ClInclude Include="IVertexBufferManager.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

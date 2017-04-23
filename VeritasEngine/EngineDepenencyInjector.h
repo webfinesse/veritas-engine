@@ -18,6 +18,7 @@
 
 #include "WorldSetup.h"
 #include "GameClock.h"
+#include "VertexBufferManager.h"
 
 namespace di = boost::di;
 
@@ -30,6 +31,7 @@ inline auto CreateEngineDependencyInjector()
 		di::bind<VeritasEngine::IWorldSetup>().to<VeritasEngine::WorldSetup>().in(di::singleton),
 		di::bind<VeritasEngine::IRenderingServices>().to<VeritasEngine::RenderingServices>().in(di::singleton),
 		di::bind<VeritasEngine::IScene>().to<VeritasEngine::Scene>().in(di::singleton),
+		di::bind<VeritasEngine::IVertexBufferManager>().to<VeritasEngine::VertexBufferManager>().in(di::singleton),
 		di::bind<VeritasEngine::IResourceLoader*[]>().to<VeritasEngine::MeshResourceLoader, VeritasEngine::AnimatedMeshResourceLoader, VeritasEngine::MaterialResourceLoader, VeritasEngine::TextureResourceLoader, VeritasEngine::SkeletonResourceLoader>().in(di::singleton),
 		di::bind<VeritasEngine::IResourceManager>().to<VeritasEngine::ResourceManager>().in(di::singleton)
 	);

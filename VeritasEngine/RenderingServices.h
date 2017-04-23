@@ -13,13 +13,13 @@ namespace VeritasEngine
 	class RenderingServices : public SmallObject<>, public IRenderingServices
 	{
 	public:
-		RenderingServices(std::shared_ptr<IScene> scene, std::shared_ptr<IIndexBuffer> indexBuffer);
+		RenderingServices(std::shared_ptr<IScene> scene, std::shared_ptr<IIndexBuffer> indexBuffer, std::shared_ptr<IVertexBufferManager> vertexBufferManager);
 		~RenderingServices() override;
 
 		RenderingServices(RenderingServices&& other) noexcept;
 		RenderingServices& operator=(RenderingServices&& other) noexcept;
 
-		VertexBufferManager& GetVertexBufferManager() const override;
+		IVertexBufferManager& GetVertexBufferManager() const override;
 		IIndexBuffer& GetIndexBuffer() const override;
 		IScene& GetScene() const override;
 		Renderer& GetRenderer() const override;

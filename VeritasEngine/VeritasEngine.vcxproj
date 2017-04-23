@@ -219,6 +219,7 @@
     <ClInclude Include="IRenderingServices.h" />
     <ClInclude Include="IResourceManager.h" />
     <ClInclude Include="IScene.h" />
+    <ClInclude Include="IVertexBufferManager.h" />
     <ClInclude Include="IWorldSetup.h" />
     <ClInclude Include="Skeleton.h" />
     <ClInclude Include="SkeletonJoint.h" />
