@@ -42,9 +42,6 @@
     <ClInclude Include="VertexBufferImpl.h">
       <Filter>Platform Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IndexBufferImpl.h">
-      <Filter>Platform Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="MathTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>

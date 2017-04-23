@@ -17,7 +17,7 @@
 #include "Vertex.h"
 #include "Engine.h"
 #include "ResourceManager.h"
-#include "IndexBuffer.h"
+#include "IIndexBuffer.h"
 
 
 namespace VeritasEngine

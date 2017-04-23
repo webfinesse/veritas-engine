@@ -6,7 +6,7 @@
 #include "MeshNode.h"
 #include "IRenderingServices.h"
 #include "VertexBufferManager.h"
-#include "IndexBuffer.h"
+#include "IIndexBuffer.h"
 
 #include "cereal/cereal.hpp"
 #include "cereal/archives/binary.hpp"

@@ -23,7 +23,6 @@
     <ClInclude Include="Light.h" />
     <ClInclude Include="FileHelper.h" />
     <ClInclude Include="GameObjectHandle.h" />
-    <ClInclude Include="IndexBufferImpl.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="MaterialInstance.h" />
     <ClInclude Include="MathTypes.h" />

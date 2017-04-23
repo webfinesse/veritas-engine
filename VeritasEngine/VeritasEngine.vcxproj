@@ -181,7 +181,6 @@
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="EngineFactory.cpp" />
     <ClCompile Include="GameClock.cpp" />
-    <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="MaterialResourceLoader.cpp" />
     <ClCompile Include="MatrixStack.cpp" />
     <ClCompile Include="MeshInstance.cpp" />
@@ -215,6 +214,7 @@
     <ClInclude Include="GameClock.h" />
     <ClInclude Include="IDeserializeMapping.h" />
     <ClInclude Include="IGameClock.h" />
+    <ClInclude Include="IIndexBuffer.h" />
     <ClInclude Include="IProcessManager.h" />
     <ClInclude Include="IRenderingServices.h" />
     <ClInclude Include="IResourceManager.h" />
@@ -238,7 +238,6 @@
     <ClInclude Include="MeshResourceLoader.h" />
     <ClInclude Include="RenderPass.h" />
     <ClInclude Include="IMeshShader.h" />
-    <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="MatrixStack.h" />
     <ClInclude Include="MeshInstance.h" />
     <ClInclude Include="MeshShader.h" />

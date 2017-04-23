@@ -1,16 +1,16 @@
 #include "RenderingServices.h"
 
 #include "VertexBufferManager.h"
-#include "IndexBuffer.h"
+#include "IIndexBuffer.h"
 #include "Scene.h"
 #include "Renderer.h"
 
 struct VeritasEngine::RenderingServices::Impl : public VeritasEngine::SmallObject<>
 {
-	Impl(std::shared_ptr<IScene> scene)
+	Impl(std::shared_ptr<IScene> scene, std::shared_ptr<IIndexBuffer> indexBuffer)
 		: m_renderer{ std::make_unique<Renderer>() },
 		m_vertexBufferManager{ std::make_unique<VertexBufferManager>() },
-		m_indexBuffer { std::make_unique<IndexBuffer>() },
+		m_indexBuffer { indexBuffer },
 		m_scene { scene }
 	{
 
@@ -18,12 +18,12 @@ struct VeritasEngine::RenderingServices::Impl : public VeritasEngine::SmallObjec
 
 	std::unique_ptr<Renderer> m_renderer;
 	std::unique_ptr<VertexBufferManager> m_vertexBufferManager;
-	std::unique_ptr<IndexBuffer> m_indexBuffer;
+	std::shared_ptr<IIndexBuffer> m_indexBuffer;
 	std::shared_ptr<IScene> m_scene;
 };
 
-VeritasEngine::RenderingServices::RenderingServices(std::shared_ptr<IScene> scene)
-	: m_impl { std::make_unique<Impl>(scene) }
+VeritasEngine::RenderingServices::RenderingServices(std::shared_ptr<IScene> scene, std::shared_ptr<IIndexBuffer> indexBuffer)
+	: m_impl { std::make_unique<Impl>(scene, indexBuffer) }
 {
 
 }
@@ -50,7 +50,7 @@ VeritasEngine::VertexBufferManager& VeritasEngine::RenderingServices::GetVertexB
 	return *m_impl->m_vertexBufferManager;
 }
 
-VeritasEngine::IndexBuffer& VeritasEngine::RenderingServices::GetIndexBuffer() const
+VeritasEngine::IIndexBuffer& VeritasEngine::RenderingServices::GetIndexBuffer() const
 {
 	return *m_impl->m_indexBuffer;
 }

@@ -34,9 +34,6 @@
     <ClCompile Include="BufferIndicies.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="IndexBuffer.cpp">
-      <Filter>Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="MatrixStack.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
@@ -145,9 +142,6 @@
       <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="IMeshShader.h">
-      <Filter>Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="IndexBuffer.h">
       <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="MatrixStack.h">
@@ -268,6 +262,9 @@
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="IScene.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="IIndexBuffer.h">
       <Filter>Rendering</Filter>
     </ClInclude>
   </ItemGroup>

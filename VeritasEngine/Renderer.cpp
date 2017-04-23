@@ -1,7 +1,7 @@
 #include "Renderer.h"
 
 #include "VertexBuffer.h"
-#include "IndexBuffer.h"
+#include "IIndexBuffer.h"
 #include "RendererProperties.h"
 
 #include "../VeritasEngineBase/RendererImpl.h"
