@@ -1,7 +1,6 @@
 ﻿#include "TextureResourceLoader.h"
 #include <istream>
 
-#include "ITextureLoaderFactory.h"
 #include "ITextureLoader.h"
 #include "../VeritasEngineBase/ResourceHandle.h"
 

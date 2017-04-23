@@ -218,7 +218,6 @@
     <ClInclude Include="IResourceManager.h" />
     <ClInclude Include="IScene.h" />
     <ClInclude Include="ITextureLoader.h" />
-    <ClInclude Include="ITextureLoaderFactory.h" />
     <ClInclude Include="IVertexBuffer.h" />
     <ClInclude Include="IVertexBufferFactory.h" />
     <ClInclude Include="IVertexBufferManager.h" />

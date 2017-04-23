@@ -264,8 +264,5 @@
     <ClInclude Include="ITextureLoader.h">
       <Filter>Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="ITextureLoaderFactory.h">
-      <Filter>Rendering</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>
