@@ -1,11 +1,14 @@
-#include "../VeritasEngineBase/RendererImpl.h"
+#include "RendererImpl.h"
 
 #include <wrl\client.h>
 #include <d3d11.h>
 #include "WindowsUtil.h"
 
-
 #include "../VeritasEngineBase/MathTypes.h"
+#include "../VeritasEngine/MeshInstance.h"
+#include "../VeritasEngine/MeshSubset.h"
+#include "../VeritasEngine/IIndexBuffer.h"
+#include "../VeritasEngine/IVertexBuffer.h"
 
 using namespace Microsoft::WRL;
 
@@ -25,8 +28,9 @@ public:
 
 	void SetupBuffers(unsigned int bufferWidth, unsigned int bufferHeight)
 	{
+		m_aspectRatio = bufferWidth / static_cast<float>(bufferHeight);
 		ComPtr<ID3D11Texture2D> backBuffer;
-		HHR(g_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)backBuffer.GetAddressOf()), "error getting the backbuffer");
+		HHR(g_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuffer.GetAddressOf())), "error getting the backbuffer");
 
 		HHR(g_device->CreateRenderTargetView(backBuffer.Get(), nullptr, g_renderTargetView.GetAddressOf()), "Error creating the render target view");
 
@@ -58,6 +62,40 @@ public:
 		g_context->RSSetViewports(1, &viewport);
 	}
 
+	void SetVertexBuffer(void* buffer, const unsigned int strides[], const unsigned int offsets[])
+	{
+		auto* nativeVertexBuffer = static_cast<ID3D11Buffer*>(buffer);
+
+		g_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		g_context->IASetVertexBuffers(0, 1, &nativeVertexBuffer, strides, offsets);
+	}
+
+	void SetIndexBuffer(void* buffer)
+	{
+		g_context->IASetIndexBuffer(static_cast<ID3D11Buffer*>(buffer), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
+	}
+
+	void DrawIndexed(size_t indexCount, size_t indexOffset, size_t baseVertexIndex)
+	{
+		g_context->DrawIndexed(static_cast<UINT>(indexCount), static_cast<UINT>(indexOffset), static_cast<UINT>(baseVertexIndex));
+	}
+
+	void RenderSubset(const MeshInstance& mesh, unsigned int subsetIndex)
+	{
+		auto& subset = mesh.GetSubset(subsetIndex);
+
+		const unsigned int strides[1] = { static_cast<unsigned int>(subset.GetVertexSize()) };
+		const unsigned int offsets[1] = { 0 };
+
+		SetVertexBuffer(subset.GetVertexBuffer().GetNativeBuffer(), strides, offsets);
+
+		auto baseVertexIndex = subset.GetVertexBufferBaseIndex();
+
+		SetIndexBuffer(subset.GetIndexBuffer().GetNativeBuffer());
+
+		DrawIndexed(subset.IndexCount(), subset.GetIndexOffset(), baseVertexIndex);
+	}
+
 	~Impl()
 	{
 		ID3D11RenderTargetView* nullViews[] = { nullptr };
@@ -80,6 +118,8 @@ public:
 		g_device = nullptr;
 #endif
 	}
+
+	float m_aspectRatio{ 0 };
 };
 
 void VeritasEngine::RendererImpl::Init(void * osData, unsigned int bufferWidth, unsigned int bufferHeight)
@@ -96,7 +136,7 @@ void VeritasEngine::RendererImpl::Init(void * osData, unsigned int bufferWidth, 
 		D3D_FEATURE_LEVEL_11_0
 	};
 
-	auto hr = D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &g_device, nullptr, &g_context);
+	auto hr = D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, g_device.GetAddressOf(), nullptr, g_context.GetAddressOf());
 
 	HHR(hr, "Error Creating D3D11 Device");
 
@@ -104,7 +144,7 @@ void VeritasEngine::RendererImpl::Init(void * osData, unsigned int bufferWidth, 
 	HHR(g_device.As(&dxgiDevice), "Error getting infrastructure device");
 
 	ComPtr<IDXGIAdapter> dxgiAdapter;
-	HHR(dxgiDevice->GetAdapter(&dxgiAdapter), "Error getting infrastructure adapter");
+	HHR(dxgiDevice->GetAdapter(dxgiAdapter.GetAddressOf()), "Error getting infrastructure adapter");
 
 	ComPtr<IDXGIFactory1> dxgiFactory;
 	HHR(dxgiAdapter->GetParent(__uuidof(IDXGIFactory1), &dxgiFactory), "Error getting infrastructure factory");
@@ -124,7 +164,7 @@ void VeritasEngine::RendererImpl::Init(void * osData, unsigned int bufferWidth, 
 	desc.SampleDesc.Quality = 0;
 	desc.Windowed = TRUE;
 
-	HHR(dxgiFactory->CreateSwapChain(g_device.Get(), &desc, &g_swapChain), "Error creating swap chain");
+	HHR(dxgiFactory->CreateSwapChain(g_device.Get(), &desc, g_swapChain.GetAddressOf()), "Error creating swap chain");
 
 	HHR(dxgiDevice->SetMaximumFrameLatency(1), "Error setting maximum frame latency");
 
@@ -136,7 +176,7 @@ void VeritasEngine::RendererImpl::Init(void * osData, unsigned int bufferWidth, 
 	rasterDesc.FillMode = D3D11_FILL_MODE::D3D11_FILL_SOLID;
 
 	ComPtr<ID3D11RasterizerState> resultRasterizer;
-	g_device->CreateRasterizerState(&rasterDesc, &resultRasterizer);
+	g_device->CreateRasterizerState(&rasterDesc, resultRasterizer.GetAddressOf());
 
 	g_context->RSSetState(resultRasterizer.Get());
 }
@@ -162,27 +202,19 @@ void VeritasEngine::RendererImpl::Clear()
 	g_context->ClearDepthStencilView(g_depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0xFF);
 }
 
-void VeritasEngine::RendererImpl::SetVertexBuffer(void* buffer, const unsigned int strides[], const unsigned int offsets[])
-{
-	auto* nativeVertexBuffer = static_cast<ID3D11Buffer*>(buffer);
-
-	g_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	g_context->IASetVertexBuffers(0, 1, &nativeVertexBuffer, strides, offsets);
-}
-
-void VeritasEngine::RendererImpl::SetIndexBuffer(void* buffer)
-{
-	g_context->IASetIndexBuffer(static_cast<ID3D11Buffer*>(buffer), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
-}
-
-void VeritasEngine::RendererImpl::DrawIndexed(size_t indexCount, size_t indexOffset, size_t baseVertexIndex)
-{
-	g_context->DrawIndexed(static_cast<UINT>(indexCount), static_cast<UINT>(indexOffset), static_cast<UINT>(baseVertexIndex));
-}
-
 void VeritasEngine::RendererImpl::Present()
 {
 	HHR(g_swapChain->Present(0, 0), "Error swapping swap chain");
+}
+
+float VeritasEngine::RendererImpl::GetAspectRatio() const
+{
+	return m_impl->m_aspectRatio;
+}
+
+void VeritasEngine::RendererImpl::RenderSubset(const MeshInstance& mesh, unsigned int subsetIndex) const
+{
+	m_impl->RenderSubset(mesh, subsetIndex);
 }
 
 VeritasEngine::RendererImpl::RendererImpl()

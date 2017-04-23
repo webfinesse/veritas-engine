@@ -23,6 +23,7 @@
     <ClInclude Include="DirectXTextureData.h" />
     <ClInclude Include="ExternalDirectXVariables.h" />
     <ClInclude Include="IndexBufferImpl.h" />
+    <ClInclude Include="RendererImpl.h" />
     <ClInclude Include="VertexBufferFactory.h" />
     <ClInclude Include="VertexBufferImpl.h" />
     <ClInclude Include="WindowsDependencyInjector.h" />

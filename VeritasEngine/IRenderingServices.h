@@ -5,7 +5,7 @@ namespace VeritasEngine
 	class IVertexBufferManager;
 	class IIndexBuffer;
 	class IScene;
-	class Renderer;
+	class IRenderer;
 
 	class IRenderingServices
 	{
@@ -14,6 +14,6 @@ namespace VeritasEngine
 		virtual IVertexBufferManager& GetVertexBufferManager() const = 0;
 		virtual IIndexBuffer& GetIndexBuffer() const = 0;
 		virtual IScene& GetScene() const = 0;
-		virtual Renderer& GetRenderer() const = 0;
+		virtual IRenderer& GetRenderer() const = 0;
 	};
 }

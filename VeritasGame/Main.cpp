@@ -7,8 +7,6 @@
 #include "../VeritasEngine/Engine.h"
 #include "../VeritasEngine/IProcessManager.h"
 #include "../VeritasEngine/IWorldSetup.h"
-#include "../VeritasEngine/RenderingServices.h"
-#include "../VeritasEngine/Renderer.h"
 
 #include "../VeritasEngine/IResourceManager.h"
 #include "../VeritasEngineBase/ResourceHandle.h"

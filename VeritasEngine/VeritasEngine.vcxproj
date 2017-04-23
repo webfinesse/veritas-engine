@@ -194,7 +194,6 @@
     <ClCompile Include="TextureResourceLoader.cpp" />
     <ClCompile Include="Process.cpp" />
     <ClCompile Include="ProcessManager.cpp" />
-    <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="RenderingServices.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Scene.cpp" />
@@ -215,6 +214,7 @@
     <ClInclude Include="IGameClock.h" />
     <ClInclude Include="IIndexBuffer.h" />
     <ClInclude Include="IProcessManager.h" />
+    <ClInclude Include="IRenderer.h" />
     <ClInclude Include="IRenderingServices.h" />
     <ClInclude Include="IResourceManager.h" />
     <ClInclude Include="IScene.h" />
@@ -247,7 +247,6 @@
     <ClInclude Include="Process.h" />
     <ClInclude Include="ProcessManager.h" />
     <ClInclude Include="JsonValue.h" />
-    <ClInclude Include="Renderer.h" />
     <ClInclude Include="RendererProperties.h" />
     <ClInclude Include="RenderingServices.h" />
     <ClInclude Include="ResourceManager.h" />

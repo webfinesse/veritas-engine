@@ -4,7 +4,7 @@
 #include <array>
 #include "../Includes/AssocVector/assocvector.hpp"
 
-#include "Renderer.h"
+#include "IRenderer.h"
 #include "MatrixStack.h"
 #include "MeshInstance.h"
 #include "MeshNode.h"
@@ -49,7 +49,7 @@ struct VeritasEngine::Scene::Impl
 		}
 	}
 
-	void RenderResourcedMesh(const Renderer& renderer, const MeshInstance& instance, const MeshNode& currentNode)
+	void RenderResourcedMesh(const IRenderer& renderer, const MeshInstance& instance, const MeshNode& currentNode)
 	{
 		m_matrixStack.Push(currentNode.GetTransform());
 		auto& stackMatrix = m_matrixStack.Peek();
@@ -74,7 +74,7 @@ struct VeritasEngine::Scene::Impl
 		m_matrixStack.Pop();
 	}
 
-	void Render(const Renderer& renderer, const SceneNode& node)
+	void Render(const IRenderer& renderer, const SceneNode& node)
 	{
 		auto type = *SceneGraphProperties::Type.GetProperty(node.m_handle);
 
@@ -174,7 +174,7 @@ void VeritasEngine::Scene::SetMeshShader(std::shared_ptr<IMeshShader> shader)
 	m_impl->m_meshShader = shader;
 }
 
-void VeritasEngine::Scene::OnRender(Renderer& renderer)
+void VeritasEngine::Scene::OnRender(IRenderer& renderer)
 {
 	renderer.Clear();
 

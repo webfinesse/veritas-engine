@@ -6,7 +6,7 @@
 #include "IResourceManager.h"
 #include "IGameClock.h"
 
-#include "Renderer.h"
+#include "IRenderer.h"
 #include "VertexBufferManager.h"
 #include "Scene.h"
 #include "MeshShader.h"

@@ -7,7 +7,7 @@
 
 namespace VeritasEngine
 {
-	class Renderer;
+	class IRenderer;
 	class IMeshShader;
 
 	class EXPORT IScene
@@ -16,7 +16,7 @@ namespace VeritasEngine
 		virtual ~IScene() noexcept = default;
 
 		virtual void OnUpdate(const float deltaTime) = 0;
-		virtual void OnRender(Renderer& renderer) = 0;
+		virtual void OnRender(IRenderer& renderer) = 0;
 
 		virtual void SetMeshShader(std::shared_ptr<IMeshShader> shader) = 0;
 

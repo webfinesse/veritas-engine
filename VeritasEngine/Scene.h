@@ -24,7 +24,7 @@ namespace VeritasEngine
 		Scene& operator=(Scene&& other) noexcept;
 
 		void OnUpdate(const float deltaTime) override;
-		void OnRender(Renderer& renderer) override;
+		void OnRender(IRenderer& renderer) override;
 
 		void SetMeshShader(std::shared_ptr<IMeshShader> shader) override;
 

@@ -31,7 +31,6 @@
     <ClInclude Include="miniz.h" />
     <ClInclude Include="PerFrameBuffer.h" />
     <ClInclude Include="PerObjectBuffer.h" />
-    <ClInclude Include="RendererImpl.h" />
     <ClInclude Include="ResourceHandle.h" />
     <ClInclude Include="ResourceHandle_details.h" />
     <ClInclude Include="ResourceId.h" />
