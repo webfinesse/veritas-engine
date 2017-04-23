@@ -3,7 +3,7 @@
 namespace VeritasEngine
 {
 	class VertexBufferManager;
-	class IndexBufferManager;
+	class IndexBuffer;
 	class IScene;
 	class Renderer;
 
@@ -12,7 +12,7 @@ namespace VeritasEngine
 	public:
 		virtual ~IRenderingServices() noexcept = default;
 		virtual VertexBufferManager& GetVertexBufferManager() const = 0;
-		virtual IndexBufferManager& GetIndexBufferManager() const = 0;
+		virtual IndexBuffer& GetIndexBuffer() const = 0;
 		virtual IScene& GetScene() const = 0;
 		virtual Renderer& GetRenderer() const = 0;
 	};

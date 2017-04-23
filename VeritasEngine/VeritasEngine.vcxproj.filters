@@ -37,9 +37,6 @@
     <ClCompile Include="IndexBuffer.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="IndexBufferManager.cpp">
-      <Filter>Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="MatrixStack.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
@@ -151,9 +148,6 @@
       <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="IndexBuffer.h">
-      <Filter>Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="IndexBufferManager.h">
       <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="MatrixStack.h">

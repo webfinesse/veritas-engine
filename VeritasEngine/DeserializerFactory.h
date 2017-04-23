@@ -17,7 +17,7 @@
 #include "Vertex.h"
 #include "Engine.h"
 #include "ResourceManager.h"
-#include "IndexBufferManager.h"
+#include "IndexBuffer.h"
 
 
 namespace VeritasEngine
@@ -127,7 +127,7 @@ namespace VeritasEngine
 					indicies.push_back(value);
 				}
 
-				subset.SetIndicies(&engine.GetRenderingServices().GetIndexBufferManager().GetBuffer(), &indicies[0], indicies.size());
+				subset.SetIndicies(&engine.GetRenderingServices().GetIndexBuffer(), &indicies[0], indicies.size());
 			}
 
 			return m;

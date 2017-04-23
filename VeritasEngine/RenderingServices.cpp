@@ -1,7 +1,7 @@
 #include "RenderingServices.h"
 
 #include "VertexBufferManager.h"
-#include "IndexBufferManager.h"
+#include "IndexBuffer.h"
 #include "Scene.h"
 #include "Renderer.h"
 
@@ -10,7 +10,7 @@ struct VeritasEngine::RenderingServices::Impl : public VeritasEngine::SmallObjec
 	Impl(std::shared_ptr<IScene> scene)
 		: m_renderer{ std::make_unique<Renderer>() },
 		m_vertexBufferManager{ std::make_unique<VertexBufferManager>() },
-		m_indexBufferManager { std::make_unique<IndexBufferManager>() },
+		m_indexBuffer { std::make_unique<IndexBuffer>() },
 		m_scene { scene }
 	{
 
@@ -18,7 +18,7 @@ struct VeritasEngine::RenderingServices::Impl : public VeritasEngine::SmallObjec
 
 	std::unique_ptr<Renderer> m_renderer;
 	std::unique_ptr<VertexBufferManager> m_vertexBufferManager;
-	std::unique_ptr<IndexBufferManager> m_indexBufferManager;
+	std::unique_ptr<IndexBuffer> m_indexBuffer;
 	std::shared_ptr<IScene> m_scene;
 };
 
@@ -50,9 +50,9 @@ VeritasEngine::VertexBufferManager& VeritasEngine::RenderingServices::GetVertexB
 	return *m_impl->m_vertexBufferManager;
 }
 
-VeritasEngine::IndexBufferManager& VeritasEngine::RenderingServices::GetIndexBufferManager() const
+VeritasEngine::IndexBuffer& VeritasEngine::RenderingServices::GetIndexBuffer() const
 {
-	return *m_impl->m_indexBufferManager;
+	return *m_impl->m_indexBuffer;
 }
 
 VeritasEngine::IScene& VeritasEngine::RenderingServices::GetScene() const

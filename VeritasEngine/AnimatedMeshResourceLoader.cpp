@@ -6,7 +6,7 @@
 #include "MeshNode.h"
 #include "RenderingServices.h"
 #include "VertexBufferManager.h"
-#include "IndexBufferManager.h"
+#include "IndexBuffer.h"
 
 #include "cereal/cereal.hpp"
 #include "cereal/archives/binary.hpp"
@@ -63,7 +63,7 @@ void VeritasEngine::AnimatedMeshResourceLoader::LoadResource(IResourceManager& m
 
 		if (serializedSubset.m_faces.size() > 0)
 		{
-			instanceSubset.SetIndicies(&m_impl->m_renderingServices->GetIndexBufferManager().GetBuffer(), &serializedSubset.m_faces[0], serializedSubset.m_faces.size());
+			instanceSubset.SetIndicies(&m_impl->m_renderingServices->GetIndexBuffer(), &serializedSubset.m_faces[0], serializedSubset.m_faces.size());
 		}
 
 		auto material = manager.GetResource(serializedSubset.m_materialId);

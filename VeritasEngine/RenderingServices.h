@@ -20,7 +20,7 @@ namespace VeritasEngine
 		RenderingServices& operator=(RenderingServices&& other) noexcept;
 
 		VertexBufferManager& GetVertexBufferManager() const override;
-		IndexBufferManager& GetIndexBufferManager() const override;
+		IndexBuffer& GetIndexBuffer() const override;
 		IScene& GetScene() const override;
 		Renderer& GetRenderer() const override;
 	private:
