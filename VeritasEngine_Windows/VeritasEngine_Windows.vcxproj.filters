@@ -21,9 +21,6 @@
     <ClInclude Include="WindowsUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ExternalDirectXVariables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="DDSTextureLoader\DDSTextureLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -43,6 +40,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RendererImpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectXState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureResourceLoaderImpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshShaderImpl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

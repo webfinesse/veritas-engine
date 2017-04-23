@@ -27,7 +27,6 @@
     <ClInclude Include="MaterialInstance.h" />
     <ClInclude Include="MathTypes.h" />
     <ClInclude Include="MeshInfo.h" />
-    <ClInclude Include="MeshShaderImpl.h" />
     <ClInclude Include="miniz.h" />
     <ClInclude Include="PerFrameBuffer.h" />
     <ClInclude Include="PerObjectBuffer.h" />
@@ -35,7 +34,6 @@
     <ClInclude Include="ResourceHandle_details.h" />
     <ClInclude Include="ResourceId.h" />
     <ClInclude Include="Singleton.h" />
-    <ClInclude Include="TextureResourceLoaderImpl.h" />
     <ClInclude Include="zip_file.hpp" />
   </ItemGroup>
   <ItemGroup>

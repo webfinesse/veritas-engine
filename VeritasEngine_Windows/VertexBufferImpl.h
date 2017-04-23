@@ -7,10 +7,12 @@
 
 namespace VeritasEngine
 {
+	class DirectXState;
+
 	class VertexBufferImpl: public IVertexBuffer
 	{
 	public:
-		VertexBufferImpl(size_t vertexSize);
+		VertexBufferImpl(std::shared_ptr<DirectXState> dxState, size_t vertexSize);
 		~VertexBufferImpl() override;
 
 		BufferIndicies AddVerticies(unsigned char* verticies, size_t numVerticies) override;

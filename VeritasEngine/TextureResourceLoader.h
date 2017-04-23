@@ -1,15 +1,21 @@
 ﻿#pragma once
 
+#include <memory>
 #include "IResourceLoader.h"
 
 namespace VeritasEngine
 {
+	class ITextureLoader;
+
 	class TextureResourceLoader : public IResourceLoader
 	{
 	public:
-		virtual ~TextureResourceLoader() override;
+		TextureResourceLoader(std::shared_ptr<ITextureLoader> textureLoader);
+		~TextureResourceLoader() noexcept override;
 
 		const char* GetExtension() const override;
-		virtual void LoadResource(IResourceManager& manager, std::istream& data, ResourceHandle& handle) override;
+		void LoadResource(IResourceManager& manager, std::istream& data, ResourceHandle& handle) override;
+	private:
+		std::shared_ptr<ITextureLoader> m_textureLoader;
 	};
 }

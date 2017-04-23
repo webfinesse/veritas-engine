@@ -1,14 +1,21 @@
 #include <memory>
 
-#include "../VeritasEngineBase/TextureResourceLoaderImpl.h"
+#include "TextureResourceLoaderImpl.h"
 #include "WindowsUtil.h"
+#include "DirectXState.h"
 
 #include "../VeritasEngineBase/ResourceHandle.h"
 
 #include "DDSTextureLoader/DDSTextureLoader.h"
 
-#include "ExternalDirectXVariables.h"
 #include "DirectXTextureData.h"
+
+VeritasEngine::TextureResourceLoaderImpl::TextureResourceLoaderImpl(std::shared_ptr<DirectXState> dxState)
+	: m_dxState{ dxState }
+{
+	
+}
+
 
 void VeritasEngine::TextureResourceLoaderImpl::Load(std::istream& data, ResourceHandle& handle) const
 {
@@ -24,7 +31,7 @@ void VeritasEngine::TextureResourceLoaderImpl::Load(std::istream& data, Resource
 
 	ComPtr<ID3D11Resource> texture;
 	ComPtr<ID3D11ShaderResourceView> textureView;
-	HHR(DirectX::CreateDDSTextureFromMemory(g_device.Get(), g_context.Get(), img, length, texture.GetAddressOf(), textureView.GetAddressOf()), "Failed to load texture");
+	HHR(DirectX::CreateDDSTextureFromMemory(m_dxState->Device.Get(), m_dxState->Context.Get(), img, length, texture.GetAddressOf(), textureView.GetAddressOf()), "Failed to load texture");
 
 	delete[] img;
 

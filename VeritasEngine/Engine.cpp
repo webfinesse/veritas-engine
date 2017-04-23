@@ -9,7 +9,7 @@
 #include "IRenderer.h"
 #include "VertexBufferManager.h"
 #include "Scene.h"
-#include "MeshShader.h"
+#include "IMeshShader.h"
 
 #include "SkinnedVertex.h"
 #include "Vertex.h"
@@ -24,8 +24,9 @@ struct VeritasEngine::Engine::Impl : public VeritasEngine::SmallObject<>
 		 shared_ptr<IWorldSetup> worldSetup, 
 		 shared_ptr<IRenderingServices> renderingServices, 
 	     shared_ptr<IResourceManager> resourceManager,
-		 shared_ptr<IGameClock> gameClock)
-		: m_gameClock{ std::move(gameClock) }, m_processManager{ std::move(processManager) }, m_worldSetup{ std::move(worldSetup) }, m_resourceManager{ std::move(resourceManager) }, m_renderingServices{ std::move(renderingServices) }, m_isInitialized { false }
+		 shared_ptr<IGameClock> gameClock,
+		 shared_ptr<IMeshShader> meshShader)
+		: m_gameClock{ std::move(gameClock) }, m_processManager{ std::move(processManager) }, m_worldSetup{ std::move(worldSetup) }, m_resourceManager{ std::move(resourceManager) }, m_renderingServices{ std::move(renderingServices) }, m_meshShader{ meshShader }
 	{
 
 	}
@@ -35,17 +36,19 @@ struct VeritasEngine::Engine::Impl : public VeritasEngine::SmallObject<>
 	shared_ptr<IWorldSetup> m_worldSetup;
 	shared_ptr<IResourceManager> m_resourceManager;
 	shared_ptr<IRenderingServices> m_renderingServices;
+	shared_ptr<IMeshShader> m_meshShader;
 
 	float m_currentFps { 0 };
-	bool m_isInitialized;
+	bool m_isInitialized { false };
 };
 
 VeritasEngine::Engine::Engine(shared_ptr<IProcessManager> processManager, 
 							  shared_ptr<IWorldSetup> worldSetup, 
 						      shared_ptr<IRenderingServices> renderingServices, 
 							  shared_ptr<IResourceManager> resourceManager,
-						      shared_ptr<IGameClock> gameClock)
-	: m_impl(std::make_unique<Impl>(processManager, worldSetup, renderingServices, resourceManager, gameClock))
+						      shared_ptr<IGameClock> gameClock,
+							  shared_ptr<IMeshShader> meshShader)
+	: m_impl(std::make_unique<Impl>(processManager, worldSetup, renderingServices, resourceManager, gameClock, meshShader))
 {
 	
 }
@@ -96,10 +99,10 @@ void VeritasEngine::Engine::Init(void* osData, unsigned int bufferWidth, unsigne
 	m_impl->m_worldSetup->Init(*this);
 	m_impl->m_renderingServices->GetRenderer().Init(osData, bufferWidth, bufferHeight);
 
-	auto meshShader = std::make_shared<MeshShader>();
-	meshShader->Init();
+	
+	m_impl->m_meshShader->Init();
 
-	m_impl->m_renderingServices->GetScene().SetMeshShader(meshShader);
+	m_impl->m_renderingServices->GetScene().SetMeshShader(m_impl->m_meshShader);
 
 	m_impl->m_renderingServices->GetVertexBufferManager().RegisterVertexFormat(Vertex::Type, sizeof(Vertex));
 	m_impl->m_renderingServices->GetVertexBufferManager().RegisterVertexFormat(SkinnedVertex::Type, sizeof(SkinnedVertex));

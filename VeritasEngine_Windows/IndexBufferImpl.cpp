@@ -1,6 +1,7 @@
 #include <d3d11.h>
 #include <wrl\client.h>
 #include <vector>
+#include "DirectXState.h"
 
 using namespace Microsoft::WRL;
 
@@ -8,12 +9,10 @@ using namespace Microsoft::WRL;
 #include "../VeritasEngine/BufferIndicies.h"
 #include "WindowsUtil.h"
 
-extern ComPtr<ID3D11Device> g_device;
-
 struct VeritasEngine::IndexBufferImpl::Impl
 {
-	Impl()
-		: m_buffer{}, m_indicies{}
+	Impl(shared_ptr<DirectXState> dxState)
+		: m_buffer{}, m_dxState{ dxState }, m_indicies{}
 	{
 
 	}
@@ -33,7 +32,7 @@ struct VeritasEngine::IndexBufferImpl::Impl
 		initData.SysMemSlicePitch = 0;
 
 		ComPtr<ID3D11Buffer> newBuffer;
-		HHR(g_device->CreateBuffer(&bufferDesc, &initData, &newBuffer), "Error Creating Index Buffer");
+		HHR(m_dxState->Device->CreateBuffer(&bufferDesc, &initData, newBuffer.GetAddressOf()), "Error Creating Index Buffer");
 
 		m_buffer = newBuffer;
 	}
@@ -51,16 +50,32 @@ struct VeritasEngine::IndexBufferImpl::Impl
 	}
 
 	ComPtr<ID3D11Buffer> m_buffer;
+	shared_ptr<DirectXState> m_dxState;
 	vector<unsigned int> m_indicies;
 };
 
-VeritasEngine::IndexBufferImpl::IndexBufferImpl()
-	: m_impl(std::make_unique<Impl>())
+VeritasEngine::IndexBufferImpl::IndexBufferImpl(shared_ptr<DirectXState> dxState)
+	: m_impl(std::make_unique<Impl>(dxState))
 {
 
 }
 
+VeritasEngine::IndexBufferImpl::IndexBufferImpl(IndexBufferImpl&& other) noexcept
+	: m_impl { std::move(other.m_impl) }
+{
+}
+
 VeritasEngine::IndexBufferImpl::~IndexBufferImpl() = default;
+
+VeritasEngine::IndexBufferImpl& VeritasEngine::IndexBufferImpl::operator=(IndexBufferImpl&& other) noexcept
+{
+	if(this != &other)
+	{
+		m_impl = std::move(other.m_impl);
+	}
+
+	return *this;
+}
 
 VeritasEngine::BufferIndicies VeritasEngine::IndexBufferImpl::AddIndicies(unsigned int* indicies, size_t numOfIndicies)
 {

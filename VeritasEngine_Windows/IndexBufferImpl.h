@@ -7,11 +7,16 @@
 
 namespace VeritasEngine
 {
+	class DirectXState;
+
 	class IndexBufferImpl: public IIndexBuffer
 	{
 	public:
-		IndexBufferImpl();
+		IndexBufferImpl(std::shared_ptr<DirectXState> dxState);
+		IndexBufferImpl(IndexBufferImpl&& other) noexcept;
 		~IndexBufferImpl();
+
+		IndexBufferImpl& operator=(IndexBufferImpl&& other) noexcept;
 
 		BufferIndicies AddIndicies(unsigned int* indicies, size_t numOfIndicies) override;
 		void* GetNativeBuffer() const override;

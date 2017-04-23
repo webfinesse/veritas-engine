@@ -1,10 +1,16 @@
 ﻿#include "TextureResourceLoader.h"
 #include <istream>
 
-#include "../VeritasEngineBase/TextureResourceLoaderImpl.h"
+#include "ITextureLoaderFactory.h"
+#include "ITextureLoader.h"
 #include "../VeritasEngineBase/ResourceHandle.h"
 
-VeritasEngine::TextureResourceLoader::~TextureResourceLoader() = default;
+VeritasEngine::TextureResourceLoader::TextureResourceLoader(std::shared_ptr<ITextureLoader> textureLoader)
+	: m_textureLoader { textureLoader }
+{
+}
+
+VeritasEngine::TextureResourceLoader::~TextureResourceLoader() noexcept = default;
 
 const char* VeritasEngine::TextureResourceLoader::GetExtension() const
 {
@@ -13,7 +19,5 @@ const char* VeritasEngine::TextureResourceLoader::GetExtension() const
 
 void VeritasEngine::TextureResourceLoader::LoadResource(IResourceManager& manager, std::istream& data, ResourceHandle& handle)
 {
-	TextureResourceLoaderImpl impl;
-
-	impl.Load(data, handle);
+	m_textureLoader->Load(data, handle);
 }

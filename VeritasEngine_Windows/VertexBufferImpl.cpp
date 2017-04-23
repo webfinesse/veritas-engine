@@ -1,4 +1,5 @@
 #include "VertexBufferImpl.h"
+#include "DirectXState.h"
 #include "../VeritasEngine/BufferIndicies.h"
 #include "WindowsUtil.h"
 
@@ -8,13 +9,10 @@
 
 using namespace Microsoft::WRL;
 
-extern ComPtr<ID3D11Device> g_device;
-extern ComPtr<ID3D11DeviceContext> g_context;
-
 struct VeritasEngine::VertexBufferImpl::Impl
 {
-	Impl(size_t vertexSize)
-		: m_buffer{}, m_verticies{}, m_sizeOfVertex{ vertexSize }, m_numVerticies{}
+	Impl(shared_ptr<DirectXState> dxState, size_t vertexSize)
+		: m_buffer{}, m_dxState{ dxState }, m_verticies{}, m_sizeOfVertex{ vertexSize }, m_numVerticies{}
 	{
 
 	}
@@ -35,7 +33,7 @@ struct VeritasEngine::VertexBufferImpl::Impl
 
 		ComPtr<ID3D11Buffer> newBuffer;
 
-		HHR(g_device->CreateBuffer(&bufferDesc, &initData, newBuffer.GetAddressOf()), "Error creating Vertex Buffer");
+		HHR(m_dxState->Device->CreateBuffer(&bufferDesc, &initData, newBuffer.GetAddressOf()), "Error creating Vertex Buffer");
 
 		m_buffer = newBuffer;
 	}
@@ -57,13 +55,14 @@ struct VeritasEngine::VertexBufferImpl::Impl
 	}
 
 	ComPtr<ID3D11Buffer> m_buffer;
+	std::shared_ptr<DirectXState> m_dxState;
 	vector<unsigned char> m_verticies;
 	size_t m_sizeOfVertex;
 	size_t m_numVerticies;
 };
 
-VeritasEngine::VertexBufferImpl::VertexBufferImpl(size_t vertexSize)
-	: m_impl(std::make_unique<Impl>(vertexSize))
+VeritasEngine::VertexBufferImpl::VertexBufferImpl(shared_ptr<DirectXState> dxState, size_t vertexSize)
+	: m_impl(std::make_unique<Impl>(dxState, vertexSize))
 {
 
 }

@@ -3,6 +3,7 @@
 #include <wrl\client.h>
 #include <d3d11.h>
 #include "WindowsUtil.h"
+#include "DirectXState.h"
 
 #include "../VeritasEngineBase/MathTypes.h"
 #include "../VeritasEngine/MeshInstance.h"
@@ -12,27 +13,102 @@
 
 using namespace Microsoft::WRL;
 
-ComPtr<ID3D11Device> g_device{};
-ComPtr<IDXGISwapChain> g_swapChain{};
-ComPtr<ID3D11DeviceContext> g_context{};
-ComPtr<ID3D11RenderTargetView> g_renderTargetView{};
-ComPtr<ID3D11DepthStencilView> g_depthStencilView{};
-
 struct VeritasEngine::RendererImpl::Impl
 {
 public:
-	Impl()
+	Impl(std::shared_ptr<DirectXState> dxState)
+		: m_dxState { dxState }
 	{
 
+	
+	}
+
+	void Init(void* osData, unsigned int bufferWidth, unsigned int bufferHeight)
+	{
+		HWND windowHandle = static_cast<HWND>(osData);
+		int creationFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
+
+#if defined(_DEBUG)
+		creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
+#endif
+
+		D3D_FEATURE_LEVEL featureLevels[] =
+		{
+			D3D_FEATURE_LEVEL_11_0
+		};
+
+		auto hr = D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, m_dxState->Device.GetAddressOf(), nullptr, m_dxState->Context.GetAddressOf());
+
+		HHR(hr, "Error Creating D3D11 Device");
+
+		ComPtr<IDXGIDevice1> dxgiDevice;
+		HHR(m_dxState->Device.As(&dxgiDevice), "Error getting infrastructure device");
+
+		ComPtr<IDXGIAdapter> dxgiAdapter;
+		HHR(dxgiDevice->GetAdapter(dxgiAdapter.GetAddressOf()), "Error getting infrastructure adapter");
+
+		ComPtr<IDXGIFactory1> dxgiFactory;
+		HHR(dxgiAdapter->GetParent(__uuidof(IDXGIFactory1), &dxgiFactory), "Error getting infrastructure factory");
+
+		DXGI_SWAP_CHAIN_DESC desc;
+		ZeroMemory(&desc, sizeof(DXGI_SWAP_CHAIN_DESC));
+
+		desc.BufferCount = 1;
+		desc.BufferDesc.Width = bufferWidth;
+		desc.BufferDesc.Height = bufferHeight;
+		desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		desc.BufferDesc.RefreshRate.Numerator = 60;
+		desc.BufferDesc.RefreshRate.Denominator = 1;
+		desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		desc.OutputWindow = windowHandle;
+		desc.SampleDesc.Count = 1;
+		desc.SampleDesc.Quality = 0;
+		desc.Windowed = TRUE;
+
+		HHR(dxgiFactory->CreateSwapChain(m_dxState->Device.Get(), &desc, m_dxState->SwapChain.GetAddressOf()), "Error creating swap chain");
+
+		HHR(dxgiDevice->SetMaximumFrameLatency(1), "Error setting maximum frame latency");
+
+		SetupBuffers(bufferWidth, bufferHeight);
+
+		D3D11_RASTERIZER_DESC rasterDesc;
+		ZeroMemory(&rasterDesc, sizeof(rasterDesc));
+		rasterDesc.CullMode = D3D11_CULL_BACK;
+		rasterDesc.FillMode = D3D11_FILL_MODE::D3D11_FILL_SOLID;
+
+		ComPtr<ID3D11RasterizerState> resultRasterizer;
+		m_dxState->Device->CreateRasterizerState(&rasterDesc, resultRasterizer.GetAddressOf());
+
+		m_dxState->Context->RSSetState(resultRasterizer.Get());
+	}
+
+	void Resize(unsigned int bufferWidth, unsigned int bufferHeight)
+	{
+		// Clear the previous window size specific context.
+		ID3D11RenderTargetView* nullViews[] = { nullptr };
+		m_dxState->Context->OMSetRenderTargets(ARRAYSIZE(nullViews), nullViews, nullptr);
+		m_dxState->RenderTargetView.Reset();
+		m_dxState->DepthStencilView.Reset();
+		m_dxState->Context->Flush();
+
+		m_dxState->SwapChain->ResizeBuffers(1, bufferWidth, bufferHeight, DXGI_FORMAT::DXGI_FORMAT_UNKNOWN, 0);
+
+		SetupBuffers(bufferWidth, bufferHeight);
+	}
+
+	void Present()
+	{
+		HHR(m_dxState->SwapChain->Present(0, 0), "Error swapping swap chain");
 	}
 
 	void SetupBuffers(unsigned int bufferWidth, unsigned int bufferHeight)
 	{
 		m_aspectRatio = bufferWidth / static_cast<float>(bufferHeight);
-		ComPtr<ID3D11Texture2D> backBuffer;
-		HHR(g_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuffer.GetAddressOf())), "error getting the backbuffer");
 
-		HHR(g_device->CreateRenderTargetView(backBuffer.Get(), nullptr, g_renderTargetView.GetAddressOf()), "Error creating the render target view");
+		ComPtr<ID3D11Texture2D> backBuffer;
+		HHR(m_dxState->SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuffer.GetAddressOf())), "error getting the backbuffer");
+
+		HHR(m_dxState->Device->CreateRenderTargetView(backBuffer.Get(), nullptr, m_dxState->RenderTargetView.GetAddressOf()), "Error creating the render target view");
 
 		D3D11_TEXTURE2D_DESC depthDesc;
 		depthDesc.Width = bufferWidth;
@@ -49,35 +125,42 @@ public:
 
 		ComPtr<ID3D11Texture2D> depthStencilBuffer;
 
-		HHR(g_device->CreateTexture2D(&depthDesc, nullptr, depthStencilBuffer.GetAddressOf()), "Error creating stencil buffer texture");
-		HHR(g_device->CreateDepthStencilView(depthStencilBuffer.Get(), nullptr, g_depthStencilView.GetAddressOf()), "Error creating depth stencil view");
+		HHR(m_dxState->Device->CreateTexture2D(&depthDesc, nullptr, depthStencilBuffer.GetAddressOf()), "Error creating stencil buffer texture");
+		HHR(m_dxState->Device->CreateDepthStencilView(depthStencilBuffer.Get(), nullptr, m_dxState->DepthStencilView.GetAddressOf()), "Error creating depth stencil view");
 
-		g_context->OMSetRenderTargets(1, g_renderTargetView.GetAddressOf(), g_depthStencilView.Get());
+		m_dxState->Context->OMSetRenderTargets(1, m_dxState->RenderTargetView.GetAddressOf(), m_dxState->DepthStencilView.Get());
 
 		D3D11_TEXTURE2D_DESC backBufferDesc{ 0 };
 		backBuffer->GetDesc(&backBufferDesc);
 
 		D3D11_VIEWPORT viewport{ 0.0f, 0.0f, static_cast<float>(backBufferDesc.Width), static_cast<float>(backBufferDesc.Height), 0.0f, 1.0f };
 
-		g_context->RSSetViewports(1, &viewport);
+		m_dxState->Context->RSSetViewports(1, &viewport);
+	}
+
+	void Clear()
+	{
+		float clearColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+		m_dxState->Context->ClearRenderTargetView(m_dxState->RenderTargetView.Get(), clearColor);
+		m_dxState->Context->ClearDepthStencilView(m_dxState->DepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0xFF);
 	}
 
 	void SetVertexBuffer(void* buffer, const unsigned int strides[], const unsigned int offsets[])
 	{
 		auto* nativeVertexBuffer = static_cast<ID3D11Buffer*>(buffer);
 
-		g_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		g_context->IASetVertexBuffers(0, 1, &nativeVertexBuffer, strides, offsets);
+		m_dxState->Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		m_dxState->Context->IASetVertexBuffers(0, 1, &nativeVertexBuffer, strides, offsets);
 	}
 
 	void SetIndexBuffer(void* buffer)
 	{
-		g_context->IASetIndexBuffer(static_cast<ID3D11Buffer*>(buffer), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
+		m_dxState->Context->IASetIndexBuffer(static_cast<ID3D11Buffer*>(buffer), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
 	}
 
 	void DrawIndexed(size_t indexCount, size_t indexOffset, size_t baseVertexIndex)
 	{
-		g_context->DrawIndexed(static_cast<UINT>(indexCount), static_cast<UINT>(indexOffset), static_cast<UINT>(baseVertexIndex));
+		m_dxState->Context->DrawIndexed(static_cast<UINT>(indexCount), static_cast<UINT>(indexOffset), static_cast<UINT>(baseVertexIndex));
 	}
 
 	void RenderSubset(const MeshInstance& mesh, unsigned int subsetIndex)
@@ -96,115 +179,28 @@ public:
 		DrawIndexed(subset.IndexCount(), subset.GetIndexOffset(), baseVertexIndex);
 	}
 
-	~Impl()
-	{
-		ID3D11RenderTargetView* nullViews[] = { nullptr };
-		g_context->OMSetRenderTargets(ARRAYSIZE(nullViews), nullViews, nullptr);
-
-		g_depthStencilView = nullptr;
-		g_renderTargetView = nullptr;
-		g_context = nullptr;
-		g_swapChain = nullptr;
-
-#if defined(_DEBUG)
-		ComPtr<ID3D11Debug> debugDevice = nullptr;
-		g_device.As(&debugDevice);
-
-		g_device = nullptr;
-
-		//debugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL); // uncomment when tracking down directx leaks
-		debugDevice = nullptr;
-#else
-		g_device = nullptr;
-#endif
-	}
-
 	float m_aspectRatio{ 0 };
+	std::shared_ptr<DirectXState> m_dxState;
 };
 
-void VeritasEngine::RendererImpl::Init(void * osData, unsigned int bufferWidth, unsigned int bufferHeight)
+void VeritasEngine::RendererImpl::Init(void* osData, unsigned int bufferWidth, unsigned int bufferHeight)
 {
-	HWND windowHandle = static_cast<HWND>(osData);
-	int creationFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
-
-#if defined(_DEBUG)
-	creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
-#endif
-
-	D3D_FEATURE_LEVEL featureLevels[] =
-	{
-		D3D_FEATURE_LEVEL_11_0
-	};
-
-	auto hr = D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, g_device.GetAddressOf(), nullptr, g_context.GetAddressOf());
-
-	HHR(hr, "Error Creating D3D11 Device");
-
-	ComPtr<IDXGIDevice1> dxgiDevice;
-	HHR(g_device.As(&dxgiDevice), "Error getting infrastructure device");
-
-	ComPtr<IDXGIAdapter> dxgiAdapter;
-	HHR(dxgiDevice->GetAdapter(dxgiAdapter.GetAddressOf()), "Error getting infrastructure adapter");
-
-	ComPtr<IDXGIFactory1> dxgiFactory;
-	HHR(dxgiAdapter->GetParent(__uuidof(IDXGIFactory1), &dxgiFactory), "Error getting infrastructure factory");
-
-	DXGI_SWAP_CHAIN_DESC desc;
-	ZeroMemory(&desc, sizeof(DXGI_SWAP_CHAIN_DESC));
-
-	desc.BufferCount = 1;
-	desc.BufferDesc.Width = bufferWidth;
-	desc.BufferDesc.Height = bufferHeight;
-	desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	desc.BufferDesc.RefreshRate.Numerator = 60;
-	desc.BufferDesc.RefreshRate.Denominator = 1;
-	desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	desc.OutputWindow = windowHandle;
-	desc.SampleDesc.Count = 1;
-	desc.SampleDesc.Quality = 0;
-	desc.Windowed = TRUE;
-
-	HHR(dxgiFactory->CreateSwapChain(g_device.Get(), &desc, g_swapChain.GetAddressOf()), "Error creating swap chain");
-
-	HHR(dxgiDevice->SetMaximumFrameLatency(1), "Error setting maximum frame latency");
-
-	m_impl->SetupBuffers(bufferWidth, bufferHeight);
-
-	D3D11_RASTERIZER_DESC rasterDesc;
-	ZeroMemory(&rasterDesc, sizeof(rasterDesc));
-	rasterDesc.CullMode = D3D11_CULL_BACK;
-	rasterDesc.FillMode = D3D11_FILL_MODE::D3D11_FILL_SOLID;
-
-	ComPtr<ID3D11RasterizerState> resultRasterizer;
-	g_device->CreateRasterizerState(&rasterDesc, resultRasterizer.GetAddressOf());
-
-	g_context->RSSetState(resultRasterizer.Get());
+	m_impl->Init(osData, bufferWidth, bufferHeight);
 }
 
 void VeritasEngine::RendererImpl::Resize(unsigned int bufferWidth, unsigned int bufferHeight)
 {
-	// Clear the previous window size specific context.
-	ID3D11RenderTargetView* nullViews[] = { nullptr };
-	g_context->OMSetRenderTargets(ARRAYSIZE(nullViews), nullViews, nullptr);
-	g_renderTargetView.Reset();
-	g_depthStencilView.Reset();
-	g_context->Flush();
-
-	g_swapChain->ResizeBuffers(1, bufferWidth, bufferHeight, DXGI_FORMAT::DXGI_FORMAT_UNKNOWN, 0);
-
-	m_impl->SetupBuffers(bufferWidth, bufferHeight);
+	m_impl->Resize(bufferWidth, bufferHeight);
 }
 
 void VeritasEngine::RendererImpl::Clear()
 {
-	float clearColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	g_context->ClearRenderTargetView(g_renderTargetView.Get(), clearColor);
-	g_context->ClearDepthStencilView(g_depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0xFF);
+	m_impl->Clear();
 }
 
 void VeritasEngine::RendererImpl::Present()
 {
-	HHR(g_swapChain->Present(0, 0), "Error swapping swap chain");
+	m_impl->Present();
 }
 
 float VeritasEngine::RendererImpl::GetAspectRatio() const
@@ -217,10 +213,26 @@ void VeritasEngine::RendererImpl::RenderSubset(const MeshInstance& mesh, unsigne
 	m_impl->RenderSubset(mesh, subsetIndex);
 }
 
-VeritasEngine::RendererImpl::RendererImpl()
-	: m_impl(std::make_unique<Impl>())
+VeritasEngine::RendererImpl::RendererImpl(std::shared_ptr<DirectXState> dxState)
+	: m_impl(std::make_unique<Impl>(dxState))
+{
+
+}
+
+VeritasEngine::RendererImpl::RendererImpl(RendererImpl&& other) noexcept
+	: m_impl { std::move(other.m_impl) }
 {
 
 }
 
 VeritasEngine::RendererImpl::~RendererImpl() = default;
+
+VeritasEngine::RendererImpl& VeritasEngine::RendererImpl::operator=(RendererImpl&& other) noexcept
+{
+	if(this != &other)
+	{
+		m_impl = std::move(other.m_impl);
+	}
+
+	return *this;
+}

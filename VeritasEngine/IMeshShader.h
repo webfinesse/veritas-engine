@@ -21,7 +21,7 @@ namespace VeritasEngine
 		virtual void SetCameraParameters(const Float3& eyePosition, const Matrix4x4& viewMatrix, const Matrix4x4& projectionMatrix) = 0;
 		virtual void SetPerObjectBuffer(const PerObjectBufferRef& buffer) = 0;
 
-		virtual ~IMeshShader() = default;
+		virtual ~IMeshShader() noexcept = default;
 	};
 }
 

@@ -39,9 +39,6 @@
     <ClInclude Include="MathTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MeshShaderImpl.h">
-      <Filter>Platform Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ResourceId.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -56,9 +53,6 @@
     </ClInclude>
     <ClInclude Include="zip_file.hpp">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TextureResourceLoaderImpl.h">
-      <Filter>Platform Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ResourceHandle.h">
       <Filter>Header Files</Filter>

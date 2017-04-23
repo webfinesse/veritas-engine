@@ -18,6 +18,7 @@ namespace VeritasEngine
 	class IResourceManager;
 	class IWorldSetup;
 	class IGameClock;
+	class IMeshShader;
 
 	class EXPORT Engine : public SmallObject<>
 	{
@@ -26,7 +27,8 @@ namespace VeritasEngine
 			   shared_ptr<IWorldSetup> worldSetup, 
 			   shared_ptr<IRenderingServices> renderingServices, 
 			   shared_ptr<IResourceManager> resourceManager,
-			   shared_ptr<IGameClock> gameClock);
+			   shared_ptr<IGameClock> gameClock,
+			   shared_ptr<IMeshShader> meshShader);
 
 		Engine(Engine&& other) noexcept;
 		Engine& operator=(Engine&& other) noexcept;
