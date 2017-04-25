@@ -174,7 +174,7 @@ void VeritasACP::MeshSerializer::Serialize(MeshExporterResult& meshInfo, fs::pat
 	{
 		auto result = SerializeMeshInfo<VeritasEngine::SkinnedMeshInfo>(meshInfo);
 		result.m_skeletonId = SerializeSkeleton(meshInfo, path);
-		SerializeArchive(result, path, L".vem");
+		SerializeArchive(result, path, L".veam");
 	}
 	else
 	{

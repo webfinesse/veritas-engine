@@ -21,9 +21,7 @@ namespace VeritasEngine
 		explicit GameObjectProperty(const char* name, StringHash jsonTag)
 			: m_propertyId{ Hash(name) }, m_name(name)
 		{
-			/*DeserializeMapping::Instance().Register(jsonTag, [this](Engine& engine, GameObjectHandle handle, JsonValue& values) -> void {
-				this->Deserialize(engine, handle, values);
-			});*/
+
 		}
 
 		bool operator==(const GameObjectProperty& other) const
@@ -87,9 +85,7 @@ namespace VeritasEngine
 		explicit GameObjectProperty(const char* name, StringHash jsonTag)
 			: m_propertyId{ Hash(name) }, m_name(name)
 		{
-			/*DeserializeMapping::Instance().Register(jsonTag, [this](Engine& engine, GameObjectHandle handle, JsonValue& values) -> void {
-				this->Deserialize(engine, handle, values);
-			});*/
+
 		}
 
 		bool operator==(const GameObjectProperty& other) const

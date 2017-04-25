@@ -1,14 +1,14 @@
 #include "RotateCameraProcess.h"
 
 #include "../VeritasEngine/GameObjectProperty.h"
-
-#include "../VeritasEngine/SceneGraphProperties.h"
 #include "../VeritasEngineBase/MathTypes.h"
+#include "../VeritasEngine/GamePropertyManager.h"
+#include "../VeritasEngine/GameObjectPropertyKeys.h"
 
-RotateCameraProcess::RotateCameraProcess(float cameraDistance, chrono::seconds interval)
+RotateCameraProcess::RotateCameraProcess(VeritasEngine::GamePropertyManager& gamePropertyManager, float cameraDistance, chrono::seconds interval)
 	: m_cameraDistance{ cameraDistance }, m_clock { interval, 0s, 1.0f, false }
 {
-	
+	m_cameraDistanceProperty = gamePropertyManager.GetProperty<VeritasEngine::Float3>(VeritasEngine::GameObjectPropertyKeys::CameraPosition);
 }
 
 
@@ -19,7 +19,7 @@ void RotateCameraProcess::OnInitialized()
 
 void RotateCameraProcess::OnUpdate(VeritasEngine::TimeDuration delta)
 {
-	auto cameraPosition = VeritasEngine::SceneGraphProperties::CameraPosition.GetProperty(1);
+	auto cameraPosition = m_cameraDistanceProperty->GetProperty(1);
 
 	auto percentComplete = m_clock.GetPercentComplete();
 

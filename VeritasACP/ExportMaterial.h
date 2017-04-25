@@ -1,7 +1,5 @@
 #pragma once
 
-#include <memory>
-
 #include "MeshExporterResult.h"
 
 #include "BoostFilesystemHelper.h"

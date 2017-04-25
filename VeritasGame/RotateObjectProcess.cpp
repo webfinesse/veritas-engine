@@ -2,13 +2,12 @@
 
 #include "../VeritasEngine/GameObjectProperty.h"
 #include "../VeritasEngineBase/GameObjectHandle.h"
+#include "../VeritasEngine/GameObjectPropertyKeys.h"
 
-#include "../VeritasEngine/SceneGraphProperties.h"
-
-RotateObjectProcess::RotateObjectProcess(GameObjectHandle handle)
+RotateObjectProcess::RotateObjectProcess(VeritasEngine::GamePropertyManager& gamePropertyManager, GameObjectHandle handle)
 	: m_handle(handle)
 {
-
+	m_worldPositionProperty = gamePropertyManager.GetProperty<Matrix4x4>(GameObjectPropertyKeys::WorldPosition);
 }
 
 void RotateObjectProcess::OnInitialized()
@@ -18,7 +17,7 @@ void RotateObjectProcess::OnInitialized()
 
 void RotateObjectProcess::OnUpdate(TimeDuration delta)
 {
-	auto worldMatrix = VeritasEngine::SceneGraphProperties::WorldPosition.GetProperty(m_handle);
+	auto worldMatrix = m_worldPositionProperty->GetProperty(m_handle);
 
 	auto count = chrono::duration_cast<chrono::seconds>(delta).count();
 	auto rotationMatrix = VeritasEngine::MathHelpers::CreateRotationRollPitchYawMatrix(static_cast<float>(0.5 * count), 0.0, 0.0);

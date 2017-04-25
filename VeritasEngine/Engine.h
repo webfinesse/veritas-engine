@@ -19,6 +19,7 @@ namespace VeritasEngine
 	class IWorldSetup;
 	class IGameClock;
 	class IMeshShader;
+	class GamePropertyManager;
 
 	class EXPORT Engine : public SmallObject<>
 	{
@@ -28,7 +29,8 @@ namespace VeritasEngine
 			   shared_ptr<IRenderingServices> renderingServices, 
 			   shared_ptr<IResourceManager> resourceManager,
 			   shared_ptr<IGameClock> gameClock,
-			   shared_ptr<IMeshShader> meshShader);
+			   shared_ptr<IMeshShader> meshShader,
+			   shared_ptr<GamePropertyManager> gamePropertyManager);
 
 		Engine(Engine&& other) noexcept;
 		Engine& operator=(Engine&& other) noexcept;
@@ -43,6 +45,7 @@ namespace VeritasEngine
 		float GetCurrentFps() const;
 		IRenderingServices& GetRenderingServices() const;
 		IProcessManager& GetProcessManager() const;
+		GamePropertyManager& GetGamePropertyManager() const;
 		IWorldSetup& GetWorldSetup() const;
 		IResourceManager& GetResourceManager() const;
 	private:

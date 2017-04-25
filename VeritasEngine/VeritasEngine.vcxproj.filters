@@ -73,12 +73,6 @@
     <ClCompile Include="Engine.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="RendererProperties.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneGraphProperties.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
     <ClCompile Include="SmallObject.cpp">
       <Filter>Core</Filter>
     </ClCompile>
@@ -106,12 +100,6 @@
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="GameObjectProperty.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="RendererProperties.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneGraphProperties.h">
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="ResourceManager.h">
@@ -263,6 +251,12 @@
     </ClInclude>
     <ClInclude Include="ITextureLoader.h">
       <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="GamePropertyManager.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObjectPropertyKeys.h">
+      <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

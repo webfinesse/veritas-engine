@@ -8,16 +8,19 @@
 #include "MatrixStack.h"
 #include "MeshInstance.h"
 #include "MeshNode.h"
-#include "SceneGraphProperties.h"
-#include "RendererProperties.h"
 #include "IMeshShader.h"
 #include "RenderPass.h"
+#include "MeshInstance.h"
+#include "MeshSubset.h"
 
 #include "../VeritasEngineBase/MathTypes.h"
 #include "../VeritasEngineBase/Material.h"
 #include "../VeritasEngineBase/PerObjectBuffer.h"
 #include "../VeritasEngineBase/ResourceHandle.h"
 #include "../VeritasEngineBase/Light.h"
+#include "GamePropertyManager.h"
+
+#include "GameObjectPropertyKeys.h"
 
 
 struct SceneNode : public VeritasEngine::SmallObject<>
@@ -34,8 +37,8 @@ struct SceneNode : public VeritasEngine::SmallObject<>
 
 struct VeritasEngine::Scene::Impl
 {
-	Impl()
-		: m_cameraHandle(-1), m_lightHandles(), m_lightData(), m_mapping(), m_root(), m_matrixStack(), m_meshShader(nullptr), m_currentShader(nullptr)
+	Impl(std::shared_ptr<GamePropertyManager> gamePropertyManager)
+		: m_cameraHandle(-1), m_lightHandles(), m_lightData(), m_mapping(), m_root(), m_matrixStack(), m_meshShader(nullptr), m_currentShader(nullptr), m_gamePropertyManager{ gamePropertyManager }
 	{
 		m_lightHandles.reserve(8);
 
@@ -47,6 +50,14 @@ struct VeritasEngine::Scene::Impl
 		{
 			light.Enabled = 0;
 		}
+
+		m_nodeType = gamePropertyManager->GetProperty<SceneNodeType>(GameObjectPropertyKeys::SceneNodeType);
+		m_worldPosition = gamePropertyManager->GetProperty<Matrix4x4>(GameObjectPropertyKeys::WorldPosition);
+		m_resourcedMesh = gamePropertyManager->GetProperty<ResourceHandle*>(GameObjectPropertyKeys::ResourcedMesh);
+		m_objectMesh = gamePropertyManager->GetProperty<MeshInstance>(GameObjectPropertyKeys::ObjectMesh);
+		m_cameraTarget = gamePropertyManager->GetProperty<Float3>(GameObjectPropertyKeys::CameraTarget);
+		m_cameraPosition = gamePropertyManager->GetProperty<Float3>(GameObjectPropertyKeys::CameraPosition);
+		m_light = gamePropertyManager->GetProperty<Light>(GameObjectPropertyKeys::Light);
 	}
 
 	void RenderResourcedMesh(const IRenderer& renderer, const MeshInstance& instance, const MeshNode& currentNode)
@@ -76,9 +87,9 @@ struct VeritasEngine::Scene::Impl
 
 	void Render(const IRenderer& renderer, const SceneNode& node)
 	{
-		auto type = *SceneGraphProperties::Type.GetProperty(node.m_handle);
+		auto type = *m_nodeType->GetProperty(node.m_handle);
 
-		auto matrix = SceneGraphProperties::WorldPosition.GetProperty(node.m_handle);
+		auto matrix = m_worldPosition->GetProperty(node.m_handle);
 
 		if (matrix != nullptr)
 		{
@@ -89,7 +100,7 @@ struct VeritasEngine::Scene::Impl
 		{
 			case SceneNodeType::ResourcedMesh:
 			{
-				auto meshResource = VeritasEngine::RendererProperties::ResourcedMesh.GetProperty(node.m_handle);
+				auto meshResource = m_resourcedMesh->GetProperty(node.m_handle);
 				const MeshInstance& meshInstance = meshResource->GetData<MeshInstance>();
 
 				auto& rootNode = meshInstance.GetRootNode();
@@ -108,7 +119,7 @@ struct VeritasEngine::Scene::Impl
 				PerObjectBufferRef buffer(m_matrixStack.Peek(), inverseTranspose, m_material);
 				m_meshShader->SetPerObjectBuffer(buffer);
 
-				auto mesh = VeritasEngine::RendererProperties::ObjectMesh.GetProperty(node.m_handle);
+				auto mesh = m_objectMesh->GetProperty(node.m_handle);
 
 				//renderer.RenderMesh(mesh);
 				break;
@@ -131,14 +142,23 @@ struct VeritasEngine::Scene::Impl
 	std::array<Light, Light::MAX_LIGHTS> m_lightData;
 	AssocVector<GameObjectHandle, SceneNode*> m_mapping;
 	std::vector<SceneNode> m_root;
-	VeritasEngine::MatrixStack m_matrixStack;
-	VeritasEngine::Material m_material;
-	std::shared_ptr<VeritasEngine::IMeshShader> m_meshShader;
-	std::shared_ptr<VeritasEngine::IMeshShader> m_currentShader;
+	MatrixStack m_matrixStack;
+	Material m_material;
+	std::shared_ptr<IMeshShader> m_meshShader;
+	std::shared_ptr<IMeshShader> m_currentShader;
+
+	std::shared_ptr<GamePropertyManager> m_gamePropertyManager;
+	GameObjectProperty<SceneNodeType>* m_nodeType;
+	GameObjectProperty<Matrix4x4>* m_worldPosition;
+	GameObjectProperty<ResourceHandle*>* m_resourcedMesh;
+	GameObjectProperty<MeshInstance>* m_objectMesh;
+	GameObjectProperty<Float3>* m_cameraPosition;
+	GameObjectProperty<Float3>* m_cameraTarget;
+	GameObjectProperty<Light>* m_light;
 };
 
-VeritasEngine::Scene::Scene()
-	: m_impl(std::make_unique<Impl>())
+VeritasEngine::Scene::Scene(std::shared_ptr<GamePropertyManager> gamePropertyManager)
+	: m_impl(std::make_unique<Impl>(gamePropertyManager))
 {
 
 }
@@ -191,8 +211,8 @@ void VeritasEngine::Scene::OnRender(IRenderer& renderer)
 				m_impl->m_currentShader->Activate();
 			}
 
-			const auto& positionVec = *SceneGraphProperties::CameraPosition.GetProperty(m_impl->m_cameraHandle);
-			const auto& cameraTarget = *SceneGraphProperties::CameraTarget.GetProperty(m_impl->m_cameraHandle);
+			const auto& positionVec = *m_impl->m_cameraPosition->GetProperty(m_impl->m_cameraHandle);
+			const auto& cameraTarget = *m_impl->m_cameraTarget->GetProperty(m_impl->m_cameraHandle);
 			const Float3 cameraUp = { 0.0f, 1.0f, 0.0f };
 
 			auto viewMatrix = MathHelpers::CreateLookAtMatrix(positionVec, cameraTarget, cameraUp);
@@ -208,7 +228,7 @@ void VeritasEngine::Scene::OnRender(IRenderer& renderer)
 
 			for (size_t i = 0; i < m_impl->m_lightHandles.size(); i++)
 			{
-				auto light = SceneGraphProperties::Light.GetProperty(m_impl->m_lightHandles[i]);
+				auto light = m_impl->m_light->GetProperty(m_impl->m_lightHandles[i]);
 				m_impl->m_lightData[i] = *light;
 			}
 
@@ -236,7 +256,7 @@ void VeritasEngine::Scene::Add(const GameObjectHandle handle)
 	m_impl->m_root.emplace_back(handle);
 	m_impl->m_mapping[handle] = &m_impl->m_root.back();
 
-	auto type = *SceneGraphProperties::Type.GetProperty(handle);
+	auto type = *m_impl->m_nodeType->GetProperty(handle);
 
 	if (type == SceneNodeType::Camera) 
 	{

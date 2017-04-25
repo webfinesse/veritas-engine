@@ -20,6 +20,8 @@
 #include "GameClock.h"
 #include "VertexBufferManager.h"
 
+#include "GamePropertyManager.h"
+
 namespace di = boost::di;
 
 inline auto CreateEngineDependencyInjector()
@@ -28,6 +30,7 @@ inline auto CreateEngineDependencyInjector()
 		di::bind<VeritasEngine::IGameClock>().to<VeritasEngine::GameClock>().in(di::singleton),
 		di::bind<VeritasEngine::IProcessManager>().to<VeritasEngine::ProcessManager>().in(di::singleton),
 		di::bind<VeritasEngine::IDeserializeMapping>().to<VeritasEngine::DeserializeMapping>().in(di::singleton),
+		di::bind<VeritasEngine::GamePropertyManager>().in(di::singleton),
 		di::bind<VeritasEngine::IWorldSetup>().to<VeritasEngine::WorldSetup>().in(di::singleton),
 		di::bind<VeritasEngine::IRenderingServices>().to<VeritasEngine::RenderingServices>().in(di::singleton),
 		di::bind<VeritasEngine::IScene>().to<VeritasEngine::Scene>().in(di::singleton),

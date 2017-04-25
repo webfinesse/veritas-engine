@@ -13,11 +13,12 @@ namespace VeritasEngine
 {
 	class Renderer;
 	class IMeshShader;
+	class GamePropertyManager;
 
 	class Scene: public SmallObject<>, public IScene
 	{
 	public:
-		Scene();
+		Scene(std::shared_ptr<GamePropertyManager> gamePropertyManager);
 		~Scene() override;
 
 		Scene(Scene&& other) noexcept;

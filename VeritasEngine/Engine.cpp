@@ -13,8 +13,9 @@
 
 #include "SkinnedVertex.h"
 #include "Vertex.h"
+#include "GamePropertyManager.h"
 
-#include "RendererProperties.h"
+#include "GameObjectPropertyKeys.h"
 
 using namespace std;
 
@@ -25,8 +26,9 @@ struct VeritasEngine::Engine::Impl : public VeritasEngine::SmallObject<>
 		 shared_ptr<IRenderingServices> renderingServices, 
 	     shared_ptr<IResourceManager> resourceManager,
 		 shared_ptr<IGameClock> gameClock,
-		 shared_ptr<IMeshShader> meshShader)
-		: m_gameClock{ std::move(gameClock) }, m_processManager{ std::move(processManager) }, m_worldSetup{ std::move(worldSetup) }, m_resourceManager{ std::move(resourceManager) }, m_renderingServices{ std::move(renderingServices) }, m_meshShader{ meshShader }
+		 shared_ptr<IMeshShader> meshShader,
+		 shared_ptr<GamePropertyManager> gamePropertyManager)
+		: m_gameClock{ std::move(gameClock) }, m_processManager{ std::move(processManager) }, m_worldSetup{ std::move(worldSetup) }, m_resourceManager{ std::move(resourceManager) }, m_renderingServices{ std::move(renderingServices) }, m_meshShader{ meshShader }, m_gamePropertyManager { gamePropertyManager }
 	{
 
 	}
@@ -37,6 +39,7 @@ struct VeritasEngine::Engine::Impl : public VeritasEngine::SmallObject<>
 	shared_ptr<IResourceManager> m_resourceManager;
 	shared_ptr<IRenderingServices> m_renderingServices;
 	shared_ptr<IMeshShader> m_meshShader;
+	shared_ptr<GamePropertyManager> m_gamePropertyManager;
 
 	float m_currentFps { 0 };
 	bool m_isInitialized { false };
@@ -47,8 +50,9 @@ VeritasEngine::Engine::Engine(shared_ptr<IProcessManager> processManager,
 						      shared_ptr<IRenderingServices> renderingServices, 
 							  shared_ptr<IResourceManager> resourceManager,
 						      shared_ptr<IGameClock> gameClock,
-							  shared_ptr<IMeshShader> meshShader)
-	: m_impl(std::make_unique<Impl>(processManager, worldSetup, renderingServices, resourceManager, gameClock, meshShader))
+							  shared_ptr<IMeshShader> meshShader,
+							  shared_ptr<GamePropertyManager> gamePropertyManager)
+	: m_impl(std::make_unique<Impl>(processManager, worldSetup, renderingServices, resourceManager, gameClock, meshShader, gamePropertyManager))
 {
 	
 }
@@ -68,11 +72,7 @@ VeritasEngine::Engine& VeritasEngine::Engine::operator=(Engine&& other) noexcept
 	return *this;
 }
 
-VeritasEngine::Engine::~Engine()
-{
-	VeritasEngine::RendererProperties::ResourcedMesh.Clear();
-	VeritasEngine::RendererProperties::ObjectMesh.Clear();
-};
+VeritasEngine::Engine::~Engine() = default;
 
 VeritasEngine::IRenderingServices& VeritasEngine::Engine::GetRenderingServices() const
 {
@@ -82,6 +82,11 @@ VeritasEngine::IRenderingServices& VeritasEngine::Engine::GetRenderingServices()
 VeritasEngine::IProcessManager& VeritasEngine::Engine::GetProcessManager() const
 {
 	return *m_impl->m_processManager;
+}
+
+VeritasEngine::GamePropertyManager& VeritasEngine::Engine::GetGamePropertyManager() const
+{
+	return *m_impl->m_gamePropertyManager;
 }
 
 VeritasEngine::IWorldSetup& VeritasEngine::Engine::GetWorldSetup() const
@@ -96,6 +101,19 @@ VeritasEngine::IResourceManager& VeritasEngine::Engine::GetResourceManager() con
 
 void VeritasEngine::Engine::Init(void* osData, unsigned int bufferWidth, unsigned int bufferHeight)
 {
+	auto& gamePropertyManager = *m_impl->m_gamePropertyManager;
+	gamePropertyManager.RegisterProperty<MeshInstance>("Object Mesh", GameObjectPropertyKeys::ObjectMesh);
+	gamePropertyManager.RegisterProperty<ResourceHandle*>("ResourcedMesh", GameObjectPropertyKeys::ResourcedMesh);
+
+	gamePropertyManager.RegisterProperty<SceneNodeType>("Scene Node Type", GameObjectPropertyKeys::SceneNodeType);
+	gamePropertyManager.RegisterProperty<Matrix4x4>("World Position", GameObjectPropertyKeys::WorldPosition);
+
+	gamePropertyManager.RegisterProperty<Float3>("Camera Target", GameObjectPropertyKeys::CameraTarget);
+	gamePropertyManager.RegisterProperty<Float3>("Camera Position", GameObjectPropertyKeys::CameraPosition);
+
+	gamePropertyManager.RegisterProperty<Light>("Light", GameObjectPropertyKeys::Light);
+
+
 	m_impl->m_worldSetup->Init(*this);
 	m_impl->m_renderingServices->GetRenderer().Init(osData, bufferWidth, bufferHeight);
 

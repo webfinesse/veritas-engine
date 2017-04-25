@@ -102,6 +102,7 @@
       <PreprocessorDefinitions>_EXPORTING;WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>false</SDLCheck>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <AdditionalOptions>/std:c++latest %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -118,6 +119,7 @@
       <SDLCheck>false</SDLCheck>
       <AdditionalIncludeDirectories>..\Includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <AdditionalOptions>/std:c++latest %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -138,6 +140,7 @@
       <PreprocessorDefinitions>_EXPORTING;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>false</SDLCheck>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <AdditionalOptions>/std:c++latest %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -161,6 +164,7 @@
       <SDLCheck>false</SDLCheck>
       <AdditionalIncludeDirectories>..\Includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <AdditionalOptions>/std:c++latest %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -187,7 +191,6 @@
     <ClCompile Include="MeshNode.cpp" />
     <ClCompile Include="MeshResourceLoader.cpp" />
     <ClCompile Include="MeshSubset.cpp" />
-    <ClCompile Include="RendererProperties.cpp" />
     <ClCompile Include="SkeletonResourceLoader.cpp" />
     <ClCompile Include="SmallObject.cpp" />
     <ClCompile Include="TextureResourceLoader.cpp" />
@@ -196,7 +199,6 @@
     <ClCompile Include="RenderingServices.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Scene.cpp" />
-    <ClCompile Include="SceneGraphProperties.cpp" />
     <ClCompile Include="SceneNode.cpp" />
     <ClCompile Include="VertexBufferManager.cpp" />
     <ClCompile Include="WorldSetup.cpp" />
@@ -209,6 +211,8 @@
     <ClInclude Include="EngineDepenencyInjector.h" />
     <ClInclude Include="EngineFactory.h" />
     <ClInclude Include="GameClock.h" />
+    <ClInclude Include="GameObjectPropertyKeys.h" />
+    <ClInclude Include="GamePropertyManager.h" />
     <ClInclude Include="IDeserializeMapping.h" />
     <ClInclude Include="IGameClock.h" />
     <ClInclude Include="IIndexBuffer.h" />
@@ -246,11 +250,9 @@
     <ClInclude Include="Process.h" />
     <ClInclude Include="ProcessManager.h" />
     <ClInclude Include="JsonValue.h" />
-    <ClInclude Include="RendererProperties.h" />
     <ClInclude Include="RenderingServices.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="Scene.h" />
-    <ClInclude Include="SceneGraphProperties.h" />
     <ClInclude Include="SceneNode.h" />
     <ClInclude Include="SceneNodeType.h" />
     <ClInclude Include="Vertex.h" />
