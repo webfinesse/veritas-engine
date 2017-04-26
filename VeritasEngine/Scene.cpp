@@ -51,24 +51,16 @@ struct VeritasEngine::Scene::Impl
 			light.Enabled = 0;
 		}
 
-		gamePropertyManager->RegisterProperty<MeshInstance>("Object Mesh", GameObjectPropertyKeys::ObjectMesh);
-		gamePropertyManager->RegisterProperty<ResourceHandle*>("ResourcedMesh", GameObjectPropertyKeys::ResourcedMesh);
+		m_objectMesh = gamePropertyManager->RegisterProperty<MeshInstance>("Object Mesh", GameObjectPropertyKeys::ObjectMesh);
+		m_resourcedMesh = gamePropertyManager->RegisterProperty<ResourceHandle*>("ResourcedMesh", GameObjectPropertyKeys::ResourcedMesh);
 
-		gamePropertyManager->RegisterProperty<SceneNodeType>("Scene Node Type", GameObjectPropertyKeys::SceneNodeType);
-		gamePropertyManager->RegisterProperty<Matrix4x4>("World Position", GameObjectPropertyKeys::WorldPosition);
+		m_nodeType = gamePropertyManager->RegisterProperty<SceneNodeType>("Scene Node Type", GameObjectPropertyKeys::SceneNodeType);
+		m_worldPosition = gamePropertyManager->RegisterProperty<Matrix4x4>("World Position", GameObjectPropertyKeys::WorldPosition);
 
-		gamePropertyManager->RegisterProperty<Float3>("Camera Target", GameObjectPropertyKeys::CameraTarget);
-		gamePropertyManager->RegisterProperty<Float3>("Camera Position", GameObjectPropertyKeys::CameraPosition);
+		m_cameraTarget = gamePropertyManager->RegisterProperty<Float3>("Camera Target", GameObjectPropertyKeys::CameraTarget);
+		m_cameraPosition = gamePropertyManager->RegisterProperty<Float3>("Camera Position", GameObjectPropertyKeys::CameraPosition);
 
-		gamePropertyManager->RegisterProperty<Light>("Light", GameObjectPropertyKeys::Light);
-
-		m_nodeType = gamePropertyManager->GetProperty<SceneNodeType>(GameObjectPropertyKeys::SceneNodeType);
-		m_worldPosition = gamePropertyManager->GetProperty<Matrix4x4>(GameObjectPropertyKeys::WorldPosition);
-		m_resourcedMesh = gamePropertyManager->GetProperty<ResourceHandle*>(GameObjectPropertyKeys::ResourcedMesh);
-		m_objectMesh = gamePropertyManager->GetProperty<MeshInstance>(GameObjectPropertyKeys::ObjectMesh);
-		m_cameraTarget = gamePropertyManager->GetProperty<Float3>(GameObjectPropertyKeys::CameraTarget);
-		m_cameraPosition = gamePropertyManager->GetProperty<Float3>(GameObjectPropertyKeys::CameraPosition);
-		m_light = gamePropertyManager->GetProperty<Light>(GameObjectPropertyKeys::Light);
+		m_light = gamePropertyManager->RegisterProperty<Light>("Light", GameObjectPropertyKeys::Light);
 	}
 
 	void RenderResourcedMesh(const IRenderer& renderer, const MeshInstance& instance, const MeshNode& currentNode)

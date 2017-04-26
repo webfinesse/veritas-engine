@@ -37,25 +37,27 @@ namespace VeritasEngine
 		}
 
 		template <typename T>
-		void RegisterProperty(const char* name, StringHash jsonTag)
+		auto RegisterProperty(const char* name, StringHash jsonTag)
 		{
-			m_properties[jsonTag] = std::make_any<GameObjectProperty<T>>(name, jsonTag);
+			m_properties[jsonTag] = std::make_any<GameObjectProperty<T>>(name);
 
 			auto propAddress = GetProperty<T>(jsonTag);
 
 			m_deserializeMapping->Register(jsonTag, [propAddress](Engine& engine, GameObjectHandle handle, JsonValue& values) -> void {
 				propAddress->Deserialize(engine, handle, values);
 			});
+
+			return propAddress;
 		}
 
 		template <typename T>
-		GameObjectProperty<T>* GetProperty(const char* name)
+		auto GetProperty(const char* name)
 		{
 			return GetProperty<T>(Hash(name));
 		}
 
 		template <typename T>
-		GameObjectProperty<T>* GetProperty(StringHash name)
+		auto GetProperty(StringHash name)
 		{
 			auto foo = &m_properties[name];
 			return any_cast<GameObjectProperty<T>>(foo);

@@ -9,7 +9,7 @@
 #include "SmallObject.h"
 
 #include "DeserializerFactory.h"
-#include "IDeserializeMapping.h"
+#include "StringHash.h"
 
 using namespace std;
 
@@ -18,7 +18,7 @@ namespace VeritasEngine
 	template <typename T>
 	class GameObjectProperty: public SmallObject<> {
 	public:
-		GameObjectProperty(const char* name, StringHash jsonTag)
+		GameObjectProperty(const char* name)
 			: m_propertyId{ Hash(name) }, m_name(name), m_properties{}
 		{
 
@@ -92,7 +92,7 @@ namespace VeritasEngine
 	template <typename T>
 	class GameObjectProperty<T*> : public SmallObject<> {
 	public:
-		explicit GameObjectProperty(const char* name, StringHash jsonTag)
+		explicit GameObjectProperty(const char* name)
 			: m_propertyId{ Hash(name) }, m_name(name)
 		{
 
