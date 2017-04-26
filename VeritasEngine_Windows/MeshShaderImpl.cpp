@@ -9,9 +9,11 @@
 #include "../VeritasEngineBase/PerFrameBuffer.h"
 #include "../VeritasEngineBase/PerObjectBuffer.h"
 #include "../VeritasEngineBase/ResourceHandle.h"
-#include "../VeritasEngineBase/FileHelper.h"
 #include "DirectXTextureData.h"
 #include "DirectXState.h"
+
+#include "MeshVertxShader.h"
+#include "MeshPixelShader.h"
 
 using namespace Microsoft::WRL;
 
@@ -25,10 +27,7 @@ struct VeritasEngine::MeshShaderImpl::Impl
 
 	void Init()
 	{
-		unsigned int length;
-		auto* fileData = FileHelper::ReadFile("VertexShader.cso", &length);
-
-		HHR(m_dxState->Device->CreateVertexShader(fileData, length, nullptr, m_vertexShader.GetAddressOf()), "Failed creating vertex shader");
+		HHR(m_dxState->Device->CreateVertexShader(g_meshVertexShader, sizeof(g_meshVertexShader), nullptr, m_vertexShader.GetAddressOf()), "Failed creating vertex shader");
 
 		D3D11_INPUT_ELEMENT_DESC ied[] =
 		{
@@ -39,17 +38,11 @@ struct VeritasEngine::MeshShaderImpl::Impl
 			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 		};
 
-		HHR(m_dxState->Device->CreateInputLayout(ied, sizeof(ied) / sizeof(ied[0]), fileData, length, m_inputLayout.GetAddressOf()), "Could not create input layout");
+		HHR(m_dxState->Device->CreateInputLayout(ied, sizeof(ied) / sizeof(ied[0]), g_meshVertexShader, sizeof(g_meshVertexShader), m_inputLayout.GetAddressOf()), "Could not create input layout");
 
-		delete[] fileData;
-		fileData = nullptr;
+		HHR(m_dxState->Device->CreatePixelShader(g_meshPixelShader, sizeof(g_meshPixelShader), nullptr, m_pixelShader.GetAddressOf()), "failed creating pixel shader");
 
-		fileData = FileHelper::ReadFile("PixelShader.cso", &length);
-
-		HHR(m_dxState->Device->CreatePixelShader(fileData, length, nullptr, m_pixelShader.GetAddressOf()), "failed creating pixel shader");
-
-		delete[] fileData;
-
+		
 		D3D11_BUFFER_DESC cbDesc;
 		cbDesc.ByteWidth = sizeof(CameraBuffer);
 		cbDesc.Usage = D3D11_USAGE_DYNAMIC;
