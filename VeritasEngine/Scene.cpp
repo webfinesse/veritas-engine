@@ -51,6 +51,17 @@ struct VeritasEngine::Scene::Impl
 			light.Enabled = 0;
 		}
 
+		gamePropertyManager->RegisterProperty<MeshInstance>("Object Mesh", GameObjectPropertyKeys::ObjectMesh);
+		gamePropertyManager->RegisterProperty<ResourceHandle*>("ResourcedMesh", GameObjectPropertyKeys::ResourcedMesh);
+
+		gamePropertyManager->RegisterProperty<SceneNodeType>("Scene Node Type", GameObjectPropertyKeys::SceneNodeType);
+		gamePropertyManager->RegisterProperty<Matrix4x4>("World Position", GameObjectPropertyKeys::WorldPosition);
+
+		gamePropertyManager->RegisterProperty<Float3>("Camera Target", GameObjectPropertyKeys::CameraTarget);
+		gamePropertyManager->RegisterProperty<Float3>("Camera Position", GameObjectPropertyKeys::CameraPosition);
+
+		gamePropertyManager->RegisterProperty<Light>("Light", GameObjectPropertyKeys::Light);
+
 		m_nodeType = gamePropertyManager->GetProperty<SceneNodeType>(GameObjectPropertyKeys::SceneNodeType);
 		m_worldPosition = gamePropertyManager->GetProperty<Matrix4x4>(GameObjectPropertyKeys::WorldPosition);
 		m_resourcedMesh = gamePropertyManager->GetProperty<ResourceHandle*>(GameObjectPropertyKeys::ResourcedMesh);

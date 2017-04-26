@@ -101,19 +101,6 @@ VeritasEngine::IResourceManager& VeritasEngine::Engine::GetResourceManager() con
 
 void VeritasEngine::Engine::Init(void* osData, unsigned int bufferWidth, unsigned int bufferHeight)
 {
-	auto& gamePropertyManager = *m_impl->m_gamePropertyManager;
-	gamePropertyManager.RegisterProperty<MeshInstance>("Object Mesh", GameObjectPropertyKeys::ObjectMesh);
-	gamePropertyManager.RegisterProperty<ResourceHandle*>("ResourcedMesh", GameObjectPropertyKeys::ResourcedMesh);
-
-	gamePropertyManager.RegisterProperty<SceneNodeType>("Scene Node Type", GameObjectPropertyKeys::SceneNodeType);
-	gamePropertyManager.RegisterProperty<Matrix4x4>("World Position", GameObjectPropertyKeys::WorldPosition);
-
-	gamePropertyManager.RegisterProperty<Float3>("Camera Target", GameObjectPropertyKeys::CameraTarget);
-	gamePropertyManager.RegisterProperty<Float3>("Camera Position", GameObjectPropertyKeys::CameraPosition);
-
-	gamePropertyManager.RegisterProperty<Light>("Light", GameObjectPropertyKeys::Light);
-
-
 	m_impl->m_worldSetup->Init(*this);
 	m_impl->m_renderingServices->GetRenderer().Init(osData, bufferWidth, bufferHeight);
 

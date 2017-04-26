@@ -18,10 +18,20 @@ namespace VeritasEngine
 	template <typename T>
 	class GameObjectProperty: public SmallObject<> {
 	public:
-		explicit GameObjectProperty(const char* name, StringHash jsonTag)
-			: m_propertyId{ Hash(name) }, m_name(name)
+		GameObjectProperty(const char* name, StringHash jsonTag)
+			: m_propertyId{ Hash(name) }, m_name(name), m_properties{}
 		{
 
+		}
+
+		GameObjectProperty(const GameObjectProperty& other)
+		{
+			if(this != &other)
+			{
+				m_propertyId = other.m_propertyId;
+				m_name = other.m_name;
+				m_properties = other.m_properties;
+			}
 		}
 
 		bool operator==(const GameObjectProperty& other) const

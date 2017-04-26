@@ -14,21 +14,22 @@ namespace VeritasEngine
 	{
 	public:
 		GamePropertyManager(shared_ptr<IDeserializeMapping> deserializeMapping)
-			: m_deserializeMapping{ std::move(deserializeMapping) }
+			: m_deserializeMapping{ std::move(deserializeMapping) }, m_properties{}
 		{
 			
 		}
 
-		GamePropertyManager(GamePropertyManager&& other) noexcept
-			: m_properties{ std::move(other.m_properties) }
+		GamePropertyManager(const GamePropertyManager&& other) noexcept
+			: m_deserializeMapping{ std::move(other.m_deserializeMapping)}, m_properties{ std::move(other.m_properties) }
 		{
 			
 		}
 
-		GamePropertyManager& operator=(GamePropertyManager&& other) noexcept
+		GamePropertyManager& operator=(const GamePropertyManager&& other) noexcept
 		{
 			if(this != &other)
 			{
+				m_deserializeMapping = std::move(other.m_deserializeMapping);
 				m_properties = std::move(other.m_properties);
 			}
 
@@ -38,8 +39,7 @@ namespace VeritasEngine
 		template <typename T>
 		void RegisterProperty(const char* name, StringHash jsonTag)
 		{
-			auto prop = GameObjectProperty<T>(name, jsonTag);
-			m_properties[jsonTag].emplace<std::any>(std::move(prop));
+			m_properties[jsonTag] = std::make_any<GameObjectProperty<T>>(name, jsonTag);
 
 			auto propAddress = GetProperty<T>(jsonTag);
 
@@ -57,11 +57,12 @@ namespace VeritasEngine
 		template <typename T>
 		GameObjectProperty<T>* GetProperty(StringHash name)
 		{
-			return any_cast<GameObjectProperty<T>*>(m_properties[name]);
+			auto foo = &m_properties[name];
+			return any_cast<GameObjectProperty<T>>(foo);
 		}
 
 	private:
 		shared_ptr<IDeserializeMapping> m_deserializeMapping;
-		AssocVector<StringHash, std::any> m_properties{};
+		AssocVector<StringHash, std::any> m_properties;
 	};
 }
