@@ -5,9 +5,9 @@
 
 #include "WindowsUtil.h"
 
-#include "../VeritasEngineBase/CameraBuffer.h"
-#include "../VeritasEngineBase/PerFrameBuffer.h"
-#include "../VeritasEngineBase/PerObjectBuffer.h"
+#include "../VeritasEngine/PassBuffer.h"
+#include "../VeritasEngine/FrameDescription.h"
+#include "../VeritasEngine/PerObjectBuffer.h"
 #include "../VeritasEngineBase/ResourceHandle.h"
 #include "DirectXTextureData.h"
 #include "DirectXState.h"
@@ -44,18 +44,18 @@ struct VeritasEngine::MeshShaderImpl::Impl
 
 		
 		D3D11_BUFFER_DESC cbDesc;
-		cbDesc.ByteWidth = sizeof(CameraBuffer);
+		cbDesc.ByteWidth = sizeof(PassBuffer);
 		cbDesc.Usage = D3D11_USAGE_DYNAMIC;
 		cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		cbDesc.MiscFlags = 0;
 		cbDesc.StructureByteStride = 0;
 
-		CameraBuffer cameraBuffer;
+		PassBuffer passBuffer;
 
 		// Fill in the subresource data.
 		D3D11_SUBRESOURCE_DATA initData;
-		initData.pSysMem = &cameraBuffer;
+		initData.pSysMem = &passBuffer;
 		initData.SysMemPitch = 0;
 		initData.SysMemSlicePitch = 0;
 
@@ -66,12 +66,6 @@ struct VeritasEngine::MeshShaderImpl::Impl
 		initData.pSysMem = &poBuffer;
 
 		HHR(m_dxState->Device->CreateBuffer(&cbDesc, &initData, m_perObjectBuffer.GetAddressOf()), "failed creating perObject buffer");
-
-		PerFrameBuffer perFrameBuffer;
-		cbDesc.ByteWidth = sizeof(PerFrameBuffer);
-		initData.pSysMem = &perFrameBuffer;
-
-		HHR(m_dxState->Device->CreateBuffer(&cbDesc, &initData, m_perFrame.GetAddressOf()), "failed creating perFrame buffer");
 	}
 
 	void Activate()
@@ -80,10 +74,10 @@ struct VeritasEngine::MeshShaderImpl::Impl
 		m_dxState->Context->IASetInputLayout(m_inputLayout.Get());
 		m_dxState->Context->PSSetShader(m_pixelShader.Get(), nullptr, 0);
 
-		ID3D11Buffer* buffers[3] = { m_cameraBuffer.Get(), m_perObjectBuffer.Get(), m_perFrame.Get() };
+		ID3D11Buffer* buffers[2] = { m_cameraBuffer.Get(), m_perObjectBuffer.Get() };
 
-		m_dxState->Context->VSSetConstantBuffers(0, 3, buffers);
-		m_dxState->Context->PSSetConstantBuffers(0, 3, buffers);
+		m_dxState->Context->VSSetConstantBuffers(0, 2, buffers);
+		m_dxState->Context->PSSetConstantBuffers(0, 2, buffers);
 	}
 
 	void Deactivate()
@@ -96,52 +90,41 @@ struct VeritasEngine::MeshShaderImpl::Impl
 		m_dxState->Context->PSSetShaderResources(1, 0, nullptr);
 	}
 
-	void SetLightParameters(const std::array<VeritasEngine::Light, Light::MAX_LIGHTS>& lightsArray)
-	{
-		D3D11_MAPPED_SUBRESOURCE mappedResource;
-		HHR(m_dxState->Context->Map(m_perFrame.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource), "mapping per frame");
-
-		PerFrameBuffer* dataPtr = static_cast<PerFrameBuffer*>(mappedResource.pData);
-
-		memcpy(dataPtr->lights, &lightsArray[0], Light::MAX_LIGHTS * sizeof(Light));
-
-		m_dxState->Context->Unmap(m_perFrame.Get(), 0);
-	}
-
-	void SetCameraParameters(const Float3 & eyePosition, const Matrix4x4 & viewMatrix, const Matrix4x4 & projectionMatrix)
+	void SetPassParameters(PassBuffer& passBuffer)
 	{
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		HHR(m_dxState->Context->Map(m_cameraBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource), "mapping camera");
 
-		CameraBuffer* dataPtr = static_cast<CameraBuffer*>(mappedResource.pData);
+		PassBuffer* dataPtr = static_cast<PassBuffer*>(mappedResource.pData);
 
-		TransposeForBuffer(&dataPtr->m_viewMatrix, viewMatrix);
-		TransposeForBuffer(&dataPtr->m_projectionMatrix, projectionMatrix);
-		dataPtr->m_cameraPosition = eyePosition;
+		TransposeForBuffer(&dataPtr->ViewMatrix, passBuffer.ViewMatrix);
+		TransposeForBuffer(&dataPtr->ProjectionMatrix, passBuffer.ProjectionMatrix);
+		dataPtr->CameraPosition = passBuffer.CameraPosition;
+		std::memcpy(&dataPtr->Lights, &passBuffer.Lights, sizeof(decltype(passBuffer.Lights)));
 
 		m_dxState->Context->Unmap(m_cameraBuffer.Get(), 0);
 	}
 
-	void SetPerObjectBuffer(const PerObjectBufferRef& buffer)
+	void SetPerObjectBuffer(const PerObjectBufferDescription& buffer)
 	{
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		HHR(m_dxState->Context->Map(m_perObjectBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource), "mapping per object");
 
 		PerObjectBuffer* dataPtr = static_cast<PerObjectBuffer*>(mappedResource.pData);
 
-		auto hasDiffuseMap = buffer.m_material.DiffuseMap != nullptr;
-		dataPtr->hasDiffuseMap = buffer.m_material.DiffuseMap != nullptr ? 1 : 0;
+		auto hasDiffuseMap = buffer.Material->DiffuseMap != nullptr;
+		dataPtr->HasDiffuseMap = hasDiffuseMap ? 1 : 0;
 
-		auto hasNormalMap = buffer.m_material.NormalMap != nullptr;
-		dataPtr->hasNormalMap = buffer.m_material.NormalMap != nullptr ? 1 : 0;
+		auto hasNormalMap = buffer.Material->NormalMap != nullptr;
+		dataPtr->HasNormalMap = hasNormalMap ? 1 : 0;
 
-		auto hasSpecularMap = buffer.m_material.SpecularMap != nullptr;
-		dataPtr->hasSpecularMap = buffer.m_material.SpecularMap != nullptr ? 1 : 0;
+		auto hasSpecularMap = buffer.Material->SpecularMap != nullptr;
+		dataPtr->HasSpecularMap = hasSpecularMap ? 1 : 0;
 
-		MeshShaderImpl::Impl::TransposeForBuffer(&dataPtr->m_worldTransform, buffer.m_worldTransform);
-		MeshShaderImpl::Impl::TransposeForBuffer(&dataPtr->m_worldInverseTranspose, buffer.m_worldInverseTranspose);
+		TransposeForBuffer(&dataPtr->WorldTransform, buffer.WorldTransform);
+		TransposeForBuffer(&dataPtr->WorldInverseTranspose, buffer.WorldInverseTranspose);
 
-		memcpy_s(&dataPtr->m_material, sizeof(GraphicsCardMaterial), &buffer.m_material, sizeof(GraphicsCardMaterial));
+		std::memcpy(&dataPtr->Material, &buffer.Material->Material, sizeof(GraphicsCardMaterial));
 
 		m_dxState->Context->Unmap(m_perObjectBuffer.Get(), 0);
 
@@ -149,21 +132,21 @@ struct VeritasEngine::MeshShaderImpl::Impl
 
 		if (hasDiffuseMap)
 		{
-			const DirectXTextureData& textureData = buffer.m_material.DiffuseMap->GetData<DirectXTextureData>();
+			const DirectXTextureData& textureData = buffer.Material->DiffuseMap->GetData<DirectXTextureData>();
 
 			resources[0] = textureData.TextureView.Get();
 		}
 
 		if (hasNormalMap)
 		{
-			const DirectXTextureData& textureData = buffer.m_material.NormalMap->GetData<DirectXTextureData>();
+			const DirectXTextureData& textureData = buffer.Material->NormalMap->GetData<DirectXTextureData>();
 
 			resources[1] = textureData.TextureView.Get();
 		}
 
 		if (hasSpecularMap)
 		{
-			const DirectXTextureData& textureData = buffer.m_material.SpecularMap->GetData<DirectXTextureData>();
+			const DirectXTextureData& textureData = buffer.Material->SpecularMap->GetData<DirectXTextureData>();
 
 			resources[2] = textureData.TextureView.Get();
 		}
@@ -179,7 +162,6 @@ struct VeritasEngine::MeshShaderImpl::Impl
 
 	ComPtr<ID3D11Buffer> m_cameraBuffer;
 	ComPtr<ID3D11Buffer> m_perObjectBuffer;
-	ComPtr<ID3D11Buffer> m_perFrame;
 	ComPtr<ID3D11InputLayout> m_inputLayout;
 	ComPtr<ID3D11VertexShader> m_vertexShader;
 	ComPtr<ID3D11PixelShader> m_pixelShader;
@@ -225,17 +207,12 @@ void VeritasEngine::MeshShaderImpl::Deactivate()
 	m_impl->Deactivate();
 }
 
-void VeritasEngine::MeshShaderImpl::SetLightParameters(const std::array<VeritasEngine::Light, Light::MAX_LIGHTS>& lightsArray)
+void VeritasEngine::MeshShaderImpl::SetPassParameters(PassBuffer& passBuffer)
 {
-	m_impl->SetLightParameters(lightsArray);
+	m_impl->SetPassParameters(passBuffer);
 }
 
-void VeritasEngine::MeshShaderImpl::SetCameraParameters(const Float3 & eyePosition, const Matrix4x4 & viewMatrix, const Matrix4x4 & projectionMatrix)
-{
-	m_impl->SetCameraParameters(eyePosition, viewMatrix, projectionMatrix);
-}
-
-void VeritasEngine::MeshShaderImpl::SetPerObjectBuffer(const PerObjectBufferRef& buffer)
+void VeritasEngine::MeshShaderImpl::SetPerObjectBuffer(const PerObjectBufferDescription& buffer)
 {
 	m_impl->SetPerObjectBuffer(buffer);
 }

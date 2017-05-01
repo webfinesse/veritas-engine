@@ -120,9 +120,6 @@
     <ClInclude Include="BufferIndicies.h">
       <Filter>Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="IMeshShader.h">
-      <Filter>Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="MatrixStack.h">
       <Filter>Rendering</Filter>
     </ClInclude>
@@ -256,6 +253,15 @@
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="GameObjectPropertyKeys.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="PerObjectBuffer.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameDescription.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="PassBuffer.h">
       <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>

@@ -207,6 +207,7 @@
     <ClInclude Include="AnimatedMeshResourceLoader.h" />
     <ClInclude Include="AnimationClock.h" />
     <ClInclude Include="BufferIndicies.h" />
+    <ClInclude Include="PassBuffer.h" />
     <ClInclude Include="ClockUnits.h" />
     <ClInclude Include="EngineDepenencyInjector.h" />
     <ClInclude Include="EngineFactory.h" />
@@ -214,6 +215,7 @@
     <ClInclude Include="GameObjectPropertyKeys.h" />
     <ClInclude Include="GamePropertyManager.h" />
     <ClInclude Include="IDeserializeMapping.h" />
+    <ClInclude Include="FrameDescription.h" />
     <ClInclude Include="IGameClock.h" />
     <ClInclude Include="IIndexBuffer.h" />
     <ClInclude Include="IProcessManager.h" />
@@ -226,6 +228,7 @@
     <ClInclude Include="IVertexBufferFactory.h" />
     <ClInclude Include="IVertexBufferManager.h" />
     <ClInclude Include="IWorldSetup.h" />
+    <ClInclude Include="PerObjectBuffer.h" />
     <ClInclude Include="Skeleton.h" />
     <ClInclude Include="SkeletonJoint.h" />
     <ClInclude Include="SkeletonResourceLoader.h" />
@@ -243,7 +246,6 @@
     <ClInclude Include="IResourceLoader.h" />
     <ClInclude Include="MeshResourceLoader.h" />
     <ClInclude Include="RenderPass.h" />
-    <ClInclude Include="IMeshShader.h" />
     <ClInclude Include="MatrixStack.h" />
     <ClInclude Include="MeshInstance.h" />
     <ClInclude Include="MeshSubset.h" />

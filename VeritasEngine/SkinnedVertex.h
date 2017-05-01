@@ -1,6 +1,8 @@
 #ifndef H_SKINNEDVERTEX
 #define H_SKINNEDVERTEX
 
+#include <vector>
+
 #include "../VeritasEngineBase/MathTypes.h"
 
 namespace VeritasEngine

@@ -10,14 +10,17 @@
 #include "../VeritasEngine/MeshSubset.h"
 #include "../VeritasEngine/IIndexBuffer.h"
 #include "../VeritasEngine/IVertexBuffer.h"
+#include "../VeritasEngine/FrameDescription.h"
+#include "IMeshShader.h"
+#include "../VeritasEngine/PerObjectBuffer.h"
 
 using namespace Microsoft::WRL;
 
 struct VeritasEngine::RendererImpl::Impl
 {
 public:
-	Impl(std::shared_ptr<DirectXState> dxState)
-		: m_dxState { dxState }
+	Impl(std::shared_ptr<DirectXState> dxState, std::shared_ptr<IMeshShader> meshShader)
+		: m_dxState { std::move(dxState) }, m_meshShader{ std::move(meshShader) }
 	{
 
 	
@@ -80,6 +83,8 @@ public:
 		m_dxState->Device->CreateRasterizerState(&rasterDesc, resultRasterizer.GetAddressOf());
 
 		m_dxState->Context->RSSetState(resultRasterizer.Get());
+
+		m_meshShader->Init();
 	}
 
 	void Resize(unsigned int bufferWidth, unsigned int bufferHeight)
@@ -149,7 +154,7 @@ public:
 	{
 		auto* nativeVertexBuffer = static_cast<ID3D11Buffer*>(buffer);
 
-		m_dxState->Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		m_dxState->Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		m_dxState->Context->IASetVertexBuffers(0, 1, &nativeVertexBuffer, strides, offsets);
 	}
 
@@ -167,20 +172,35 @@ public:
 	{
 		auto& subset = mesh.GetSubset(subsetIndex);
 
-		const unsigned int strides[1] = { static_cast<unsigned int>(subset.GetVertexSize()) };
-		const unsigned int offsets[1] = { 0 };
+		
+	}
 
-		SetVertexBuffer(subset.GetVertexBuffer().GetNativeBuffer(), strides, offsets);
+	void Render(FrameDescription& desc)
+	{
+		Clear();
 
-		auto baseVertexIndex = subset.GetVertexBufferBaseIndex();
+		m_meshShader->Activate();
+		m_meshShader->SetPassParameters(desc.PassBuffer);
 
-		SetIndexBuffer(subset.GetIndexBuffer().GetNativeBuffer());
+		for(const auto& object : desc.Objects)
+		{
+			const unsigned int strides[1] = { static_cast<unsigned int>(object.VertexSize) };
+			const unsigned int offsets[1] = { 0 };
 
-		DrawIndexed(subset.IndexCount(), subset.GetIndexOffset(), baseVertexIndex);
+			SetVertexBuffer(object.VertexBuffer, strides, offsets);
+			SetIndexBuffer(object.IndexBuffer);
+
+			m_meshShader->SetPerObjectBuffer(object);
+
+			DrawIndexed(object.IndexIndicies.NumberOfElements, object.IndexIndicies.StartIndex, object.VertexIndicies.StartIndex);
+		}
+
+		Present();
 	}
 
 	float m_aspectRatio{ 0 };
 	std::shared_ptr<DirectXState> m_dxState;
+	std::shared_ptr<IMeshShader> m_meshShader;
 };
 
 void VeritasEngine::RendererImpl::Init(void* osData, unsigned int bufferWidth, unsigned int bufferHeight)
@@ -193,14 +213,9 @@ void VeritasEngine::RendererImpl::Resize(unsigned int bufferWidth, unsigned int 
 	m_impl->Resize(bufferWidth, bufferHeight);
 }
 
-void VeritasEngine::RendererImpl::Clear()
+void VeritasEngine::RendererImpl::Render(FrameDescription& frameDesc)
 {
-	m_impl->Clear();
-}
-
-void VeritasEngine::RendererImpl::Present()
-{
-	m_impl->Present();
+	m_impl->Render(frameDesc);
 }
 
 float VeritasEngine::RendererImpl::GetAspectRatio() const
@@ -208,13 +223,8 @@ float VeritasEngine::RendererImpl::GetAspectRatio() const
 	return m_impl->m_aspectRatio;
 }
 
-void VeritasEngine::RendererImpl::RenderSubset(const MeshInstance& mesh, unsigned int subsetIndex) const
-{
-	m_impl->RenderSubset(mesh, subsetIndex);
-}
-
-VeritasEngine::RendererImpl::RendererImpl(std::shared_ptr<DirectXState> dxState)
-	: m_impl(std::make_unique<Impl>(dxState))
+VeritasEngine::RendererImpl::RendererImpl(std::shared_ptr<DirectXState> dxState, std::shared_ptr<IMeshShader> meshShader)
+	: m_impl(std::make_unique<Impl>(dxState, meshShader))
 {
 
 }

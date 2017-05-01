@@ -2,10 +2,8 @@
 #define H_MESHSHADERIMPL
 
 #include <memory>
-#include <array>
 
-#include "../VeritasEngineBase/Light.h"
-#include "../VeritasEngine/IMeshShader.h"
+#include "IMeshShader.h"
 
 namespace VeritasEngine
 {
@@ -25,9 +23,8 @@ namespace VeritasEngine
 		void Deactivate() override;
 		void Init() override;
 
-		void SetLightParameters(const std::array<VeritasEngine::Light, Light::MAX_LIGHTS>& lightsArray) override;
-		void SetCameraParameters(const Float3& eyePosition, const Matrix4x4& viewMatrix, const Matrix4x4& projectionMatrix) override;
-		void SetPerObjectBuffer(const PerObjectBufferRef& buffer) override;
+		void SetPassParameters(PassBuffer& passBuffer) override;
+		void SetPerObjectBuffer(const PerObjectBufferDescription& buffer) override;
 
 	private:
 		struct Impl;

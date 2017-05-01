@@ -57,6 +57,11 @@ size_t VeritasEngine::MeshSubset::GetVertexBufferBaseIndex() const {
 	return m_impl->m_vertexBufferIndicies.StartIndex;
 }
 
+const VeritasEngine::BufferIndicies& VeritasEngine::MeshSubset::GetVertexBufferIndicies() const
+{
+	return m_impl->m_vertexBufferIndicies;
+}
+
 void VeritasEngine::MeshSubset::SetIndicies(IIndexBuffer* indexBuffer, unsigned int* indicies, size_t numOfIndicies)
 {
 	m_impl->m_indexBuffer = indexBuffer;
@@ -66,6 +71,11 @@ void VeritasEngine::MeshSubset::SetIndicies(IIndexBuffer* indexBuffer, unsigned 
 size_t VeritasEngine::MeshSubset::GetIndexOffset() const
 {
 	return m_impl->m_indexBufferIndicies.StartIndex;
+}
+
+const VeritasEngine::BufferIndicies& VeritasEngine::MeshSubset::GetIndexBufferIndicies() const
+{
+	return m_impl->m_indexBufferIndicies;
 }
 
 size_t VeritasEngine::MeshSubset::IndexCount() const

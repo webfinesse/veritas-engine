@@ -22,6 +22,7 @@
     <ClInclude Include="DDSTextureLoader\DDSTextureLoader.h" />
     <ClInclude Include="DirectXState.h" />
     <ClInclude Include="DirectXTextureData.h" />
+    <ClInclude Include="IMeshShader.h" />
     <ClInclude Include="IndexBufferImpl.h" />
     <ClInclude Include="MeshShaderImpl.h" />
     <ClInclude Include="RendererImpl.h" />

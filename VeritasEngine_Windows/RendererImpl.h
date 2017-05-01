@@ -8,11 +8,12 @@
 namespace VeritasEngine
 {
 	class DirectXState;
+	class IMeshShader;
 
 	class RendererImpl: public IRenderer
 	{
 	public:
-		RendererImpl(std::shared_ptr<DirectXState> dxState);
+		RendererImpl(std::shared_ptr<DirectXState> dxState, std::shared_ptr<IMeshShader> meshShader);
 		RendererImpl(RendererImpl&& other) noexcept;
 		~RendererImpl() override;
 
@@ -20,10 +21,7 @@ namespace VeritasEngine
 
 		void Init(void* osData, unsigned int bufferWidth, unsigned int bufferHeight) override;
 		void Resize(unsigned int bufferWidth, unsigned int bufferHeight) override;
-		void Clear() override;
-		
-		void RenderSubset(const MeshInstance& mesh, unsigned int subsetIndex) const override;
-		void Present() override;
+		void Render(FrameDescription& frameDesc) override;
 
 		float GetAspectRatio() const override;
 

@@ -14,7 +14,7 @@ namespace VeritasEngine
 
 	struct Light
 	{
-		static const size_t MAX_LIGHTS = 8;
+		static constexpr size_t MAX_LIGHTS = 8;
 
 		Float4 Position; // 0 - 16 bytes
 		Float4 Direction; // 16 - 32 bytes

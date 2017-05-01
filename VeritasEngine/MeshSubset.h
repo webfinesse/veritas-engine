@@ -11,6 +11,7 @@ namespace VeritasEngine
 	class IVertexBuffer;
 	class IIndexBuffer;
 	class ResourceHandle;
+	class BufferIndicies;
 
 	class MeshSubset: public SmallObject<>
 	{
@@ -23,12 +24,13 @@ namespace VeritasEngine
 		size_t GetVertexCount() const;
 		IVertexBuffer& GetVertexBuffer() const;
 		size_t GetVertexBufferBaseIndex() const;
-
+		const BufferIndicies& GetVertexBufferIndicies() const;
 
 		void SetIndicies(IIndexBuffer* indexBuffer, unsigned int* indicies, size_t numOfIndicies);
 		size_t IndexCount() const;
 		IIndexBuffer& GetIndexBuffer() const;
 		size_t GetIndexOffset() const;
+		const BufferIndicies& GetIndexBufferIndicies() const;
 
 		void SetMaterial(const ResourceHandle* const material);
 

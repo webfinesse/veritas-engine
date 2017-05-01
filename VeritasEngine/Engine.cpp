@@ -9,13 +9,11 @@
 #include "IRenderer.h"
 #include "VertexBufferManager.h"
 #include "Scene.h"
-#include "IMeshShader.h"
 
 #include "SkinnedVertex.h"
 #include "Vertex.h"
-#include "GamePropertyManager.h"
 
-#include "GameObjectPropertyKeys.h"
+#include "FrameDescription.h"
 
 using namespace std;
 
@@ -26,9 +24,8 @@ struct VeritasEngine::Engine::Impl : public VeritasEngine::SmallObject<>
 		 shared_ptr<IRenderingServices> renderingServices, 
 	     shared_ptr<IResourceManager> resourceManager,
 		 shared_ptr<IGameClock> gameClock,
-		 shared_ptr<IMeshShader> meshShader,
 		 shared_ptr<GamePropertyManager> gamePropertyManager)
-		: m_gameClock{ std::move(gameClock) }, m_processManager{ std::move(processManager) }, m_worldSetup{ std::move(worldSetup) }, m_resourceManager{ std::move(resourceManager) }, m_renderingServices{ std::move(renderingServices) }, m_meshShader{ meshShader }, m_gamePropertyManager { gamePropertyManager }
+		: m_gameClock{ std::move(gameClock) }, m_processManager{ std::move(processManager) }, m_worldSetup{ std::move(worldSetup) }, m_resourceManager{ std::move(resourceManager) }, m_renderingServices{ std::move(renderingServices) }, m_gamePropertyManager { gamePropertyManager }, m_frameDesc{}
 	{
 
 	}
@@ -38,11 +35,11 @@ struct VeritasEngine::Engine::Impl : public VeritasEngine::SmallObject<>
 	shared_ptr<IWorldSetup> m_worldSetup;
 	shared_ptr<IResourceManager> m_resourceManager;
 	shared_ptr<IRenderingServices> m_renderingServices;
-	shared_ptr<IMeshShader> m_meshShader;
 	shared_ptr<GamePropertyManager> m_gamePropertyManager;
 
 	float m_currentFps { 0 };
 	bool m_isInitialized { false };
+	FrameDescription m_frameDesc;
 };
 
 VeritasEngine::Engine::Engine(shared_ptr<IProcessManager> processManager, 
@@ -50,9 +47,8 @@ VeritasEngine::Engine::Engine(shared_ptr<IProcessManager> processManager,
 						      shared_ptr<IRenderingServices> renderingServices, 
 							  shared_ptr<IResourceManager> resourceManager,
 						      shared_ptr<IGameClock> gameClock,
-							  shared_ptr<IMeshShader> meshShader,
 							  shared_ptr<GamePropertyManager> gamePropertyManager)
-	: m_impl(std::make_unique<Impl>(processManager, worldSetup, renderingServices, resourceManager, gameClock, meshShader, gamePropertyManager))
+	: m_impl(std::make_unique<Impl>(processManager, worldSetup, renderingServices, resourceManager, gameClock, gamePropertyManager))
 {
 	
 }
@@ -104,11 +100,6 @@ void VeritasEngine::Engine::Init(void* osData, unsigned int bufferWidth, unsigne
 	m_impl->m_worldSetup->Init(*this);
 	m_impl->m_renderingServices->GetRenderer().Init(osData, bufferWidth, bufferHeight);
 
-	
-	m_impl->m_meshShader->Init();
-
-	m_impl->m_renderingServices->GetScene().SetMeshShader(m_impl->m_meshShader);
-
 	m_impl->m_renderingServices->GetVertexBufferManager().RegisterVertexFormat(Vertex::Type, sizeof(Vertex));
 	m_impl->m_renderingServices->GetVertexBufferManager().RegisterVertexFormat(SkinnedVertex::Type, sizeof(SkinnedVertex));
 
@@ -135,7 +126,13 @@ void VeritasEngine::Engine::Loop()
 		m_impl->m_processManager->UpdateProcesses(delta);
 	}
 
-	m_impl->m_renderingServices->GetScene().OnRender(m_impl->m_renderingServices->GetRenderer());
+	m_impl->m_frameDesc.Objects.resize(0);
+	auto& renderer = m_impl->m_renderingServices->GetRenderer();
+	m_impl->m_frameDesc.AspectRatio = renderer.GetAspectRatio();
+
+	m_impl->m_renderingServices->GetScene().OnRender(m_impl->m_frameDesc);
+	renderer.Render(m_impl->m_frameDesc);
+
 }
 
 void VeritasEngine::Engine::TogglePause()

@@ -11,23 +11,20 @@
 
 namespace VeritasEngine
 {
-	class Renderer;
-	class IMeshShader;
 	class GamePropertyManager;
+	class FrameDescription;
 
 	class Scene: public SmallObject<>, public IScene
 	{
 	public:
 		Scene(std::shared_ptr<GamePropertyManager> gamePropertyManager);
-		~Scene() override;
+		~Scene() noexcept override;
 
 		Scene(Scene&& other) noexcept;
 		Scene& operator=(Scene&& other) noexcept;
 
 		void OnUpdate(const float deltaTime) override;
-		void OnRender(IRenderer& renderer) override;
-
-		void SetMeshShader(std::shared_ptr<IMeshShader> shader) override;
+		void OnRender(FrameDescription& renderer) override;
 
 		void Add(const GameObjectHandle handle) override;
 		void AddChild(const GameObjectHandle parentHandle, const GameObjectHandle child) override;

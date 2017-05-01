@@ -46,6 +46,7 @@ cbuffer cbCamera: register(b0)
 	float4x4 viewMatrix;
 	float4x4 projMatrix;
 	float3 eyePosition;
+	Light lights[MAX_LIGHTS];
 	float pad;
 };
 
@@ -57,9 +58,4 @@ cbuffer cbPerObject : register(b1)
 	bool hasDiffuseMap;
 	bool hasNormalMap;
 	bool hasSpecularMap;
-};
-
-cbuffer cbPerFrame : register(b2)
-{
-    Light lights[MAX_LIGHTS];
 };

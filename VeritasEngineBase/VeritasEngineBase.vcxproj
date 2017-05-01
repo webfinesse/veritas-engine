@@ -19,7 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CameraBuffer.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="FileHelper.h" />
     <ClInclude Include="GameObjectHandle.h" />
@@ -28,8 +27,6 @@
     <ClInclude Include="MathTypes.h" />
     <ClInclude Include="MeshInfo.h" />
     <ClInclude Include="miniz.h" />
-    <ClInclude Include="PerFrameBuffer.h" />
-    <ClInclude Include="PerObjectBuffer.h" />
     <ClInclude Include="ResourceHandle.h" />
     <ClInclude Include="ResourceHandle_details.h" />
     <ClInclude Include="ResourceId.h" />

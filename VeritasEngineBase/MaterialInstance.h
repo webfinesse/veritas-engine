@@ -10,7 +10,7 @@ namespace VeritasEngine
 	struct GraphicsCardMaterial
 	{
 		GraphicsCardMaterial() = default;
-		GraphicsCardMaterial(Material& material);
+		GraphicsCardMaterial(const Material& material);
 
 		Float4 Ambient;
 		Float4 Diffuse;
@@ -22,7 +22,7 @@ namespace VeritasEngine
 
 	struct MaterialInstance
 	{
-		MaterialInstance(Material& material);
+		MaterialInstance(const Material& material);
 
 		GraphicsCardMaterial Material;
 		ResourceHandle* DiffuseMap;
