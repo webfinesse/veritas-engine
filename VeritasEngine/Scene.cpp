@@ -177,7 +177,7 @@ void VeritasEngine::Scene::OnRender(FrameDescription& renderer)
 			auto far = 3000.0f;
 
 			renderer.PassBuffer.ProjectionMatrix = MathHelpers::CreatePerspectiveMatrix(quarterPi, aspectRatio, near, far);
-			renderer.PassBuffer.CameraPosition = positionVec;
+			renderer.PassBuffer.EyePosition = Float4(positionVec, 0);
 
 			size_t i = 0;
 			for (; i < m_impl->m_lightHandles.size(); i++)

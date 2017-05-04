@@ -168,13 +168,6 @@ public:
 		m_dxState->Context->DrawIndexed(static_cast<UINT>(indexCount), static_cast<UINT>(indexOffset), static_cast<UINT>(baseVertexIndex));
 	}
 
-	void RenderSubset(const MeshInstance& mesh, unsigned int subsetIndex)
-	{
-		auto& subset = mesh.GetSubset(subsetIndex);
-
-		
-	}
-
 	void Render(FrameDescription& desc)
 	{
 		Clear();

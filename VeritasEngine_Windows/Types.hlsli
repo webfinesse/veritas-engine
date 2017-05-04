@@ -39,15 +39,16 @@ struct Material
     float4 diffuse;
     float4 specular;
     float4 emissive;
+	float specularPower;
+	float3 pad;
 };
 
 cbuffer cbCamera: register(b0)
 {
 	float4x4 viewMatrix;
 	float4x4 projMatrix;
-	float3 eyePosition;
+	float4 eyePosition;
 	Light lights[MAX_LIGHTS];
-	float pad;
 };
 
 cbuffer cbPerObject : register(b1)
@@ -58,4 +59,5 @@ cbuffer cbPerObject : register(b1)
 	bool hasDiffuseMap;
 	bool hasNormalMap;
 	bool hasSpecularMap;
+	float perObjectPad;
 };

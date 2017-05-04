@@ -6,7 +6,7 @@
 
 namespace VeritasEngine
 {
-	struct alignas(16) PerObjectBuffer
+	struct PerObjectBuffer
 	{
 		PerObjectBuffer() = default;
 		PerObjectBuffer(Matrix4x4& worldTransform, Matrix4x4& worldInverseTranspose, GraphicsCardMaterial& material, int hasDiffuseMap, int hasNormalMap, int hasSpecularMap)
@@ -15,12 +15,13 @@ namespace VeritasEngine
 			
 		}
 
-		Matrix4x4 WorldTransform; // 0 - 64
-		Matrix4x4 WorldInverseTranspose; // 64 - 128
-		GraphicsCardMaterial Material; // 128-192
-		int HasDiffuseMap; // 192-224
-		int HasNormalMap; // 224-256
-		int HasSpecularMap; // 256 - 288
+		Matrix4x4 WorldTransform;
+		Matrix4x4 WorldInverseTranspose;
+		GraphicsCardMaterial Material;
+		int HasDiffuseMap;
+		int HasNormalMap;
+		int HasSpecularMap;
+		char pad[4];
 	};
 }
 

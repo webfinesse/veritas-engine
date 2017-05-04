@@ -97,10 +97,10 @@ struct VeritasEngine::MeshShaderImpl::Impl
 
 		PassBuffer* dataPtr = static_cast<PassBuffer*>(mappedResource.pData);
 
+		std::memcpy(dataPtr->Lights, passBuffer.Lights, sizeof(decltype(passBuffer.Lights)));
 		TransposeForBuffer(&dataPtr->ViewMatrix, passBuffer.ViewMatrix);
 		TransposeForBuffer(&dataPtr->ProjectionMatrix, passBuffer.ProjectionMatrix);
-		dataPtr->CameraPosition = passBuffer.CameraPosition;
-		std::memcpy(&dataPtr->Lights, &passBuffer.Lights, sizeof(decltype(passBuffer.Lights)));
+		dataPtr->EyePosition = passBuffer.EyePosition;	
 
 		m_dxState->Context->Unmap(m_cameraBuffer.Get(), 0);
 	}
