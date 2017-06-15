@@ -59,7 +59,8 @@ VeritasEngine::ResourceId VeritasACP::ExportTexture::Export(fs::path& fileName)
 
 	context.estimateSize(image, 1, compressionOptions);
 
-	auto resourceName = fileName.replace_extension(".dds");
+	auto fileNameCopy = fileName;
+	auto resourceName = fileNameCopy.replace_extension(".dds");
 
 	nvtt::OutputOptions outputOptions;
 	outputOptions.setFileName(resourceName.generic_string().c_str());

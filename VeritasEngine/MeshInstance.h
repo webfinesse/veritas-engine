@@ -2,6 +2,7 @@
 #define H_MESHINSTANCE
 
 #include <memory>
+#include <vector>
 
 #include "SmallObject.h"
 
@@ -11,6 +12,8 @@ namespace VeritasEngine
 	class MeshSubset;
 	class MeshNode;
 	struct Skeleton;
+	struct Animation;
+	class ResourceHandle;
 
 	class MeshInstance: public SmallObject<> {
 	public:
@@ -23,8 +26,11 @@ namespace VeritasEngine
 		MeshSubset& GetSubset(unsigned int index) const;
 		size_t GetSubsetCount() const;
 
-		void SetSkeleton(const Skeleton& skeleton);
-		const Skeleton& GetSkeleton() const;
+		void SetSkeleton(const ResourceHandle* skeleton);
+		const ResourceHandle* GetSkeleton() const;
+
+		void SetAnimations(const std::vector<Animation>& animation);
+		const std::vector<Animation>& GetAnimations() const;
 
 		MeshInstance(const MeshInstance& rhs);
 		MeshInstance& operator=(const MeshInstance& rhs);

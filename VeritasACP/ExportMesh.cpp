@@ -245,30 +245,33 @@ struct VeritasACP::ExportMesh::Impl
 				auto animation = scene->mAnimations[animationIndex];
 
 				AnimationClipExporterResult clip;
-				clip.m_duration = animation->mTicksPerSecond == 0 ? static_cast<float>(animation->mDuration) : static_cast<float>(animation->mDuration / animation->mTicksPerSecond);
+				clip.m_duration = animation->mTicksPerSecond == 0 ? static_cast<float>(animation->mDuration) : static_cast<float>(animation->mTicksPerSecond / animation->mDuration);
 				clip.m_hashedName = VeritasEngine::Hash(animation->mName.C_Str());
 				clip.m_name = std::string(animation->mName.C_Str());
 
-				for(unsigned int boneIndex = 0; boneIndex < animation->mNumChannels; boneIndex++)
+				for(unsigned int channelIndex = 0; channelIndex < animation->mNumChannels; channelIndex++)
 				{
+					auto channel = animation->mChannels[channelIndex];
+
 					clip.m_poses.emplace_back();
 					auto& currentPose = clip.m_poses.back();
 
-					auto channel = animation->mChannels[boneIndex];
+					currentPose.m_jointName = std::string(channel->mNodeName.C_Str());
+					currentPose.m_jointIndex = result.m_skeleton.JointIndexMap[currentPose.m_jointName];
+
 					for (unsigned int poseIndex = 0; poseIndex < channel->mNumScalingKeys; poseIndex++)
 					{
-						currentPose.m_jointPoses.emplace_back();
-						auto& jointPose = currentPose.m_jointPoses.back();
-
-						jointPose.m_jointName = std::string(channel->mNodeName.C_Str());
-						jointPose.m_timeSample = static_cast<float>(channel->mScalingKeys[poseIndex].mTime);
-						jointPose.m_scale = ConvertVec3(channel->mScalingKeys[poseIndex].mValue);
-						jointPose.m_rotation = ConvertQuaternion(channel->mRotationKeys[poseIndex].mValue);
-						jointPose.m_translation = ConvertVec3(channel->mPositionKeys[poseIndex].mValue);
+						currentPose.m_keyframes.emplace_back();
+						auto& keyFrame = currentPose.m_keyframes.back();
+						
+						keyFrame.m_timeSample = static_cast<float>(channel->mScalingKeys[poseIndex].mTime);
+						keyFrame.m_scale = ConvertVec3(channel->mScalingKeys[poseIndex].mValue);
+						keyFrame.m_rotation = ConvertQuaternion(channel->mRotationKeys[poseIndex].mValue);
+						keyFrame.m_translation = ConvertVec3(channel->mPositionKeys[poseIndex].mValue);
 					}
 				}
 
-				result.m_animations.emplace(make_pair(std::string(animation->mName.C_Str()), clip));
+				result.m_animations.emplace(make_pair(clip.m_name, clip));
 				
 			}
 		}

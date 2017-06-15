@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Animation.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="FileHelper.h" />
     <ClInclude Include="GameObjectHandle.h" />

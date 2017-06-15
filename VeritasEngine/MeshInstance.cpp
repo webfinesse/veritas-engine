@@ -7,17 +7,20 @@
 #include "MeshSubset.h"
 #include "MeshNode.h"
 #include "Skeleton.h"
+#include "../VeritasEngineBase/Animation.h"
+#include "../VeritasEngineBase/ResourceHandle.h"
 
 
 struct VeritasEngine::MeshInstance::Impl: SmallObject<>
 {
 	Impl()
-		: m_root{}, m_skeleton{}, m_subsets{}
+		: m_root{}, m_skeleton{}, m_animation{}, m_subsets{}
 	{
 	}
 
 	MeshNode m_root;
-	Skeleton m_skeleton;
+	const ResourceHandle* m_skeleton;
+	std::vector<Animation> m_animation;
 	std::vector<MeshSubset> m_subsets;
 };
 
@@ -50,14 +53,24 @@ size_t VeritasEngine::MeshInstance::GetSubsetCount() const
 	return m_impl->m_subsets.size();
 }
 
-void VeritasEngine::MeshInstance::SetSkeleton(const Skeleton& skeleton)
+void VeritasEngine::MeshInstance::SetSkeleton(const ResourceHandle* skeleton)
 {
 	m_impl->m_skeleton = skeleton;
 }
 
-const VeritasEngine::Skeleton& VeritasEngine::MeshInstance::GetSkeleton() const
+const VeritasEngine::ResourceHandle* VeritasEngine::MeshInstance::GetSkeleton() const
 {
 	return m_impl->m_skeleton;
+}
+
+void VeritasEngine::MeshInstance::SetAnimations(const std::vector<Animation>& animation)
+{
+	m_impl->m_animation = animation;
+}
+
+const std::vector<VeritasEngine::Animation>& VeritasEngine::MeshInstance::GetAnimations() const
+{
+	return m_impl->m_animation;
 }
 
 

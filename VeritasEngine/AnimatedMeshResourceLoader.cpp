@@ -71,6 +71,9 @@ void VeritasEngine::AnimatedMeshResourceLoader::LoadResource(IResourceManager& m
 		instanceSubset.SetMaterial(material);
 	}
 
+	mesh.SetAnimations(info.m_animations);
+	mesh.SetSkeleton(manager.GetResource(info.m_skeletonId));
+
 	auto& rootNode = mesh.GetRootNode();
 
 	rootNode.SetTransform(info.m_root.m_transform);

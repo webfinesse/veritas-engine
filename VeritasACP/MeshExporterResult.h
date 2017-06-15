@@ -60,22 +60,23 @@ namespace VeritasACP
 		VeritasEngine::Quaternion m_rotation; // 96 - 224
 		VeritasEngine::Float3 m_translation; // 224 - 320
 		float m_timeSample; // 320 - 352
-		std::string m_jointName;
+		
 	};
 
-	struct AnimationPoseExporterResult
+	struct AnimationBoneInformation
 	{
-		std::vector<SqtExporterResult> m_jointPoses;
+		std::string m_jointName;
+		size_t m_jointIndex;
+		std::vector<SqtExporterResult> m_keyframes;
 	};
 
 	struct AnimationClipExporterResult
 	{
 		VeritasEngine::StringHash m_hashedName;
 		float m_duration;
-		std::vector<AnimationPoseExporterResult> m_poses;
+		std::vector<AnimationBoneInformation> m_poses;
 		std::string m_name;
-	};
-	
+	};	
 
 	struct MeshExporterResult
 	{

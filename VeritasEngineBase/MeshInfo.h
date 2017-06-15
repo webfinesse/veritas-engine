@@ -4,6 +4,7 @@
 #include <vector>
 #include "../VeritasEngine/Vertex.h"
 #include "../VeritasEngineBase/ResourceId.h"
+#include "../VeritasEngineBase/Animation.h"
 
 #include "cereal/types/vector.hpp"
 #include "cereal/types/string.hpp"
@@ -59,13 +60,14 @@ namespace VeritasEngine
 
 		SerializedMeshNode m_root;
 		std::vector<SubsetType> m_subsets;
+		std::vector<Animation> m_animations;
 		ResourceId m_skeletonId;
 		VertexTypeHandle m_vertexType = VertexType::Type;
 
 		template <class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_root, m_subsets, m_skeletonId, m_vertexType);
+			archive(m_root, m_subsets, m_animations, m_skeletonId, m_vertexType);
 		}
 	};
 

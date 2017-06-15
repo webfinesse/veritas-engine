@@ -69,10 +69,6 @@ std::vector<VeritasEngine::SkinnedVertex> SerializeVerticies(std::vector<Veritas
 
 	for (const auto& vertex : verticies)
 	{
-		// the commented out code blocks are assuming there are at max 4 joints. Right now we support an arbitrary number of joints
-		//assert(vertex.JointIndicies.size() <= 4);
-		//assert(vertex.JointWeights.size() <= 4);
-
 		result.emplace_back();
 		auto& currentVertex = result.back();
 
@@ -81,27 +77,6 @@ std::vector<VeritasEngine::SkinnedVertex> SerializeVerticies(std::vector<Veritas
 		currentVertex.TextureCoordinates = vertex.TextureCoordinates;
 		currentVertex.JointIndicies = vertex.JointIndicies;
 		currentVertex.JointWeights = vertex.JointWeights;
-
-		/*int currentIndex = 0;
-		for(auto index: vertex.JointIndicies)
-		{
-		currentVertex.JointIndicies[currentIndex] = index;
-		currentIndex++;
-		}
-
-		for(; currentIndex < 4; currentIndex++)
-		{
-		currentVertex.JointIndicies[currentIndex] = -1;
-		}
-
-		VeritasEngine::Float3 weights{0};
-
-		currentIndex = 0;
-		for (auto weight : vertex.JointWeights)
-		{
-		weights[currentIndex] = weight;
-		currentIndex++;
-		}*/
 	}
 
 	return result;
@@ -164,6 +139,48 @@ VeritasEngine::ResourceId SerializeSkeleton(VeritasACP::MeshExporterResult& mesh
 	return SerializeArchive(skel, path, L".vesk");
 }
 
+std::vector<VeritasEngine::Animation> SerializeAnimations(VeritasACP::MeshExporterResult& meshInfo)
+{
+	std::vector<VeritasEngine::Animation> result;
+
+	result.reserve(meshInfo.m_animations.size());
+
+	for(const auto& animation : meshInfo.m_animations)
+	{
+		result.emplace_back();
+		auto& ani = result.back();
+
+		auto& clipResult = animation.second;
+		ani.HashedName = clipResult.m_hashedName;
+		ani.Duration = clipResult.m_duration;
+
+		ani.BoneInfo.reserve(clipResult.m_poses.size());
+
+		for(const auto& boneInfo : clipResult.m_poses)
+		{
+			ani.BoneInfo.emplace_back();
+			auto& info = ani.BoneInfo.back();
+
+			info.BoneIndex = boneInfo.m_jointIndex;
+
+			info.Keyframes.reserve(boneInfo.m_keyframes.size());
+
+			for(const auto& keyframe : boneInfo.m_keyframes)
+			{
+				info.Keyframes.emplace_back();
+				auto& currentKeyFrame = info.Keyframes.back();
+
+				currentKeyFrame.TimeSample = keyframe.m_timeSample;
+				currentKeyFrame.Scale = keyframe.m_scale;
+				currentKeyFrame.Rotation = keyframe.m_rotation;
+				currentKeyFrame.Translation = keyframe.m_translation;
+			}
+		}
+	}
+
+	return result;
+}
+
 void VeritasACP::MeshSerializer::Serialize(MeshExporterResult& meshInfo, fs::path& path) const
 {
 	VeritasEngine::MeshInfo mi;
@@ -174,6 +191,7 @@ void VeritasACP::MeshSerializer::Serialize(MeshExporterResult& meshInfo, fs::pat
 	{
 		auto result = SerializeMeshInfo<VeritasEngine::SkinnedMeshInfo>(meshInfo);
 		result.m_skeletonId = SerializeSkeleton(meshInfo, path);
+		result.m_animations = SerializeAnimations(meshInfo);
 		SerializeArchive(result, path, L".veam");
 	}
 	else
