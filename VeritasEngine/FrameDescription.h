@@ -40,6 +40,7 @@ namespace VeritasEngine
 	public:
 		float AspectRatio;
 		PassBuffer PassBuffer;
-		std::vector<PerObjectBufferDescription> Objects;
+		std::vector<PerObjectBufferDescription> StaticObjects;
+		std::vector<PerObjectBufferDescription> AnimatedObjects;
 	};
 }

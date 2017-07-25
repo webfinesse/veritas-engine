@@ -24,7 +24,7 @@ void ProcessMesh(fs::path& path)
 
 void ProcessSubDirectory(fs::path& path)
 {
-	const static std::unordered_set<std::wstring> meshExtensionMap = { L".obj", L".fbx" };
+	const static std::unordered_set<std::wstring> meshExtensionMap = { L".obj", L".dae" };
 
 	for (auto& item : fs::directory_iterator(path))
 	{

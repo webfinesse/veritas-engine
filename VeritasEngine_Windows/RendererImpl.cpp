@@ -1,5 +1,6 @@
 #include "RendererImpl.h"
 
+#include <algorithm>
 #include <wrl\client.h>
 #include <d3d11.h>
 #include "WindowsUtil.h"
@@ -12,6 +13,7 @@
 #include "../VeritasEngine/IVertexBuffer.h"
 #include "../VeritasEngine/FrameDescription.h"
 #include "IMeshShader.h"
+#include "IAnimatedMeshShader.h"
 #include "../VeritasEngine/PerObjectBuffer.h"
 
 using namespace Microsoft::WRL;
@@ -19,8 +21,8 @@ using namespace Microsoft::WRL;
 struct VeritasEngine::RendererImpl::Impl
 {
 public:
-	Impl(std::shared_ptr<DirectXState> dxState, std::shared_ptr<IMeshShader> meshShader)
-		: m_dxState { std::move(dxState) }, m_meshShader{ std::move(meshShader) }
+	Impl(std::shared_ptr<DirectXState> dxState, std::shared_ptr<IMeshShader> meshShader, std::shared_ptr<IAnimatedMeshShader> animatedMeshShader)
+		: m_dxState { std::move(dxState) }, m_meshShader{ std::move(meshShader) }, m_animatedMeshShader { std::move(animatedMeshShader) }
 	{
 
 	
@@ -85,6 +87,7 @@ public:
 		m_dxState->Context->RSSetState(resultRasterizer.Get());
 
 		m_meshShader->Init();
+		m_animatedMeshShader->Init();
 	}
 
 	void Resize(unsigned int bufferWidth, unsigned int bufferHeight)
@@ -175,7 +178,7 @@ public:
 		m_meshShader->Activate();
 		m_meshShader->SetPassParameters(desc.PassBuffer);
 
-		for(const auto& object : desc.Objects)
+		for(const auto& object : desc.StaticObjects)
 		{
 			const unsigned int strides[1] = { static_cast<unsigned int>(object.VertexSize) };
 			const unsigned int offsets[1] = { 0 };
@@ -188,12 +191,29 @@ public:
 			DrawIndexed(object.IndexIndicies.NumberOfElements, object.IndexIndicies.StartIndex, object.VertexIndicies.StartIndex);
 		}
 
+		m_animatedMeshShader->Activate();
+		m_animatedMeshShader->SetPassParameters(desc.PassBuffer);
+
+		for (const auto& object : desc.AnimatedObjects)
+		{
+			const unsigned int strides[1] = { static_cast<unsigned int>(object.VertexSize) };
+			const unsigned int offsets[1] = { 0 };
+
+			SetVertexBuffer(object.VertexBuffer, strides, offsets);
+			SetIndexBuffer(object.IndexBuffer);
+
+			m_animatedMeshShader->SetPerObjectBuffer(object);
+
+			DrawIndexed(object.IndexIndicies.NumberOfElements, object.IndexIndicies.StartIndex, object.VertexIndicies.StartIndex);
+		}
+
 		Present();
 	}
 
 	float m_aspectRatio{ 0 };
 	std::shared_ptr<DirectXState> m_dxState;
 	std::shared_ptr<IMeshShader> m_meshShader;
+	std::shared_ptr<IAnimatedMeshShader> m_animatedMeshShader;
 };
 
 void VeritasEngine::RendererImpl::Init(void* osData, unsigned int bufferWidth, unsigned int bufferHeight)
@@ -216,8 +236,8 @@ float VeritasEngine::RendererImpl::GetAspectRatio() const
 	return m_impl->m_aspectRatio;
 }
 
-VeritasEngine::RendererImpl::RendererImpl(std::shared_ptr<DirectXState> dxState, std::shared_ptr<IMeshShader> meshShader)
-	: m_impl(std::make_unique<Impl>(dxState, meshShader))
+VeritasEngine::RendererImpl::RendererImpl(std::shared_ptr<DirectXState> dxState, std::shared_ptr<IMeshShader> meshShader, std::shared_ptr<IAnimatedMeshShader> animatedMeshShader)
+	: m_impl(std::make_unique<Impl>(dxState, meshShader, animatedMeshShader))
 {
 
 }

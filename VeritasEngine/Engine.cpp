@@ -126,13 +126,14 @@ void VeritasEngine::Engine::Loop()
 		m_impl->m_processManager->UpdateProcesses(delta);
 	}
 
-	m_impl->m_frameDesc.Objects.resize(0);
+	m_impl->m_frameDesc.StaticObjects.resize(0);
+	m_impl->m_frameDesc.AnimatedObjects.resize(0);
+
 	auto& renderer = m_impl->m_renderingServices->GetRenderer();
 	m_impl->m_frameDesc.AspectRatio = renderer.GetAspectRatio();
 
 	m_impl->m_renderingServices->GetScene().OnRender(m_impl->m_frameDesc);
 	renderer.Render(m_impl->m_frameDesc);
-
 }
 
 void VeritasEngine::Engine::TogglePause()

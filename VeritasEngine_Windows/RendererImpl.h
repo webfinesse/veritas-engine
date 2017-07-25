@@ -9,11 +9,12 @@ namespace VeritasEngine
 {
 	class DirectXState;
 	class IMeshShader;
+	class IAnimatedMeshShader;
 
 	class RendererImpl: public IRenderer
 	{
 	public:
-		RendererImpl(std::shared_ptr<DirectXState> dxState, std::shared_ptr<IMeshShader> meshShader);
+		RendererImpl(std::shared_ptr<DirectXState> dxState, std::shared_ptr<IMeshShader> meshShader, std::shared_ptr<IAnimatedMeshShader> animatedMeshShader);
 		RendererImpl(RendererImpl&& other) noexcept;
 		~RendererImpl() override;
 

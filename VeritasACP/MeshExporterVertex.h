@@ -1,8 +1,6 @@
 ﻿#pragma once
 #include "../VeritasEngineBase/MathTypes.h"
 
-//constexpr unsigned int MAX_JOINT_WEIGHTS{ 4 };
-
 namespace VeritasACP
 {
 	struct MeshExporterVertex
@@ -12,7 +10,7 @@ namespace VeritasACP
 		VeritasEngine::Float3 Tangent;
 		VeritasEngine::Float3 Binormal;
 		VeritasEngine::Float2 TextureCoordinates;
-		std::vector<unsigned char> JointIndicies;
+		std::vector<unsigned int> JointIndicies;
 		std::vector<float> JointWeights;
 	};
 }

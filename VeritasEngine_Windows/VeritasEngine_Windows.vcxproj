@@ -19,9 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AnimatedMeshShaderImpl.h" />
     <ClInclude Include="DDSTextureLoader\DDSTextureLoader.h" />
     <ClInclude Include="DirectXState.h" />
     <ClInclude Include="DirectXTextureData.h" />
+    <ClInclude Include="IAnimatedMeshShader.h" />
     <ClInclude Include="IMeshShader.h" />
     <ClInclude Include="IndexBufferImpl.h" />
     <ClInclude Include="MeshShaderImpl.h" />
@@ -33,6 +35,7 @@
     <ClInclude Include="WindowsUtil.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AnimatedMeshShaderImpl.cpp" />
     <ClCompile Include="DDSTextureLoader\DDSTextureLoader.cpp" />
     <ClCompile Include="IndexBufferImpl.cpp" />
     <ClCompile Include="MeshShaderImpl.cpp" />
@@ -72,6 +75,20 @@
       <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MeshPixelShader.h</HeaderFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </ObjectFileOutput>
+    </FxCompile>
+    <FxCompile Include="SkinnedMeshVertexShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">g_skinnedMeshVertexShader</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">SkinnedMeshVertexShader.h</HeaderFileOutput>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">g_skinnedMeshVertexShader</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">SkinnedMeshVertexShader.h</HeaderFileOutput>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">g_skinnedMeshVertexShader</VariableName>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">g_skinnedMeshVertexShader</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">SkinnedMeshVertexShader.h</HeaderFileOutput>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">SkinnedMeshVertexShader.h</HeaderFileOutput>
     </FxCompile>
     <FxCompile Include="VertexShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>

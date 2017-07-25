@@ -8,6 +8,7 @@
 #include "RendererImpl.h"
 #include "MeshShaderImpl.h"
 #include "DirectXState.h"
+#include "AnimatedMeshShaderImpl.h"
 
 namespace di = boost::di;
 
@@ -19,6 +20,7 @@ inline auto CreateWindowsWindowsDependencyInjector()
 		di::bind<VeritasEngine::IVertexBufferFactory>().to<VeritasEngine::VertexBufferFactory>().in(di::singleton),
 		di::bind<VeritasEngine::ITextureLoader>().to<VeritasEngine::TextureResourceLoaderImpl>().in(di::singleton),
 		di::bind<VeritasEngine::IMeshShader>().to<VeritasEngine::MeshShaderImpl>().in(di::singleton),
+		di::bind<VeritasEngine::IAnimatedMeshShader>().to<VeritasEngine::AnimatedMeshShaderImpl>().in(di::singleton),
 		di::bind<VeritasEngine::IRenderer>().to<VeritasEngine::RendererImpl>().in(di::singleton)
 	);
 }

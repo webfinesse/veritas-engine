@@ -292,8 +292,17 @@ VeritasACP::ExportMesh::~ExportMesh() = default;
 std::shared_ptr<VeritasACP::MeshExporterResult> VeritasACP::ExportMesh::Export(fs::path& fileName)
 {
 	Assimp::Importer importer;
+	importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_LINE | aiPrimitiveType_POINT);
+	importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS, aiComponent_CAMERAS | aiComponent_COLORS | aiComponent_LIGHTS | aiComponent_TANGENTS_AND_BITANGENTS);
 
-	auto* scene = importer.ReadFile(fileName.generic_string().c_str(), aiProcess_ConvertToLeftHanded | aiProcess_TransformUVCoords | aiProcessPreset_TargetRealtime_Fast);
+	auto* scene = importer.ReadFile(fileName.generic_string().c_str(),  aiProcess_ConvertToLeftHanded | 
+																		aiProcess_TransformUVCoords | 
+																		aiProcessPreset_TargetRealtime_Fast | 
+																		aiProcess_LimitBoneWeights |
+																		aiProcess_OptimizeGraph | 
+																		aiProcess_OptimizeMeshes|
+																		aiProcess_RemoveComponent |
+																		aiProcess_RemoveRedundantMaterials);
 	
 	if (scene == nullptr)
 	{

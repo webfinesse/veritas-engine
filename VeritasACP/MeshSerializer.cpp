@@ -74,9 +74,39 @@ std::vector<VeritasEngine::SkinnedVertex> SerializeVerticies(std::vector<Veritas
 
 		currentVertex.Position = vertex.Position;
 		currentVertex.Normal = vertex.Normal;
+		currentVertex.Tangent = vertex.Tangent;
+		currentVertex.Binormal = vertex.Binormal;
 		currentVertex.TextureCoordinates = vertex.TextureCoordinates;
-		currentVertex.JointIndicies = vertex.JointIndicies;
-		currentVertex.JointWeights = vertex.JointWeights;
+
+		auto index = 0;
+
+		if (vertex.JointIndicies.size() > 0)
+		{
+			for (; index < vertex.JointIndicies.size(); index++)
+			{
+				currentVertex.JointIndicies[index] = vertex.JointIndicies[index];
+			}
+		}
+
+		for(; index < MAX_JOINT_WEIGHTS; index++)
+		{
+			currentVertex.JointIndicies[index] = -1;
+		}
+
+		index = 0;
+		
+		if (vertex.JointWeights.size() > 0)
+		{
+			for (; index < vertex.JointWeights.size() - 1; index++)
+			{
+				currentVertex.JointWeights[index] = vertex.JointWeights[index];
+			}
+		}
+
+		for (; index < MAX_JOINT_WEIGHTS - 1; index++)
+		{
+			currentVertex.JointWeights[index] = 0;
+		}
 	}
 
 	return result;
@@ -136,7 +166,11 @@ VeritasEngine::ResourceId SerializeSkeleton(VeritasACP::MeshExporterResult& mesh
 		skel.Joints.emplace_back(joint);
 	}
 
-	return SerializeArchive(skel, path, L".vesk");
+	auto fullPath = SerializeArchive(skel, path, L".vesk");
+	auto parentPath = fs::path(fullPath).parent_path().parent_path();
+	auto relative = fs::relative(fullPath, parentPath);
+
+	return VeritasEngine::ResourceId(relative.generic_string());
 }
 
 std::vector<VeritasEngine::Animation> SerializeAnimations(VeritasACP::MeshExporterResult& meshInfo)

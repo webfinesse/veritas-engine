@@ -157,6 +157,10 @@ namespace VeritasEngine
 			{
 				returnValue = SceneNodeType::Mesh;
 			}
+			else if (nodeTypeName == "ANIMATEDRESOURCEDMESH")
+			{
+				returnValue = SceneNodeType::AnimatedResourcedMesh;
+			}
 			else if (nodeTypeName == "RESOURCEDMESH")
 			{
 				returnValue = SceneNodeType::ResourcedMesh;

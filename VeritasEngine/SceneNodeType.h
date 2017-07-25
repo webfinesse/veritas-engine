@@ -10,6 +10,7 @@ namespace VeritasEngine
 		Mesh = 2,
 		Light = 3,
 		ResourcedMesh = 4,
+		AnimatedResourcedMesh = 5,
 		End
 	};
 }

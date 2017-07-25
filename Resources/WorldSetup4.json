@@ -110,7 +110,7 @@
   },
   {
     "Id": 6,
-    "SceneNodeType": "ResourcedMesh",
+    "SceneNodeType": "AnimatedResourcedMesh",
     "ResourcedMesh": "wolf/wolf.veam",
     "WorldPosition": {
       "_11": 50,

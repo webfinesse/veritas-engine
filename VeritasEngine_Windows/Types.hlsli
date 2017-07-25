@@ -1,5 +1,16 @@
 #define MAX_LIGHTS 8
 
+struct SkinnedVertexIn
+{
+	float3 positionL: POSITION;
+	float3 normalL: NORMAL;
+	float3 tangentL: TANGENT;
+	float3 binormalL : BINORMAL;
+	float2 diffuseCoord: TEXCOORD0;
+	int4 jointIndicies: JOINTINDICIES;
+	float3 jointWeights: JOINTWEIGHTS;
+};
+
 struct VertexIn
 {
 	float3 positionL: POSITION;

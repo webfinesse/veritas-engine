@@ -50,7 +50,7 @@ struct VeritasEngine::Scene::Impl
 		m_light = gamePropertyManager->RegisterProperty<Light>("Light", GameObjectPropertyKeys::Light);
 	}
 
-	void RenderResourcedMesh(FrameDescription& renderer, const MeshInstance& instance, const MeshNode& currentNode)
+	void RenderResourcedMesh(FrameDescription& renderer, const MeshInstance& instance, const SceneNodeType nodeType, const MeshNode& currentNode)
 	{
 		m_matrixStack.Push(currentNode.GetTransform());
 		auto& stackMatrix = m_matrixStack.Peek();
@@ -62,13 +62,21 @@ struct VeritasEngine::Scene::Impl
 			auto& subset = instance.GetSubset(meshIndex);
 			const MaterialInstance& material = subset.GetMaterial()->GetData<MaterialInstance>();
 
-			renderer.Objects.emplace_back(stackMatrix, inverseTranspose, &material, subset.GetIndexBuffer().GetNativeBuffer(), 
-										  subset.GetIndexBufferIndicies(), subset.GetVertexBuffer().GetNativeBuffer(), subset.GetVertexBufferIndicies(), subset.GetVertexSize());
+			if (nodeType == SceneNodeType::ResourcedMesh)
+			{
+				renderer.StaticObjects.emplace_back(stackMatrix, inverseTranspose, &material, subset.GetIndexBuffer().GetNativeBuffer(),
+					subset.GetIndexBufferIndicies(), subset.GetVertexBuffer().GetNativeBuffer(), subset.GetVertexBufferIndicies(), subset.GetVertexSize());
+			}
+			else if(nodeType == SceneNodeType::AnimatedResourcedMesh)
+			{
+				renderer.AnimatedObjects.emplace_back(stackMatrix, inverseTranspose, &material, subset.GetIndexBuffer().GetNativeBuffer(),
+					subset.GetIndexBufferIndicies(), subset.GetVertexBuffer().GetNativeBuffer(), subset.GetVertexBufferIndicies(), subset.GetVertexSize());
+			}
 		}
 
 		for (const auto& item : currentNode.GetChildren())
 		{
-			RenderResourcedMesh(renderer, instance, item);
+			RenderResourcedMesh(renderer, instance, nodeType, item);
 		}
 
 		m_matrixStack.Pop();
@@ -88,13 +96,14 @@ struct VeritasEngine::Scene::Impl
 		switch (type)
 		{
 			case SceneNodeType::ResourcedMesh:
+			case SceneNodeType::AnimatedResourcedMesh:
 			{
 				auto meshResource = m_resourcedMesh->GetProperty(node.m_handle);
 				const MeshInstance& meshInstance = meshResource->GetData<MeshInstance>();
 
 				auto& rootNode = meshInstance.GetRootNode();
 
-				RenderResourcedMesh(renderer, meshInstance, rootNode);
+				RenderResourcedMesh(renderer, meshInstance, type, rootNode);
 				
 				break;
 			}

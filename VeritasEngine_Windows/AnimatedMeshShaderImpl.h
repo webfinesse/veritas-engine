@@ -1,22 +1,21 @@
-#ifndef H_MESHSHADERIMPL
-#define H_MESHSHADERIMPL
+#pragma once
 
 #include <memory>
 
-#include "IMeshShader.h"
+#include "IAnimatedMeshShader.h"
 
 namespace VeritasEngine
 {
 	class DirectXState;
 
-	class MeshShaderImpl: public IMeshShader
+	class AnimatedMeshShaderImpl: public IAnimatedMeshShader
 	{
 	public:
-		MeshShaderImpl(std::shared_ptr<DirectXState> dxState);
-		MeshShaderImpl(MeshShaderImpl&& other) noexcept;
-		~MeshShaderImpl() noexcept override;
+		AnimatedMeshShaderImpl(std::shared_ptr<DirectXState> dxState);
+		AnimatedMeshShaderImpl(AnimatedMeshShaderImpl&& other) noexcept;
+		~AnimatedMeshShaderImpl() noexcept override;
 
-		MeshShaderImpl& operator=(MeshShaderImpl&& other) noexcept;
+		AnimatedMeshShaderImpl& operator=(AnimatedMeshShaderImpl&& other) noexcept;
 
 		void Activate() override;
 		void Deactivate() override;
@@ -24,11 +23,8 @@ namespace VeritasEngine
 
 		void SetPassParameters(PassBuffer& passBuffer) override;
 		void SetPerObjectBuffer(const PerObjectBufferDescription& buffer) override;
-
 	private:
 		struct Impl;
 		std::unique_ptr<Impl> m_impl;
 	};
 }
-
-#endif
