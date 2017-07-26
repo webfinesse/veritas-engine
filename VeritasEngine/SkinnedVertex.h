@@ -17,8 +17,8 @@ namespace VeritasEngine
 		Float3 Tangent; // 24 - 36
 		Float3 Binormal; // 36 - 48
 		Float2 TextureCoordinates; // 48 - 56
-		unsigned int JointIndicies[MAX_JOINT_WEIGHTS]; // 56 - 72
-		Float3 JointWeights; // 72 - 82
+		int JointIndicies[MAX_JOINT_WEIGHTS]; // 56 - 72
+		Float3 JointWeights; // 72 - 84
 		//std::vector<unsigned char> JointIndicies;
 		//std::vector<float> JointWeights;
 

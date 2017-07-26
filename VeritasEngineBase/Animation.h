@@ -25,7 +25,7 @@ namespace VeritasEngine
 
 	struct BoneInformation
 	{
-		size_t BoneIndex;
+		int BoneIndex;
 		std::vector<Keyframe> Keyframes;
 
 		template <class Archive>

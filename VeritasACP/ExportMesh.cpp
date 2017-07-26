@@ -168,7 +168,7 @@ struct VeritasACP::ExportMesh::Impl
 		return result;
 	}
 
-	void ProcessNode(const aiNode* node, MeshExporterNode& meshNode, MeshExporterResult& result, size_t currentJointIndex)
+	void ProcessNode(const aiNode* node, MeshExporterNode& meshNode, MeshExporterResult& result, int currentJointIndex)
 	{
 		meshNode.m_transform = ConvertTransform(node->mTransformation);
 		
@@ -192,7 +192,7 @@ struct VeritasACP::ExportMesh::Impl
 		}
 	}
 
-	size_t static ProcessSkeletonBoneName(std::string& nodeName, MeshExporterResult& result, size_t currentJointIndex)
+	int static ProcessSkeletonBoneName(std::string& nodeName, MeshExporterResult& result, int currentJointIndex)
 	{
 		auto matchingJoint = result.m_skeleton.JointIndexMap.find(nodeName);
 
@@ -230,7 +230,7 @@ struct VeritasACP::ExportMesh::Impl
 					}
 
 					meshResult.m_skeleton.Joints.emplace_back(joint);
-					meshResult.m_skeleton.JointIndexMap[joint.Name] = meshResult.m_skeleton.Joints.size() - 1;
+					meshResult.m_skeleton.JointIndexMap[joint.Name] = static_cast<int>(meshResult.m_skeleton.Joints.size() - 1);
 				}
 			}
 		}

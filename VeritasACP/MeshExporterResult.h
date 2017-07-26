@@ -12,7 +12,7 @@ namespace VeritasACP
 	struct MeshExporterSkeletonJoint
 	{
 		std::string Name;
-		size_t ParentIndex;
+		int ParentIndex;
 		VeritasEngine::Matrix4x4 InverseBindPose;
 	};
 
@@ -25,7 +25,7 @@ namespace VeritasACP
 		}
 
 		std::vector<MeshExporterSkeletonJoint> Joints;
-		std::unordered_map<std::string, size_t> JointIndexMap;
+		std::unordered_map<std::string, int> JointIndexMap;
 	};
 
 	struct MeshExporterSubset
@@ -66,7 +66,7 @@ namespace VeritasACP
 	struct AnimationBoneInformation
 	{
 		std::string m_jointName;
-		size_t m_jointIndex;
+		int m_jointIndex;
 		std::vector<SqtExporterResult> m_keyframes;
 	};
 
