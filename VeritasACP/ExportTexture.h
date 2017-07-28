@@ -14,7 +14,7 @@ namespace VeritasACP
 		ExportTexture();
 		~ExportTexture();
 
-		VeritasEngine::ResourceId Export(fs::path& fileName);
+		VeritasEngine::ResourceId Export(fs::path& fileName, bool isNormalMap);
 
 	private:
 		struct Impl;

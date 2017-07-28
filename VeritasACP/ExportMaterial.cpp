@@ -45,7 +45,7 @@ VeritasEngine::ResourceId VeritasACP::ExportMaterial::Export(fs::path& basePath,
 		std::string fileName(texPath.C_Str());
 		auto copy = basePath;
 		auto fullPath = copy.append(fileName);
-		mat.DiffuseMap = textureExporter.Export(fullPath);
+		mat.DiffuseMap = textureExporter.Export(fullPath, false);
 	}
 
 	if (material->GetTexture(aiTextureType_NORMALS, 0, &texPath) == AI_SUCCESS)
@@ -54,7 +54,7 @@ VeritasEngine::ResourceId VeritasACP::ExportMaterial::Export(fs::path& basePath,
 		std::string fileName(texPath.C_Str());
 		auto copy = basePath;
 		auto fullPath = copy.append(fileName);
-		mat.NormalMap = textureExporter.Export(fullPath);
+		mat.NormalMap = textureExporter.Export(fullPath, true);
 	}
 
 	if (material->GetTexture(aiTextureType_SPECULAR, 0, &texPath) == AI_SUCCESS)
@@ -63,7 +63,7 @@ VeritasEngine::ResourceId VeritasACP::ExportMaterial::Export(fs::path& basePath,
 		std::string fileName(texPath.C_Str());
 		auto copy = basePath;
 		auto fullPath = copy.append(fileName);
-		mat.SpecularMap = textureExporter.Export(fullPath);
+		mat.SpecularMap = textureExporter.Export(fullPath, false);
 	}
 
 	aiColor4D diffuse;

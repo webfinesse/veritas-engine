@@ -106,7 +106,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Shlwapi.lib;nvtt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Shlwapi.lib;user32.lib;bc6hd.lib;bc7d.lib;nvmathd.lib;nvcored.lib;nvimaged.lib;nvtt.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y $(SolutionDir)Includes\nvtt\$(PlatformShortName)\bin\*.dll $(TargetDir)</Command>
@@ -124,7 +124,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Shlwapi.lib;nvtt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Shlwapi.lib;user32.lib;bc6hd.lib;bc7d.lib;nvmathd.lib;nvcored.lib;nvimaged.lib;nvtt.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y $(SolutionDir)Includes\nvtt\$(PlatformShortName)\bin\*.dll $(TargetDir)</Command>
@@ -146,7 +146,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Shlwapi.lib;nvtt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Shlwapi.lib;user32.lib;bc6h.lib;bc7.lib;nvmath.lib;nvcore.lib;nvimage.lib;nvtt.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y $(SolutionDir)Includes\nvtt\$(PlatformShortName)\bin\*.dll $(TargetDir)</Command>
@@ -168,7 +168,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Shlwapi.lib;nvtt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Shlwapi.lib;user32.lib;bc6h.lib;bc7.lib;nvmath.lib;nvcore.lib;nvimage.lib;nvtt.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y $(SolutionDir)Includes\nvtt\$(PlatformShortName)\bin\*.dll $(TargetDir)</Command>

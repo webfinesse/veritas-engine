@@ -2,14 +2,10 @@
 #include "ACPState.h"
 #include "ResourceIdGenerator.h"
 
-#include <fstream>
-#include <algorithm>
-#include <iterator>
-
 #include <boost/filesystem.hpp>
 
+#include "../Includes/nvtt/include/nvimage/Image.h"
 #include "../Includes/nvtt/include/nvtt/nvtt.h"
-#include "../Includes/nvtt/include/nvtt/nvtt_wrapper.h"
 
 struct VeritasACP::ExportTexture::Impl
 {
@@ -38,26 +34,21 @@ struct MyErrorHandler : public nvtt::ErrorHandler
 	}
 };
 
-VeritasEngine::ResourceId VeritasACP::ExportTexture::Export(fs::path& fileName)
+VeritasEngine::ResourceId VeritasACP::ExportTexture::Export(fs::path& fileName, bool isNormalMap)
 {
-	VeritasEngine::ResourceId textureInfo;
-
 	nvtt::InputOptions inputOptions;
-	nvtt::Surface image;
+	nv::Image image;
 
 	image.load(fileName.generic_string().c_str());
-	image.setAlphaMode(image.alphaMode());
 
+	inputOptions.setNormalMap(isNormalMap);
+	inputOptions.setRoundMode(nvtt::RoundMode_ToPreviousPowerOfTwo);	
 	inputOptions.setTextureLayout(nvtt::TextureType_2D, image.width(), image.height());
+	auto result = inputOptions.setMipmapData(image.pixels(), image.width(), image.height());
 
 	nvtt::CompressionOptions compressionOptions;
 	compressionOptions.setFormat(nvtt::Format_BC3);
 	compressionOptions.setQuality(nvtt::Quality_Normal);
-
-	nvtt::Context context;
-	context.enableCudaAcceleration(true);
-
-	context.estimateSize(image, 1, compressionOptions);
 
 	auto fileNameCopy = fileName;
 	auto resourceName = fileNameCopy.replace_extension(".dds");
@@ -68,12 +59,14 @@ VeritasEngine::ResourceId VeritasACP::ExportTexture::Export(fs::path& fileName)
 	MyErrorHandler handler;
 	outputOptions.setErrorHandler(&handler);
 
-	context.outputHeader(image, 1, compressionOptions, outputOptions);
-	context.compress(image, 0, 0, compressionOptions, outputOptions);	
+	nvtt::Context context;
+	context.enableCudaAcceleration(true);
+
+	context.process(inputOptions, compressionOptions, outputOptions);
 
 	VeritasACP::ACPState::Instance().GetAssetList().push_back(resourceName);
 
-	textureInfo = ACPState::Instance().GetResourceIdGenerator().GenerateId(resourceName);
+	VeritasEngine::ResourceId textureInfo = ACPState::Instance().GetResourceIdGenerator().GenerateId(resourceName);
 
 	return textureInfo;
 }
