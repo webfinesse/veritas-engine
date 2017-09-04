@@ -12,7 +12,7 @@ struct VeritasEngine::Process::Impl : public VeritasEngine::SmallObject<>
 };
 
 VeritasEngine::Process::Process()
-	: m_impl{ make_unique<Impl>() }
+	: m_impl{ std::make_unique<Impl>() }
 {
 
 }

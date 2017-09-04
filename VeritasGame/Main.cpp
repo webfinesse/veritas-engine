@@ -1,3 +1,4 @@
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <crtdbg.h>
 #include <memory>
@@ -19,6 +20,8 @@
 
 bool windowResizing = false;
 std::unique_ptr<Engine> engine{nullptr};
+
+using namespace std;
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -119,7 +122,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 	ShowWindow(hwnd, nShowCmd);
 
-	auto start = chrono::high_resolution_clock::now();
+	auto start = std::chrono::high_resolution_clock::now();
 
 	engine = std::move(VeritasEngine::CreateEngine());
 	engine->Init(hwnd, width, height);
@@ -139,13 +142,14 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	engine->GetResourceManager().Init(workingDirectory);
 
 	engine->GetWorldSetup().LoadFile("Resources\\\\WorldSetup4.json");
+	
 	auto cameraProcess = std::make_shared<RotateCameraProcess>(engine->GetGamePropertyManager(), 500.0f, 10s);
 	engine->GetProcessManager().AttachProcess(cameraProcess);
 
-	auto end = chrono::high_resolution_clock::now();
+	auto end = std::chrono::high_resolution_clock::now();
 
 	auto startTimeString = std::wstring(L"\r\nStart up time: ");
-	auto duration = chrono::duration_cast<chrono::milliseconds>(end - start);
+	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 	startTimeString += std::to_wstring(duration.count());
 	startTimeString += std::wstring(L" ms");
 
@@ -169,7 +173,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 		if(loopCount > 2500)
 		{
-			wstring newTitle(L"FPS: ");
+			std::wstring newTitle(L"FPS: ");
 			newTitle += std::to_wstring(engine->GetCurrentFps());
 
 			SetWindowText(hwnd, newTitle.c_str());

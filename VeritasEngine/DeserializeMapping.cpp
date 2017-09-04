@@ -13,7 +13,7 @@ struct VeritasEngine::DeserializeMapping::Impl
 };
 
 VeritasEngine::DeserializeMapping::DeserializeMapping()
-	: m_impl(make_unique<Impl>())
+	: m_impl(std::make_unique<Impl>())
 {
 
 }

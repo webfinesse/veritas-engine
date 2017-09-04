@@ -1,14 +1,15 @@
+#ifdef _WIN32
+#define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#endif
+
 #include <algorithm>
 #include <cassert>
 #include <cstring>
 #include <fstream>
 #include <iterator>
 #include <utility>
-
-#ifdef _WIN32
-#define NOMINMAX
-#include <Windows.h>
-#endif
 
 #include "zip_file.hpp"
 #include "miniz.h"

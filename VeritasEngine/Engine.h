@@ -5,8 +5,6 @@
 #include "DynamicLibraryHelper.h"
 #include "SmallObject.h"
 
-using namespace std;
-
 #pragma warning(push)
 #pragma warning(disable: 4251)
 
@@ -23,12 +21,12 @@ namespace VeritasEngine
 	class EXPORT Engine : public SmallObject<>
 	{
 	public:
-		Engine(shared_ptr<IProcessManager> processManager, 
-			   shared_ptr<IWorldSetup> worldSetup, 
-			   shared_ptr<IRenderingServices> renderingServices, 
-			   shared_ptr<IResourceManager> resourceManager,
-			   shared_ptr<IGameClock> gameClock,
-			   shared_ptr<GamePropertyManager> gamePropertyManager);
+		Engine(std::shared_ptr<IProcessManager> processManager, 
+			   std::shared_ptr<IWorldSetup> worldSetup, 
+			   std::shared_ptr<IRenderingServices> renderingServices, 
+			   std::shared_ptr<IResourceManager> resourceManager,
+			   std::shared_ptr<IGameClock> gameClock,
+			   std::shared_ptr<GamePropertyManager> gamePropertyManager);
 
 		Engine(Engine&& other) noexcept;
 		Engine& operator=(Engine&& other) noexcept;

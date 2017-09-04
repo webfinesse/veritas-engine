@@ -13,7 +13,7 @@ namespace VeritasEngine
 	class GamePropertyManager
 	{
 	public:
-		GamePropertyManager(shared_ptr<IDeserializeMapping> deserializeMapping)
+		GamePropertyManager(std::shared_ptr<IDeserializeMapping> deserializeMapping)
 			: m_deserializeMapping{ std::move(deserializeMapping) }, m_properties{}
 		{
 			
@@ -60,11 +60,11 @@ namespace VeritasEngine
 		auto GetProperty(StringHash name)
 		{
 			auto foo = &m_properties[name];
-			return any_cast<GameObjectProperty<T>>(foo);
+			return std::any_cast<GameObjectProperty<T>>(foo);
 		}
 
 	private:
-		shared_ptr<IDeserializeMapping> m_deserializeMapping;
+		std::shared_ptr<IDeserializeMapping> m_deserializeMapping;
 		AssocVector<StringHash, std::any> m_properties;
 	};
 }

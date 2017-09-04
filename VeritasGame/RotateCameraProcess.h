@@ -8,7 +8,7 @@
 class RotateCameraProcess : public VeritasEngine::Process
 {
 public:
-	RotateCameraProcess(VeritasEngine::GamePropertyManager& propertyManager, float cameraDistance, chrono::seconds duration);
+	RotateCameraProcess(VeritasEngine::GamePropertyManager& propertyManager, float cameraDistance, std::chrono::seconds duration);
 
 	void OnInitialized() override;
 	void OnUpdate(VeritasEngine::TimeDuration delta) override;

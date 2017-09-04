@@ -10,7 +10,7 @@
 
 struct VeritasEngine::WorldSetup::Impl
 {
-	Impl(shared_ptr<IDeserializeMapping> deserializeMapping)
+	Impl(std::shared_ptr<IDeserializeMapping> deserializeMapping)
 		: m_engine { nullptr }, m_deserializeMapping { deserializeMapping }
 	{
 		
@@ -42,11 +42,11 @@ struct VeritasEngine::WorldSetup::Impl
 	}
 
 	Engine* m_engine;
-	shared_ptr<IDeserializeMapping> m_deserializeMapping;
+	std::shared_ptr<IDeserializeMapping> m_deserializeMapping;
 };
 
-VeritasEngine::WorldSetup::WorldSetup(shared_ptr<IDeserializeMapping> deserializeMapping)
-	: m_impl(make_unique<Impl>(deserializeMapping))
+VeritasEngine::WorldSetup::WorldSetup(std::shared_ptr<IDeserializeMapping> deserializeMapping)
+	: m_impl(std::make_unique<Impl>(deserializeMapping))
 {
 }
 

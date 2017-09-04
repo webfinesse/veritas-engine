@@ -5,7 +5,9 @@
 #include "../VeritasEngine/GamePropertyManager.h"
 #include "../VeritasEngine/GameObjectPropertyKeys.h"
 
-RotateCameraProcess::RotateCameraProcess(VeritasEngine::GamePropertyManager& gamePropertyManager, float cameraDistance, chrono::seconds interval)
+using namespace std;
+
+RotateCameraProcess::RotateCameraProcess(VeritasEngine::GamePropertyManager& gamePropertyManager, float cameraDistance, std::chrono::seconds interval)
 	: m_cameraDistance{ cameraDistance }, m_clock { interval, 0s, 1.0f, false }
 {
 	m_cameraDistanceProperty = gamePropertyManager.GetProperty<VeritasEngine::Float3>(VeritasEngine::GameObjectPropertyKeys::CameraPosition);

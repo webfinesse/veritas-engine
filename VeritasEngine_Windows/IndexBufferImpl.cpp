@@ -11,7 +11,7 @@ using namespace Microsoft::WRL;
 
 struct VeritasEngine::IndexBufferImpl::Impl
 {
-	Impl(shared_ptr<DirectXState> dxState)
+	Impl(std::shared_ptr<DirectXState> dxState)
 		: m_buffer{}, m_dxState{ dxState }, m_indicies{}
 	{
 
@@ -50,11 +50,11 @@ struct VeritasEngine::IndexBufferImpl::Impl
 	}
 
 	ComPtr<ID3D11Buffer> m_buffer;
-	shared_ptr<DirectXState> m_dxState;
-	vector<unsigned int> m_indicies;
+	std::shared_ptr<DirectXState> m_dxState;
+	std::vector<unsigned int> m_indicies;
 };
 
-VeritasEngine::IndexBufferImpl::IndexBufferImpl(shared_ptr<DirectXState> dxState)
+VeritasEngine::IndexBufferImpl::IndexBufferImpl(std::shared_ptr<DirectXState> dxState)
 	: m_impl(std::make_unique<Impl>(dxState))
 {
 

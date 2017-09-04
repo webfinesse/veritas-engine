@@ -11,7 +11,7 @@ using namespace Microsoft::WRL;
 
 struct VeritasEngine::VertexBufferImpl::Impl
 {
-	Impl(shared_ptr<DirectXState> dxState, size_t vertexSize)
+	Impl(std::shared_ptr<DirectXState> dxState, size_t vertexSize)
 		: m_buffer{}, m_dxState{ dxState }, m_verticies{}, m_sizeOfVertex{ vertexSize }, m_numVerticies{}
 	{
 
@@ -56,12 +56,12 @@ struct VeritasEngine::VertexBufferImpl::Impl
 
 	ComPtr<ID3D11Buffer> m_buffer;
 	std::shared_ptr<DirectXState> m_dxState;
-	vector<unsigned char> m_verticies;
+	std::vector<unsigned char> m_verticies;
 	size_t m_sizeOfVertex;
 	size_t m_numVerticies;
 };
 
-VeritasEngine::VertexBufferImpl::VertexBufferImpl(shared_ptr<DirectXState> dxState, size_t vertexSize)
+VeritasEngine::VertexBufferImpl::VertexBufferImpl(std::shared_ptr<DirectXState> dxState, size_t vertexSize)
 	: m_impl(std::make_unique<Impl>(dxState, vertexSize))
 {
 

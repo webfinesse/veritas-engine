@@ -11,8 +11,6 @@
 #include "DeserializerFactory.h"
 #include "StringHash.h"
 
-using namespace std;
-
 namespace VeritasEngine
 {
 	template <typename T>
@@ -44,7 +42,7 @@ namespace VeritasEngine
 			return m_propertyId;
 		}
 
-		shared_ptr<T> GetProperty(const GameObjectHandle& gameObject)
+		std::shared_ptr<T> GetProperty(const GameObjectHandle& gameObject)
 		{
 			auto query = m_properties.find(gameObject);
 
@@ -80,13 +78,13 @@ namespace VeritasEngine
 
 			auto deserializer = DeserializerFactory<T>::GetDeserializer();
 
-			m_properties.emplace(handle, make_shared<T>(deserializer(engine, values)));
+			m_properties.emplace(handle, std::make_shared<T>(deserializer(engine, values)));
 		}
 
 	private:
 		StringHash m_propertyId;
-		string m_name;
-		AssocVector<GameObjectHandle, shared_ptr<T>> m_properties;
+		std::string m_name;
+		AssocVector<GameObjectHandle, std::shared_ptr<T>> m_properties;
 	};
 
 	template <typename T>
@@ -144,7 +142,7 @@ namespace VeritasEngine
 
 	private:
 		StringHash m_propertyId;
-		string m_name;
+		std::string m_name;
 		AssocVector<GameObjectHandle, T*> m_properties;
 	};
 }

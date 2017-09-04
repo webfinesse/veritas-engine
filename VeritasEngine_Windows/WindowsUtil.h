@@ -1,10 +1,9 @@
 #ifndef H_WINUTILS
 #define H_WINUTILS
 
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include <string>
 
-using namespace std;
 
 #define HHR(x, y) VeritasEngine::WindowsUtil::HandleHResult(x, y, __FILE__, __LINE__)
 

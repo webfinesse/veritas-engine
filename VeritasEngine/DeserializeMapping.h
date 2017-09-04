@@ -5,9 +5,6 @@
 
 #include "IDeserializeMapping.h"
 
-
-using namespace std;
-
 #pragma warning(push)
 #pragma warning(disable: 4251)
 
@@ -24,7 +21,7 @@ namespace VeritasEngine
 
 	private:
 		struct Impl;
-		unique_ptr<Impl> m_impl;
+		std::unique_ptr<Impl> m_impl;
 	};
 }
 
