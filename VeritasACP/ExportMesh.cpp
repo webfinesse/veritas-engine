@@ -302,8 +302,7 @@ std::shared_ptr<VeritasACP::MeshExporterResult> VeritasACP::ExportMesh::Export(f
 																		aiProcess_OptimizeGraph | 
 																		aiProcess_OptimizeMeshes|
 																		aiProcess_RemoveComponent |
-																		aiProcess_RemoveRedundantMaterials |
-																		aiProcess_PreTransformVertices);
+																		aiProcess_RemoveRedundantMaterials);
 	
 	if (scene == nullptr)
 	{

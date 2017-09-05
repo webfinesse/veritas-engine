@@ -34,7 +34,7 @@ void VeritasEngine::MatrixStack::Push(const Matrix4x4& matrix)
 {
 	auto right = m_impl->m_stack.back();
     
-	Matrix4x4 result = matrix * right;
+	Matrix4x4 result = right * matrix;
     
 	m_impl->m_stack.push_back(result);
 }
