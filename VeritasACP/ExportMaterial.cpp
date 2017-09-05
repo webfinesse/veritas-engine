@@ -109,7 +109,7 @@ VeritasEngine::ResourceId VeritasACP::ExportMaterial::Export(fs::path& basePath,
 
 	archive(mat);
 
-	VeritasACP::ACPState::Instance().GetAssetList().push_back(outputPath);
+	VeritasACP::ACPState::Instance().AddAsset(outputPath);
 
 	return VeritasACP::ACPState::Instance().GetResourceIdGenerator().GenerateId(outputPath);
 }

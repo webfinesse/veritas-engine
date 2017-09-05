@@ -143,7 +143,7 @@ VeritasEngine::ResourceId SerializeArchive(ArchiveType& archiveData, fs::path& p
 	std::ofstream file(outputPath.generic_string(), std::ios::binary);
 	cereal::BinaryOutputArchive archive(file);
 
-	VeritasACP::ACPState::Instance().GetAssetList().push_back(outputPath);
+	VeritasACP::ACPState::Instance().AddAsset(outputPath);
 
 	archive(archiveData);
 

@@ -4,6 +4,8 @@
 #include <boost/filesystem.hpp>
 #include "../Includes/miniz-cpp-master/zip_file.hpp"
 
+#include <set>
+
 struct VeritasACP::ACPState::Impl
 {
 	Impl(fs::path& basePath)
@@ -13,7 +15,7 @@ struct VeritasACP::ACPState::Impl
 	}
 
 	ResourceIdGenerator m_resourceGenerator;
-	std::vector<fs::path> m_assetList;
+	std::set<fs::path> m_assetList;
 };
 
 VeritasACP::ACPState::ACPState()
@@ -36,7 +38,22 @@ VeritasACP::ResourceIdGenerator& VeritasACP::ACPState::GetResourceIdGenerator()
 	return m_impl->m_resourceGenerator;
 }
 
-std::vector<fs::path>& VeritasACP::ACPState::GetAssetList()
+void VeritasACP::ACPState::AddAsset(fs::path& path)
+{
+	m_impl->m_assetList.emplace(path);
+}
+
+size_t VeritasACP::ACPState::GetAssetListSize()
+{
+	return m_impl->m_assetList.size();
+}
+
+void VeritasACP::ACPState::ResetAssetList()
+{
+	m_impl->m_assetList.clear();
+}
+
+std::set<fs::path>& VeritasACP::ACPState::GetAssetList()
 {
 	return m_impl->m_assetList;
 }

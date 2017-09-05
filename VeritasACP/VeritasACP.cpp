@@ -57,11 +57,11 @@ void ProcessBaseDirectory(fs::path& basePath)
 			auto outputPath = item.path();
 			ProcessSubDirectory(outputPath);
 			
-			if (state.GetAssetList().size() > 0)
+			if (state.GetAssetListSize() > 0)
 			{
 				zip_file zip;
 
-				for (auto& path : state.GetAssetList())
+				for (const auto& path : state.GetAssetList())
 				{
 					auto relative = fs::relative(path, outputPath);
 					auto relativeString = relative.generic_string();
@@ -74,7 +74,7 @@ void ProcessBaseDirectory(fs::path& basePath)
 				copy.replace_extension(L".zip");
 				zip.save(copy.generic_string());
 
-				state.GetAssetList().resize(0);
+				state.ResetAssetList();
 			}
 		}
 	}

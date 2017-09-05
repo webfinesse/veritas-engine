@@ -1,10 +1,10 @@
 #pragma once
 
 #include <memory>
-#include <vector>
 
 #include "../VeritasEngineBase/Singleton.h"
 #include "BoostFilesystemHelper.h"
+#include <set>
 
 
 namespace VeritasACP
@@ -18,7 +18,10 @@ namespace VeritasACP
 	public:
 		void Init(fs::path& basePath);
 		ResourceIdGenerator& GetResourceIdGenerator();
-		std::vector<fs::path>& GetAssetList();		
+		void AddAsset(fs::path& path);
+		size_t GetAssetListSize();
+		void ResetAssetList();
+		std::set<fs::path>& GetAssetList();
 
 	private:
 		ACPState();

@@ -64,7 +64,7 @@ VeritasEngine::ResourceId VeritasACP::ExportTexture::Export(fs::path& fileName, 
 
 	context.process(inputOptions, compressionOptions, outputOptions);
 
-	VeritasACP::ACPState::Instance().GetAssetList().push_back(resourceName);
+	VeritasACP::ACPState::Instance().AddAsset(resourceName);
 
 	VeritasEngine::ResourceId textureInfo = ACPState::Instance().GetResourceIdGenerator().GenerateId(resourceName);
 
