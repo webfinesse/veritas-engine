@@ -37,7 +37,7 @@ namespace VeritasEngine
 		}
 
 		template <typename T>
-		auto RegisterProperty(const char* name, StringHash jsonTag)
+		auto RegisterProperty(const char* name, const StringHash jsonTag)
 		{
 			m_properties[jsonTag] = std::make_any<GameObjectProperty<T>>(name);
 
@@ -57,9 +57,9 @@ namespace VeritasEngine
 		}
 
 		template <typename T>
-		auto GetProperty(StringHash name)
+		auto GetProperty(const StringHash name)
 		{
-			auto foo = &m_properties[name];
+			const auto foo = &m_properties[name];
 			return std::any_cast<GameObjectProperty<T>>(foo);
 		}
 

@@ -20,7 +20,7 @@ VeritasEngine::DeserializeMapping::DeserializeMapping()
 
 VeritasEngine::DeserializeMapping::~DeserializeMapping() = default;
 
-void VeritasEngine::DeserializeMapping::Register(StringHash jsonTag, const DESERIALIZEFUNCTION function)
+void VeritasEngine::DeserializeMapping::Register(const StringHash jsonTag, const DESERIALIZEFUNCTION function)
 {
 	m_impl->m_mapping.emplace(jsonTag, function);
 }
