@@ -90,7 +90,7 @@ std::vector<VeritasEngine::SkinnedVertex> SerializeVerticies(std::vector<Veritas
 
 		for(; index < MAX_JOINT_WEIGHTS; index++)
 		{
-			currentVertex.JointIndicies[index] = -1;
+			currentVertex.JointIndicies[index] = static_cast<std::byte>(-1);
 		}
 
 		index = 0;

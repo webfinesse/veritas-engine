@@ -10,7 +10,7 @@ namespace VeritasACP
 		VeritasEngine::Float3 Tangent;
 		VeritasEngine::Float3 Binormal;
 		VeritasEngine::Float2 TextureCoordinates;
-		std::vector<unsigned int> JointIndicies;
+		std::vector<std::byte> JointIndicies;
 		std::vector<float> JointWeights;
 	};
 }

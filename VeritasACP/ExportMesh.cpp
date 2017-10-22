@@ -209,6 +209,8 @@ struct VeritasACP::ExportMesh::Impl
 	{
 		if(mesh->HasBones())
 		{
+			assert(mesh->mNumBones < std::numeric_limits<std::byte>::max());
+
 			for(unsigned int boneIndex = 0; boneIndex < mesh->mNumBones; boneIndex++)
 			{
 				auto& currentBone = mesh->mBones[boneIndex];				
@@ -226,7 +228,7 @@ struct VeritasACP::ExportMesh::Impl
 						auto& currentWeight = currentBone->mWeights[weightIndex];
 						auto& vertex = meshInfo.m_vertices[currentWeight.mVertexId];
 						vertex.JointWeights.emplace_back(currentWeight.mWeight);
-						vertex.JointIndicies.emplace_back(boneIndex);
+						vertex.JointIndicies.emplace_back(static_cast<std::byte>(boneIndex));
 					}
 
 					meshResult.m_skeleton.Joints.emplace_back(joint);
@@ -306,7 +308,7 @@ std::shared_ptr<VeritasACP::MeshExporterResult> VeritasACP::ExportMesh::Export(f
 	
 	if (scene == nullptr)
 	{
-		auto error = importer.GetErrorString();
+		const auto error = importer.GetErrorString();
 		std::cout << error << std::endl;
 	}
 	else
