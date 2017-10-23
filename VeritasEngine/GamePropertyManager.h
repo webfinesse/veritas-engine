@@ -13,8 +13,8 @@ namespace VeritasEngine
 	class GamePropertyManager
 	{
 	public:
-		GamePropertyManager(std::shared_ptr<IDeserializeMapping> deserializeMapping)
-			: m_deserializeMapping{ std::move(deserializeMapping) }, m_properties{}
+		GamePropertyManager(const std::shared_ptr<IDeserializeMapping> deserializeMapping)
+			: m_deserializeMapping{ deserializeMapping }
 		{
 			
 		}
@@ -64,7 +64,7 @@ namespace VeritasEngine
 		}
 
 	private:
-		std::shared_ptr<IDeserializeMapping> m_deserializeMapping;
-		AssocVector<StringHash, std::any> m_properties;
+		std::shared_ptr<IDeserializeMapping> m_deserializeMapping {};
+		AssocVector<StringHash, std::any> m_properties {};
 	};
 }

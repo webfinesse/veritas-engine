@@ -11,6 +11,6 @@ namespace VeritasEngine
 	public:
 		virtual ~IVertexBufferFactory() = default;
 
-		virtual std::shared_ptr<IVertexBuffer> Create(size_t sizeOfVertex) = 0;
+		virtual std::shared_ptr<IVertexBuffer> Create(const std::size_t sizeOfVertex) = 0;
 	};
 }

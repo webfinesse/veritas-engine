@@ -17,7 +17,7 @@ namespace VeritasEngine
 		~DeserializeMapping() override;
 
 		void Register(const StringHash jsonTag, const DESERIALIZEFUNCTION function) override;
-		DESERIALIZEFUNCTION* const GetDeserializer(StringHash jsonTag) override;
+		DESERIALIZEFUNCTION* const GetDeserializer(const StringHash jsonTag) override;
 
 	private:
 		struct Impl;

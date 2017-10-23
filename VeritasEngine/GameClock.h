@@ -14,7 +14,7 @@ namespace VeritasEngine
 
 		TimeDuration GetDelta() override;
 		bool GetIsPaused() const override;
-		void SetIsPaused(bool isPaused) override;
+		void SetIsPaused(const bool isPaused) override;
 
 	private:
 		struct Impl;

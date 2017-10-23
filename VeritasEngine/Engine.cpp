@@ -23,7 +23,7 @@ struct VeritasEngine::Engine::Impl : public VeritasEngine::SmallObject<>
 	     std::shared_ptr<IResourceManager> resourceManager,
 		 std::shared_ptr<IGameClock> gameClock,
 		 std::shared_ptr<GamePropertyManager> gamePropertyManager)
-		: m_gameClock{ std::move(gameClock) }, m_processManager{ std::move(processManager) }, m_worldSetup{ std::move(worldSetup) }, m_resourceManager{ std::move(resourceManager) }, m_renderingServices{ std::move(renderingServices) }, m_gamePropertyManager { gamePropertyManager }, m_frameDesc{}
+		: m_gameClock{ gameClock }, m_processManager{ processManager }, m_worldSetup{ worldSetup }, m_resourceManager{ resourceManager }, m_renderingServices{ renderingServices }, m_gamePropertyManager { gamePropertyManager }
 	{
 
 	}
@@ -37,7 +37,7 @@ struct VeritasEngine::Engine::Impl : public VeritasEngine::SmallObject<>
 
 	float m_currentFps { 0 };
 	bool m_isInitialized { false };
-	FrameDescription m_frameDesc;
+	FrameDescription m_frameDesc {};
 };
 
 VeritasEngine::Engine::Engine(std::shared_ptr<IProcessManager> processManager, 

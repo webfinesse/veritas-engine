@@ -7,18 +7,18 @@
 struct VeritasEngine::VertexBufferManager::Impl: public VeritasEngine::SmallObject<>
 {
 	Impl(std::shared_ptr<IVertexBufferFactory> factory)
-		: m_factory{ factory }, m_buffers {}
+		: m_factory{ factory }
 	{
 
 	}
 
 	std::shared_ptr<IVertexBufferFactory> m_factory;
-	AssocVector<VertexTypeHandle, std::shared_ptr<IVertexBuffer>> m_buffers;
+	AssocVector<VertexTypeHandle, std::shared_ptr<IVertexBuffer>> m_buffers{};
 };
 
 void VeritasEngine::VertexBufferManager::RegisterVertexFormat(VertexTypeHandle handle, size_t sizeOfVertex)
 {
-	auto buffer = m_impl->m_factory->Create(sizeOfVertex);
+	const auto buffer = m_impl->m_factory->Create(sizeOfVertex);
 
 	m_impl->m_buffers[handle] = buffer;
 }

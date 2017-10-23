@@ -11,7 +11,7 @@
 struct VeritasEngine::WorldSetup::Impl
 {
 	Impl(std::shared_ptr<IDeserializeMapping> deserializeMapping)
-		: m_engine { nullptr }, m_deserializeMapping { deserializeMapping }
+		: m_deserializeMapping { deserializeMapping }
 	{
 		
 	}
@@ -41,7 +41,7 @@ struct VeritasEngine::WorldSetup::Impl
 		}
 	}
 
-	Engine* m_engine;
+	Engine* m_engine { nullptr };
 	std::shared_ptr<IDeserializeMapping> m_deserializeMapping;
 };
 

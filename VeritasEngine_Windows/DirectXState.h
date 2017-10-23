@@ -11,6 +11,8 @@ namespace VeritasEngine
 	{
 	public:
 		DirectXState() noexcept = default;
+		~DirectXState() noexcept = default;
+
 		DirectXState(DirectXState&& other) noexcept
 			: Device{ std::move(other.Device) }, SwapChain{ std::move(other.SwapChain) }, Context{ std::move(other.Context) }, RenderTargetView{ std::move(other.RenderTargetView) }, DepthStencilView{ std::move(other.DepthStencilView) }
 		{

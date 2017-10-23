@@ -9,10 +9,10 @@ namespace VeritasEngine
 	class VertexBufferFactory: public IVertexBufferFactory
 	{
 	public:
-		VertexBufferFactory(std::shared_ptr<DirectXState> dxState);
+		VertexBufferFactory(const std::shared_ptr<DirectXState> dxState);
 		~VertexBufferFactory() override = default;
 
-		std::shared_ptr<IVertexBuffer> Create(size_t sizeOfVertex) override;
+		std::shared_ptr<IVertexBuffer> Create(const std::size_t sizeOfVertex) override;
 
 	private:
 		std::shared_ptr<DirectXState> m_dxState;

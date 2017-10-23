@@ -20,7 +20,7 @@
 struct VeritasACP::ExportMesh::Impl
 {
 	Impl()
-		:  m_processedMaterials{}
+		: m_processedMaterials{}
 	{
 
 	}
@@ -171,13 +171,13 @@ struct VeritasACP::ExportMesh::Impl
 	void ProcessNode(const aiNode* node, MeshExporterNode& meshNode, MeshExporterResult& result, int currentJointIndex)
 	{
 		meshNode.m_transform = ConvertTransform(node->mTransformation);
-		
-		if(node->mName.length > 0)
+
+		if (node->mName.length > 0)
 		{
 			auto nodeName = std::string(node->mName.C_Str());
 			currentJointIndex = ProcessSkeletonBoneName(nodeName, result, currentJointIndex);
 		}
-		
+
 		for (unsigned int i = 0; i < node->mNumMeshes; ++i)
 		{
 			meshNode.meshIndicies.emplace_back(node->mMeshes[i]);
@@ -196,7 +196,7 @@ struct VeritasACP::ExportMesh::Impl
 	{
 		auto matchingJoint = result.m_skeleton.JointIndexMap.find(nodeName);
 
-		if(matchingJoint != result.m_skeleton.JointIndexMap.end())
+		if (matchingJoint != result.m_skeleton.JointIndexMap.end())
 		{
 			result.m_skeleton.Joints[matchingJoint->second].ParentIndex = currentJointIndex;
 			return matchingJoint->second;
@@ -207,13 +207,16 @@ struct VeritasACP::ExportMesh::Impl
 
 	void ProcessBones(aiMesh* mesh, MeshExporterResult& meshResult, MeshExporterSubset& meshInfo)
 	{
-		if(mesh->HasBones())
+		if (mesh->HasBones())
 		{
-			assert(mesh->mNumBones < std::numeric_limits<std::byte>::max());
-
-			for(unsigned int boneIndex = 0; boneIndex < mesh->mNumBones; boneIndex++)
+			if(mesh->mNumBones > std::numeric_limits<unsigned char>::max())
 			{
-				auto& currentBone = mesh->mBones[boneIndex];				
+				throw new std::runtime_error("The skeleton has more then 255 bones, reduce the number of bones in the skeleton");
+			}
+
+			for (unsigned int boneIndex = 0; boneIndex < mesh->mNumBones; boneIndex++)
+			{
+				auto& currentBone = mesh->mBones[boneIndex];
 				auto existingJoint = meshResult.m_skeleton.JointIndexMap.find(currentBone->mName.C_Str());
 
 				if (existingJoint == meshResult.m_skeleton.JointIndexMap.end())
@@ -240,9 +243,9 @@ struct VeritasACP::ExportMesh::Impl
 
 	void ProcessAnimations(const aiScene* scene, MeshExporterResult& result)
 	{
-		if(scene->HasAnimations())
+		if (scene->HasAnimations())
 		{
-			for(unsigned int animationIndex = 0; animationIndex < scene->mNumAnimations; animationIndex++)
+			for (unsigned int animationIndex = 0; animationIndex < scene->mNumAnimations; animationIndex++)
 			{
 				auto animation = scene->mAnimations[animationIndex];
 
@@ -251,9 +254,9 @@ struct VeritasACP::ExportMesh::Impl
 				clip.m_hashedName = VeritasEngine::Hash(animation->mName.C_Str());
 				clip.m_name = std::string(animation->mName.C_Str());
 
-				for(unsigned int channelIndex = 0; channelIndex < animation->mNumChannels; channelIndex++)
+				for (unsigned int channelIndex = 0; channelIndex < animation->mNumChannels; channelIndex++)
 				{
-					auto channel = animation->mChannels[channelIndex];
+					const auto channel = animation->mChannels[channelIndex];
 
 					clip.m_poses.emplace_back();
 					auto& currentPose = clip.m_poses.back();
@@ -265,7 +268,7 @@ struct VeritasACP::ExportMesh::Impl
 					{
 						currentPose.m_keyframes.emplace_back();
 						auto& keyFrame = currentPose.m_keyframes.back();
-						
+
 						keyFrame.m_timeSample = static_cast<float>(channel->mScalingKeys[poseIndex].mTime);
 						keyFrame.m_scale = ConvertVec3(channel->mScalingKeys[poseIndex].mValue);
 						keyFrame.m_rotation = ConvertQuaternion(channel->mRotationKeys[poseIndex].mValue);
@@ -274,7 +277,7 @@ struct VeritasACP::ExportMesh::Impl
 				}
 
 				result.m_animations.emplace(make_pair(clip.m_name, clip));
-				
+
 			}
 		}
 	}
@@ -297,15 +300,15 @@ std::shared_ptr<VeritasACP::MeshExporterResult> VeritasACP::ExportMesh::Export(f
 	importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_LINE | aiPrimitiveType_POINT);
 	importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS, aiComponent_CAMERAS | aiComponent_COLORS | aiComponent_LIGHTS | aiComponent_TANGENTS_AND_BITANGENTS);
 
-	auto* scene = importer.ReadFile(fileName.generic_string().c_str(),  aiProcess_ConvertToLeftHanded | 
-																		aiProcess_TransformUVCoords | 
-																		aiProcessPreset_TargetRealtime_Fast | 
-																		aiProcess_LimitBoneWeights |
-																		aiProcess_OptimizeGraph | 
-																		aiProcess_OptimizeMeshes|
-																		aiProcess_RemoveComponent |
-																		aiProcess_RemoveRedundantMaterials);
-	
+	auto* scene = importer.ReadFile(fileName.generic_string().c_str(), aiProcess_ConvertToLeftHanded |
+		aiProcess_TransformUVCoords |
+		aiProcessPreset_TargetRealtime_Fast |
+		aiProcess_LimitBoneWeights |
+		aiProcess_OptimizeGraph |
+		aiProcess_OptimizeMeshes |
+		aiProcess_RemoveComponent |
+		aiProcess_RemoveRedundantMaterials);
+
 	if (scene == nullptr)
 	{
 		const auto error = importer.GetErrorString();
@@ -339,6 +342,6 @@ std::shared_ptr<VeritasACP::MeshExporterResult> VeritasACP::ExportMesh::Export(f
 			return result;
 		}
 	}
-	
+
 	return nullptr;
 }

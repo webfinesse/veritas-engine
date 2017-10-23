@@ -11,8 +11,8 @@ using namespace Microsoft::WRL;
 
 struct VeritasEngine::VertexBufferImpl::Impl
 {
-	Impl(std::shared_ptr<DirectXState> dxState, size_t vertexSize)
-		: m_buffer{}, m_dxState{ dxState }, m_verticies{}, m_sizeOfVertex{ vertexSize }, m_numVerticies{}
+	Impl(const std::shared_ptr<DirectXState> dxState, const size_t vertexSize)
+		: m_dxState{ dxState }, m_sizeOfVertex{ vertexSize }
 	{
 
 	}
@@ -38,14 +38,14 @@ struct VeritasEngine::VertexBufferImpl::Impl
 		m_buffer = newBuffer;
 	}
 
-	BufferIndicies AddVerticies(unsigned char* verticies, size_t numVerticies)
+	BufferIndicies AddVerticies(unsigned char* verticies, const size_t numVerticies)
 	{
-		auto bytesPerVertex = m_sizeOfVertex / sizeof(unsigned char);
+		const auto bytesPerVertex = m_sizeOfVertex / sizeof(unsigned char);
 
-		auto end = m_verticies.end();
+		const auto end = m_verticies.end();
 		m_verticies.insert(end, verticies, verticies + (bytesPerVertex * numVerticies));
 
-		BufferIndicies result(m_numVerticies, numVerticies);
+		const BufferIndicies result{ m_numVerticies, numVerticies };
 
 		m_numVerticies += numVerticies;
 
@@ -54,14 +54,14 @@ struct VeritasEngine::VertexBufferImpl::Impl
 		return result;
 	}
 
-	ComPtr<ID3D11Buffer> m_buffer;
+	ComPtr<ID3D11Buffer> m_buffer{nullptr};
 	std::shared_ptr<DirectXState> m_dxState;
-	std::vector<unsigned char> m_verticies;
+	std::vector<unsigned char> m_verticies{};
 	size_t m_sizeOfVertex;
-	size_t m_numVerticies;
+	size_t m_numVerticies{0};
 };
 
-VeritasEngine::VertexBufferImpl::VertexBufferImpl(std::shared_ptr<DirectXState> dxState, size_t vertexSize)
+VeritasEngine::VertexBufferImpl::VertexBufferImpl(std::shared_ptr<DirectXState> dxState, const size_t vertexSize)
 	: m_impl(std::make_unique<Impl>(dxState, vertexSize))
 {
 
@@ -69,7 +69,7 @@ VeritasEngine::VertexBufferImpl::VertexBufferImpl(std::shared_ptr<DirectXState> 
 
 VeritasEngine::VertexBufferImpl::~VertexBufferImpl() = default;
 
-VeritasEngine::BufferIndicies VeritasEngine::VertexBufferImpl::AddVerticies(unsigned char* verticies, size_t numVerticies)
+VeritasEngine::BufferIndicies VeritasEngine::VertexBufferImpl::AddVerticies(unsigned char* verticies, const size_t numVerticies)
 {
 	return m_impl->AddVerticies(verticies, numVerticies);
 }

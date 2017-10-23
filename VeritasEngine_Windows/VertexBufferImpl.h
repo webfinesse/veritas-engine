@@ -12,10 +12,10 @@ namespace VeritasEngine
 	class VertexBufferImpl: public IVertexBuffer
 	{
 	public:
-		VertexBufferImpl(std::shared_ptr<DirectXState> dxState, size_t vertexSize);
+		VertexBufferImpl(std::shared_ptr<DirectXState> dxState, const size_t vertexSize);
 		~VertexBufferImpl() override;
 
-		BufferIndicies AddVerticies(unsigned char* verticies, size_t numVerticies) override;
+		BufferIndicies AddVerticies(unsigned char* verticies, const size_t numVerticies) override;
 		size_t GetVertexSize() const override;
 		void* GetNativeBuffer() const override;
 

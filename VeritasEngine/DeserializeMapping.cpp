@@ -3,13 +3,7 @@
 
 struct VeritasEngine::DeserializeMapping::Impl
 {
-	Impl()
-		: m_mapping{}
-	{
-		
-	}
-
-	AssocVector<StringHash, DESERIALIZEFUNCTION> m_mapping;
+	AssocVector<StringHash, DESERIALIZEFUNCTION> m_mapping{};
 };
 
 VeritasEngine::DeserializeMapping::DeserializeMapping()
@@ -25,9 +19,9 @@ void VeritasEngine::DeserializeMapping::Register(const StringHash jsonTag, const
 	m_impl->m_mapping.emplace(jsonTag, function);
 }
 
-VeritasEngine::DESERIALIZEFUNCTION* const VeritasEngine::DeserializeMapping::GetDeserializer(StringHash jsonTag)
+VeritasEngine::DESERIALIZEFUNCTION* const VeritasEngine::DeserializeMapping::GetDeserializer(const StringHash jsonTag)
 {
-	auto query = m_impl->m_mapping.find(jsonTag);
+	const auto query = m_impl->m_mapping.find(jsonTag);
 
 	if (query != m_impl->m_mapping.end())
 	{

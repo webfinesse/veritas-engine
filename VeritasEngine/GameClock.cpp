@@ -2,14 +2,8 @@
 
 struct VeritasEngine::GameClock::Impl
 {
-	Impl()
-		: m_currentTime { std::chrono::high_resolution_clock::now() }, m_isPaused { false }
-	{
-		
-	}
-
-	TimePoint m_currentTime;
-	bool m_isPaused;
+	TimePoint m_currentTime { std::chrono::high_resolution_clock::now() };
+	bool m_isPaused { false };
 };
 
 VeritasEngine::GameClock::GameClock()
@@ -22,16 +16,16 @@ VeritasEngine::GameClock::~GameClock() = default;
 
 VeritasEngine::TimeDuration VeritasEngine::GameClock::GetDelta()
 {
-	auto newTime = std::chrono::high_resolution_clock::now();
+	const auto newTime = std::chrono::high_resolution_clock::now();
 
-	auto delta = std::chrono::duration_cast<TimeDuration>(newTime - m_impl->m_currentTime);
+	const auto delta = std::chrono::duration_cast<TimeDuration>(newTime - m_impl->m_currentTime);
 
 	m_impl->m_currentTime = newTime;
 
 	return delta;
 }
 
-void VeritasEngine::GameClock::SetIsPaused(bool isPaused)
+void VeritasEngine::GameClock::SetIsPaused(const bool isPaused)
 {
 	m_impl->m_isPaused = isPaused;
 }
