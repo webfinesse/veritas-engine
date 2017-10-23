@@ -7,7 +7,7 @@ struct SkinnedVertexIn
 	float3 tangentL: TANGENT;
 	float3 binormalL : BINORMAL;
 	float2 diffuseCoord: TEXCOORD0;
-	int4 jointIndicies: JOINTINDICIES;
+	uint4 jointIndicies: JOINTINDICIES;
 	float3 jointWeights: JOINTWEIGHTS;
 };
 

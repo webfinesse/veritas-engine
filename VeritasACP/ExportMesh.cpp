@@ -209,7 +209,7 @@ struct VeritasACP::ExportMesh::Impl
 	{
 		if (mesh->HasBones())
 		{
-			if(mesh->mNumBones > std::numeric_limits<unsigned char>::max())
+			if(mesh->mNumBones > std::numeric_limits<unsigned char>::max() - 1) // 255 (-1) is reserved as null
 			{
 				throw new std::runtime_error("The skeleton has more then 255 bones, reduce the number of bones in the skeleton");
 			}
