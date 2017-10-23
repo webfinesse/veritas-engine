@@ -94,25 +94,24 @@ std::vector<VeritasEngine::SkinnedVertex> SerializeVerticies(std::vector<Veritas
 		}
 
 		index = 0;
-		auto cumulativeWeight = 0.0f;
+		auto cumulativeWeight = 1.0f;
 
 		if (vertex.JointWeights.size() > 0)
 		{
+			cumulativeWeight = 0;
+
 			for (; index < vertex.JointWeights.size() - 1; index++)
 			{
 				currentVertex.JointWeights[index] = vertex.JointWeights[index];
 				cumulativeWeight += vertex.JointWeights[index];
 			}
 		}
-		else
-		{
-			cumulativeWeight = 1;
-		}
 
 		for (; index < MAX_JOINT_WEIGHTS - 1; index++)
 		{
-			currentVertex.JointWeights[index] = 1 - cumulativeWeight;
-			cumulativeWeight = 1;
+			const auto remainingWeight = 1 - cumulativeWeight;
+			currentVertex.JointWeights[index] = remainingWeight;
+			cumulativeWeight += remainingWeight;
 		}
 	}
 
