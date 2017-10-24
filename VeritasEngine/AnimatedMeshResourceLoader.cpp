@@ -57,7 +57,7 @@ void VeritasEngine::AnimatedMeshResourceLoader::LoadResource(IResourceManager& m
 	{
 		auto& instanceSubset = mesh.CreateSubset();
 
-		auto vertexBuffer = m_impl->m_renderingServices->GetVertexBufferManager().GetBuffer(info.m_vertexType);
+		const auto vertexBuffer = m_impl->m_renderingServices->GetVertexBufferManager().GetBuffer(info.m_vertexType);
 
 		instanceSubset.SetVertices(vertexBuffer, reinterpret_cast<unsigned char*>(&serializedSubset.m_verticies[0]), serializedSubset.m_verticies.size());
 
@@ -66,7 +66,7 @@ void VeritasEngine::AnimatedMeshResourceLoader::LoadResource(IResourceManager& m
 			instanceSubset.SetIndicies(&m_impl->m_renderingServices->GetIndexBuffer(), &serializedSubset.m_faces[0], serializedSubset.m_faces.size());
 		}
 
-		auto material = manager.GetResource(serializedSubset.m_materialId);
+		const auto material = manager.GetResource(serializedSubset.m_materialId);
 
 		instanceSubset.SetMaterial(material);
 	}

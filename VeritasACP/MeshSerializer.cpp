@@ -100,7 +100,8 @@ std::vector<VeritasEngine::SkinnedVertex> SerializeVerticies(std::vector<Veritas
 		{
 			cumulativeWeight = 0;
 
-			for (; index < vertex.JointWeights.size() - 1; index++)
+			const auto jointWeightLength = vertex.JointWeights.size() - 1;
+			for (; index < jointWeightLength; index++)
 			{
 				currentVertex.JointWeights[index] = vertex.JointWeights[index];
 				cumulativeWeight += vertex.JointWeights[index];
@@ -172,9 +173,9 @@ VeritasEngine::ResourceId SerializeSkeleton(VeritasACP::MeshExporterResult& mesh
 		skel.Joints.emplace_back(joint);
 	}
 
-	auto fullPath = SerializeArchive(skel, path, L".vesk");
-	auto parentPath = fs::path(fullPath).parent_path().parent_path();
-	auto relative = fs::relative(fullPath, parentPath);
+	const auto fullPath = SerializeArchive(skel, path, L".vesk");
+	const auto parentPath = fs::path(fullPath).parent_path().parent_path();
+	const auto relative = fs::relative(fullPath, parentPath);
 
 	return VeritasEngine::ResourceId(relative.generic_string());
 }

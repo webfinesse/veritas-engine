@@ -8,6 +8,7 @@ namespace VeritasEngine
 	{
 		constexpr auto ObjectMesh{ VESTRINGHASH("ObjectMesh") };
 		constexpr auto ResourcedMesh{ VESTRINGHASH("ResourcedMesh") };
+		constexpr auto AnimationState{ VESTRINGHASH("AnimationState") };
 
 		constexpr auto SceneNodeType{ VESTRINGHASH("SceneNodeType") };
 		constexpr auto WorldPosition{ VESTRINGHASH("WorldPosition") };

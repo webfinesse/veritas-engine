@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <type_traits>
+#include <string>
 
 // based on http://stackoverflow.com/questions/2111667/compile-time-string-hashing
 

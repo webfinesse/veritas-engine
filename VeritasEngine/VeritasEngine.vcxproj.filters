@@ -91,6 +91,9 @@
     <ClCompile Include="EngineFactory.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="AnimationManager.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DynamicLibraryHelper.h">
@@ -263,6 +266,15 @@
     </ClInclude>
     <ClInclude Include="PassBuffer.h">
       <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationState.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationManager.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="IAnimationManager.h">
+      <Filter>Rendering</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

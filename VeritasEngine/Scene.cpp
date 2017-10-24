@@ -18,17 +18,16 @@
 
 #include "GameObjectPropertyKeys.h"
 
-
 struct SceneNode : public VeritasEngine::SmallObject<>
 {
 	SceneNode(const VeritasEngine::GameObjectHandle handle)
-		: m_handle(handle), m_children()
+		: m_handle{ handle }
 	{
 
 	}
 
 	VeritasEngine::GameObjectHandle m_handle;
-	std::vector<SceneNode> m_children;
+	std::vector<SceneNode> m_children{};
 };
 
 struct VeritasEngine::Scene::Impl

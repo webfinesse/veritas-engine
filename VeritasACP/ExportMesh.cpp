@@ -211,13 +211,13 @@ struct VeritasACP::ExportMesh::Impl
 		{
 			if(mesh->mNumBones > std::numeric_limits<unsigned char>::max() - 1) // 255 (-1) is reserved as null
 			{
-				throw new std::runtime_error("The skeleton has more then 255 bones, reduce the number of bones in the skeleton");
+				throw new std::runtime_error("The skeleton has more then 254 bones, reduce the number of bones in the skeleton");
 			}
 
 			for (unsigned int boneIndex = 0; boneIndex < mesh->mNumBones; boneIndex++)
 			{
 				auto& currentBone = mesh->mBones[boneIndex];
-				auto existingJoint = meshResult.m_skeleton.JointIndexMap.find(currentBone->mName.C_Str());
+				const auto existingJoint = meshResult.m_skeleton.JointIndexMap.find(currentBone->mName.C_Str());
 
 				if (existingJoint == meshResult.m_skeleton.JointIndexMap.end())
 				{

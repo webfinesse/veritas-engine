@@ -11,6 +11,8 @@ namespace VeritasEngine
 	{
 	public:
 		AnimationClock(TimeDuration duration, TimeDuration startTime = std::chrono::seconds(0), float timeScale = 1.0f, bool isLooped = false);
+		AnimationClock(const AnimationClock& other);
+		AnimationClock(AnimationClock&& other) noexcept;
 		~AnimationClock();
 
 		void Update(TimeDuration duration);
@@ -21,6 +23,9 @@ namespace VeritasEngine
 
 		bool GetIsLooped() const;
 		void SetIsLooped(bool isLooped);
+
+		AnimationClock& operator=(const AnimationClock& other);
+		AnimationClock& operator=(AnimationClock&& other) noexcept;
 
 	private:
 		struct Impl;

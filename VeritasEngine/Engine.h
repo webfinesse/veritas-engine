@@ -16,6 +16,7 @@ namespace VeritasEngine
 	class IResourceManager;
 	class IWorldSetup;
 	class IGameClock;
+	class IAnimationManager;
 	class GamePropertyManager;
 
 	class EXPORT Engine : public SmallObject<>
@@ -26,7 +27,8 @@ namespace VeritasEngine
 			   std::shared_ptr<IRenderingServices> renderingServices, 
 			   std::shared_ptr<IResourceManager> resourceManager,
 			   std::shared_ptr<IGameClock> gameClock,
-			   std::shared_ptr<GamePropertyManager> gamePropertyManager);
+			   std::shared_ptr<GamePropertyManager> gamePropertyManager,
+			   std::shared_ptr<IAnimationManager> animationManager);
 
 		Engine(Engine&& other) noexcept;
 		Engine& operator=(Engine&& other) noexcept;

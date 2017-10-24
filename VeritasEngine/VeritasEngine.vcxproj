@@ -190,6 +190,7 @@
   <ItemGroup>
     <ClCompile Include="AnimatedMeshResourceLoader.cpp" />
     <ClCompile Include="AnimationClock.cpp" />
+    <ClCompile Include="AnimationManager.cpp" />
     <ClCompile Include="BufferIndicies.cpp" />
     <ClCompile Include="DeserializeMapping.cpp" />
     <ClCompile Include="Engine.cpp" />
@@ -216,7 +217,10 @@
   <ItemGroup>
     <ClInclude Include="AnimatedMeshResourceLoader.h" />
     <ClInclude Include="AnimationClock.h" />
+    <ClInclude Include="AnimationManager.h" />
+    <ClInclude Include="AnimationState.h" />
     <ClInclude Include="BufferIndicies.h" />
+    <ClInclude Include="IAnimationManager.h" />
     <ClInclude Include="PassBuffer.h" />
     <ClInclude Include="ClockUnits.h" />
     <ClInclude Include="EngineDepenencyInjector.h" />

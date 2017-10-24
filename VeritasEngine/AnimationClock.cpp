@@ -21,6 +21,16 @@ VeritasEngine::AnimationClock::AnimationClock(TimeDuration duration, TimeDuratio
 {
 }
 
+VeritasEngine::AnimationClock::AnimationClock(const AnimationClock& other)
+	: m_impl{ std::make_unique<Impl>(*other.m_impl) }
+{
+}
+
+VeritasEngine::AnimationClock::AnimationClock(AnimationClock&& other) noexcept
+	: m_impl{ std::move(other.m_impl) }
+{
+}
+
 VeritasEngine::AnimationClock::~AnimationClock() = default;
 
 void VeritasEngine::AnimationClock::Update(TimeDuration duration)
@@ -56,4 +66,24 @@ bool VeritasEngine::AnimationClock::GetIsLooped() const
 void VeritasEngine::AnimationClock::SetIsLooped(bool isLooped)
 {
 	m_impl->m_isLooped = isLooped;
+}
+
+VeritasEngine::AnimationClock& VeritasEngine::AnimationClock::operator=(const AnimationClock& other)
+{
+	if(this != &other)
+	{
+		*m_impl = *other.m_impl;
+	}
+
+	return *this;
+}
+
+VeritasEngine::AnimationClock& VeritasEngine::AnimationClock::operator=(AnimationClock&& other) noexcept
+{
+	if (this != &other)
+	{
+		m_impl = std::move(other.m_impl);
+	}
+
+	return *this;
 }
