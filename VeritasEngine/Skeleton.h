@@ -7,6 +7,8 @@
 
 #include "SkeletonJoint.h"
 
+constexpr auto MAX_JOINTS{ 64 };
+
 namespace VeritasEngine
 {
 	struct Skeleton

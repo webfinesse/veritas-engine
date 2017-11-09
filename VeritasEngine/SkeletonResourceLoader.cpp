@@ -15,7 +15,7 @@ VeritasEngine::SkeletonResourceLoader::~SkeletonResourceLoader() = default;
 
 const char* VeritasEngine::SkeletonResourceLoader::GetExtension() const
 {
-	return ".vesh";
+	return ".vesk";
 }
 
 void VeritasEngine::SkeletonResourceLoader::LoadResource(IResourceManager& manager, std::istream& data, ResourceHandle& handle)

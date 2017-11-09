@@ -2,16 +2,22 @@
 #define H_IANIMATIONMANAGER
 
 #include "../VeritasEngineBase/GameObjectHandle.h"
+#include "../VeritasEngineBase/MathTypes.h"
 #include "StringHash.h"
+#include "ClockUnits.h"
+#include "DynamicLibraryHelper.h"
 
 namespace VeritasEngine
 {
-	class IAnimationManager
+	
+	class EXPORT IAnimationManager
 	{
 	public:
 		virtual ~IAnimationManager() = default;
 
 		virtual void AddAnimaton(GameObjectHandle handle, StringHash animationName, bool isLooped) = 0;
+		virtual void CalculateSkinningPalettes(TimeDuration update) = 0;
+		virtual const Matrix4x4* GetSkinningPalette(GameObjectHandle handle) = 0;
 	};
 }
 

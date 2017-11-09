@@ -16,6 +16,8 @@
 #include <assimp/postprocess.h>
 
 #include <boost/filesystem.hpp>
+#include "../VeritasEngine/Skeleton.h"
+#include "../VeritasEngineBase/StringHelper.h"
 
 struct VeritasACP::ExportMesh::Impl
 {
@@ -25,14 +27,14 @@ struct VeritasACP::ExportMesh::Impl
 
 	}
 
-	MeshExporterSubset& AddSubset(std::shared_ptr<MeshExporterResult> meshInfo)
+	static MeshExporterSubset& AddSubset(std::shared_ptr<MeshExporterResult> meshInfo)
 	{
 		meshInfo->m_subsets.emplace_back();
 
 		return meshInfo->m_subsets.back();
 	}
 
-	void ProcessVertex(aiMesh* mesh, MeshExporterSubset& meshInfo)
+	static void ProcessVertex(aiMesh* mesh, MeshExporterSubset& meshInfo)
 	{
 		meshInfo.m_vertices.reserve(mesh->mNumVertices);
 
@@ -48,7 +50,7 @@ struct VeritasACP::ExportMesh::Impl
 		}
 	}
 
-	void ProcessNormals(aiMesh* mesh, MeshExporterSubset& meshInfo)
+	static void ProcessNormals(aiMesh* mesh, MeshExporterSubset& meshInfo)
 	{
 		if (mesh->HasNormals())
 		{
@@ -78,7 +80,7 @@ struct VeritasACP::ExportMesh::Impl
 		}
 	}
 
-	void ProcessUVCoords(aiMesh* mesh, MeshExporterSubset& meshInfo)
+	static void ProcessUVCoords(aiMesh* mesh, MeshExporterSubset& meshInfo)
 	{
 		if (mesh->HasTextureCoords(0))
 		{
@@ -114,7 +116,7 @@ struct VeritasACP::ExportMesh::Impl
 		}
 	}
 
-	void ProcessFaces(aiMesh* mesh, MeshExporterSubset& meshInfo)
+	static void ProcessFaces(aiMesh* mesh, MeshExporterSubset& meshInfo)
 	{
 		if (mesh->HasFaces())
 		{
@@ -130,7 +132,7 @@ struct VeritasACP::ExportMesh::Impl
 		}
 	}
 
-	VeritasEngine::Matrix4x4 ConvertTransform(const aiMatrix4x4& assImpMatrix)
+	static VeritasEngine::Matrix4x4 ConvertTransform(const aiMatrix4x4& assImpMatrix)
 	{
 		static_assert(sizeof(VeritasEngine::Matrix4x4) == sizeof(aiMatrix4x4), "Matrix sizes do not match");
 
@@ -141,7 +143,7 @@ struct VeritasACP::ExportMesh::Impl
 		return result;
 	}
 
-	VeritasEngine::Float3 ConvertVec3(const aiVector3D& assImpVec)
+	static VeritasEngine::Float3 ConvertVec3(const aiVector3D& assImpVec)
 	{
 		static_assert(sizeof(VeritasEngine::Float3) == sizeof(aiVector3D), "Vector sizes do not match");
 
@@ -154,7 +156,7 @@ struct VeritasACP::ExportMesh::Impl
 		return result;
 	}
 
-	VeritasEngine::Quaternion ConvertQuaternion(const aiQuaternion& assImpQuaternion)
+	static VeritasEngine::Quaternion ConvertQuaternion(const aiQuaternion& assImpQuaternion)
 	{
 		static_assert(sizeof(VeritasEngine::Quaternion) == sizeof(aiQuaternion), "Quaternion sizes do not match");
 
@@ -168,7 +170,7 @@ struct VeritasACP::ExportMesh::Impl
 		return result;
 	}
 
-	void ProcessNode(const aiNode* node, MeshExporterNode& meshNode, MeshExporterResult& result, int currentJointIndex)
+	static void ProcessNode(const aiNode* node, MeshExporterNode& meshNode, MeshExporterResult& result, int currentJointIndex)
 	{
 		meshNode.m_transform = ConvertTransform(node->mTransformation);
 
@@ -194,7 +196,7 @@ struct VeritasACP::ExportMesh::Impl
 
 	int static ProcessSkeletonBoneName(std::string& nodeName, MeshExporterResult& result, int currentJointIndex)
 	{
-		auto matchingJoint = result.m_skeleton.JointIndexMap.find(nodeName);
+		const auto matchingJoint = result.m_skeleton.JointIndexMap.find(nodeName);
 
 		if (matchingJoint != result.m_skeleton.JointIndexMap.end())
 		{
@@ -205,18 +207,18 @@ struct VeritasACP::ExportMesh::Impl
 		return currentJointIndex;
 	}
 
-	void ProcessBones(aiMesh* mesh, MeshExporterResult& meshResult, MeshExporterSubset& meshInfo)
+	static void ProcessBones(aiMesh* mesh, MeshExporterResult& meshResult, MeshExporterSubset& meshInfo)
 	{
 		if (mesh->HasBones())
 		{
-			if(mesh->mNumBones > std::numeric_limits<unsigned char>::max() - 1) // 255 (-1) is reserved as null
+			if(mesh->mNumBones > MAX_JOINTS)
 			{
-				throw new std::runtime_error("The skeleton has more then 254 bones, reduce the number of bones in the skeleton");
+				throw new std::runtime_error(VeritasEngine::FormatString("The skeleton has more then %d bones, reduce the number of bones in the skeleton", MAX_JOINTS));
 			}
 
 			for (unsigned int boneIndex = 0; boneIndex < mesh->mNumBones; boneIndex++)
 			{
-				auto& currentBone = mesh->mBones[boneIndex];
+				const auto currentBone = mesh->mBones[boneIndex];
 				const auto existingJoint = meshResult.m_skeleton.JointIndexMap.find(currentBone->mName.C_Str());
 
 				if (existingJoint == meshResult.m_skeleton.JointIndexMap.end())
@@ -226,31 +228,37 @@ struct VeritasACP::ExportMesh::Impl
 					joint.InverseBindPose = ConvertTransform(currentBone->mOffsetMatrix);
 					joint.ParentIndex = -1;
 
+					auto index = meshResult.m_skeleton.Joints.size();
+
 					for (unsigned int weightIndex = 0; weightIndex < currentBone->mNumWeights; weightIndex++)
 					{
 						auto& currentWeight = currentBone->mWeights[weightIndex];
 						auto& vertex = meshInfo.m_vertices[currentWeight.mVertexId];
 						vertex.JointWeights.emplace_back(currentWeight.mWeight);
-						vertex.JointIndicies.emplace_back(static_cast<std::byte>(boneIndex));
+						vertex.JointIndicies.emplace_back(static_cast<std::byte>(index));
 					}
 
 					meshResult.m_skeleton.Joints.emplace_back(joint);
-					meshResult.m_skeleton.JointIndexMap[joint.Name] = static_cast<int>(meshResult.m_skeleton.Joints.size() - 1);
+					meshResult.m_skeleton.JointIndexMap[joint.Name] = static_cast<int>(index);
+				}
+				else
+				{
+					assert(0);
 				}
 			}
 		}
 	}
 
-	void ProcessAnimations(const aiScene* scene, MeshExporterResult& result)
+	static void ProcessAnimations(const aiScene* scene, MeshExporterResult& result)
 	{
 		if (scene->HasAnimations())
 		{
 			for (unsigned int animationIndex = 0; animationIndex < scene->mNumAnimations; animationIndex++)
 			{
-				auto animation = scene->mAnimations[animationIndex];
+				const auto animation = scene->mAnimations[animationIndex];
 
 				AnimationClipExporterResult clip;
-				clip.m_duration = animation->mTicksPerSecond == 0 ? static_cast<float>(animation->mDuration) : static_cast<float>(animation->mTicksPerSecond / animation->mDuration);
+				clip.m_duration = static_cast<float>(animation->mDuration);
 				clip.m_hashedName = VeritasEngine::Hash(animation->mName.C_Str());
 				clip.m_name = std::string(animation->mName.C_Str());
 
@@ -258,26 +266,31 @@ struct VeritasACP::ExportMesh::Impl
 				{
 					const auto channel = animation->mChannels[channelIndex];
 
-					clip.m_poses.emplace_back();
-					auto& currentPose = clip.m_poses.back();
+					const auto jointName = std::string(channel->mNodeName.C_Str());
+					const auto& mapping  = result.m_skeleton.JointIndexMap.find(jointName);
 
-					currentPose.m_jointName = std::string(channel->mNodeName.C_Str());
-					currentPose.m_jointIndex = result.m_skeleton.JointIndexMap[currentPose.m_jointName];
-
-					for (unsigned int poseIndex = 0; poseIndex < channel->mNumScalingKeys; poseIndex++)
+					if(mapping != result.m_skeleton.JointIndexMap.end())
 					{
-						currentPose.m_keyframes.emplace_back();
-						auto& keyFrame = currentPose.m_keyframes.back();
+						clip.m_poses.emplace_back();
+						auto& currentPose = clip.m_poses.back();
 
-						keyFrame.m_timeSample = static_cast<float>(channel->mScalingKeys[poseIndex].mTime);
-						keyFrame.m_scale = ConvertVec3(channel->mScalingKeys[poseIndex].mValue);
-						keyFrame.m_rotation = ConvertQuaternion(channel->mRotationKeys[poseIndex].mValue);
-						keyFrame.m_translation = ConvertVec3(channel->mPositionKeys[poseIndex].mValue);
+						currentPose.m_jointName = std::move(jointName);
+						currentPose.m_jointIndex = mapping->second;
+
+						for (unsigned int poseIndex = 0; poseIndex < channel->mNumScalingKeys; poseIndex++)
+						{
+							currentPose.m_keyframes.emplace_back();
+							auto& keyFrame = currentPose.m_keyframes.back();
+
+							keyFrame.m_timeSample = static_cast<float>(channel->mScalingKeys[poseIndex].mTime);
+							keyFrame.m_scale = ConvertVec3(channel->mScalingKeys[poseIndex].mValue);
+							keyFrame.m_rotation = ConvertQuaternion(channel->mRotationKeys[poseIndex].mValue);
+							keyFrame.m_translation = ConvertVec3(channel->mPositionKeys[poseIndex].mValue);
+						}
 					}
 				}
 
 				result.m_animations.emplace(make_pair(clip.m_name, clip));
-
 			}
 		}
 	}

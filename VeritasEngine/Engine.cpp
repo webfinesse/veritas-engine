@@ -5,6 +5,7 @@
 #include "IProcessManager.h"
 #include "IResourceManager.h"
 #include "IGameClock.h"
+#include "IAnimationManager.h"
 
 #include "IRenderer.h"
 #include "VertexBufferManager.h"
@@ -81,6 +82,11 @@ VeritasEngine::IProcessManager& VeritasEngine::Engine::GetProcessManager() const
 	return *m_impl->m_processManager;
 }
 
+VeritasEngine::IAnimationManager& VeritasEngine::Engine::GetAnimationManager() const
+{
+	return *m_impl->m_animationManager;
+}
+
 VeritasEngine::GamePropertyManager& VeritasEngine::Engine::GetGamePropertyManager() const
 {
 	return *m_impl->m_gamePropertyManager;
@@ -125,6 +131,7 @@ void VeritasEngine::Engine::Loop()
 	if (!m_impl->m_gameClock->GetIsPaused())
 	{
 		m_impl->m_processManager->UpdateProcesses(delta);
+		m_impl->m_animationManager->CalculateSkinningPalettes(delta);
 	}
 
 	m_impl->m_frameDesc.StaticObjects.resize(0);

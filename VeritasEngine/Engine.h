@@ -43,6 +43,7 @@ namespace VeritasEngine
 		float GetCurrentFps() const;
 		IRenderingServices& GetRenderingServices() const;
 		IProcessManager& GetProcessManager() const;
+		IAnimationManager& GetAnimationManager() const;
 		GamePropertyManager& GetGamePropertyManager() const;
 		IWorldSetup& GetWorldSetup() const;
 		IResourceManager& GetResourceManager() const;

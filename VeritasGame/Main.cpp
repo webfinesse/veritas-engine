@@ -8,6 +8,7 @@
 #include "../VeritasEngine/Engine.h"
 #include "../VeritasEngine/IProcessManager.h"
 #include "../VeritasEngine/IWorldSetup.h"
+#include "../VeritasEngine/IAnimationManager.h"
 
 #include "../VeritasEngine/IResourceManager.h"
 #include "../VeritasEngineBase/ResourceHandle.h"
@@ -145,8 +146,9 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	
 	auto cameraProcess = std::make_shared<RotateCameraProcess>(engine->GetGamePropertyManager(), 500.0f, 10s);
 	engine->GetProcessManager().AttachProcess(cameraProcess);
+	engine->GetAnimationManager().AddAnimaton(6, VESTRINGHASH("Spider_Armature|walk_ani_vor"), true);
 
-	auto end = std::chrono::high_resolution_clock::now();
+	const auto end = std::chrono::high_resolution_clock::now();
 
 	auto startTimeString = std::wstring(L"\r\nStart up time: ");
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);

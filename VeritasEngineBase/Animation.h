@@ -40,11 +40,12 @@ namespace VeritasEngine
 		StringHash HashedName;
 		float Duration;
 		std::vector<BoneInformation> BoneInfo;
+		std::string Name;
 
 		template <class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(HashedName, Duration, BoneInfo);
+			archive(HashedName, Duration, BoneInfo, Name);
 		}
 	};
 }

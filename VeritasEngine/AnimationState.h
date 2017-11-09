@@ -3,7 +3,9 @@
 
 #include "StringHash.h"
 #include "AnimationClock.h"
+#include "../VeritasEngineBase/MathTypes.h"
 #include <chrono>
+#include "Skeleton.h"
 
 namespace VeritasEngine
 {
@@ -23,6 +25,7 @@ namespace VeritasEngine
 		GameObjectHandle Handle; // 0 - 4
 		StringHash AnimationName; // 4 - 8
 		AnimationClock Clock; // 8 - 12 (32 bit) 8 - 16 (64 bit)
+		Matrix4x4 SkinningPalette[MAX_JOINTS]; // 16 - 8208,  64 * 128 = 8192
 	};
 }
 

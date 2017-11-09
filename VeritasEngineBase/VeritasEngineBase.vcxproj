@@ -32,6 +32,7 @@
     <ClInclude Include="ResourceHandle_details.h" />
     <ClInclude Include="ResourceId.h" />
     <ClInclude Include="Singleton.h" />
+    <ClInclude Include="StringHelper.h" />
     <ClInclude Include="zip_file.hpp" />
   </ItemGroup>
   <ItemGroup>

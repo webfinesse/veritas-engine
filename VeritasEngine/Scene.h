@@ -13,11 +13,12 @@ namespace VeritasEngine
 {
 	class GamePropertyManager;
 	class FrameDescription;
+	class IAnimationManager;
 
 	class Scene: public SmallObject<>, public IScene
 	{
 	public:
-		Scene(std::shared_ptr<GamePropertyManager> gamePropertyManager);
+		Scene(std::shared_ptr<GamePropertyManager> gamePropertyManager, std::shared_ptr<IAnimationManager> animationManager);
 		~Scene() noexcept override;
 
 		Scene(Scene&& other) noexcept;

@@ -111,6 +111,8 @@ std::vector<VeritasEngine::SkinnedVertex> SerializeVerticies(std::vector<Veritas
 		for (; index < MAX_JOINT_WEIGHTS - 1; index++)
 		{
 			const auto remainingWeight = 1 - cumulativeWeight;
+			assert(remainingWeight >= 0);
+
 			currentVertex.JointWeights[index] = remainingWeight;
 			cumulativeWeight += remainingWeight;
 		}

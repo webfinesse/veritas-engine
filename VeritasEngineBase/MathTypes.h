@@ -19,13 +19,13 @@ namespace VeritasEngine
 	{
 	public: 
 		template <typename... Args>
-		static auto Transpose(Args&&... args) -> decltype(glm::transpose(std::forward<Args>(args)...)) 
+		static auto Transpose(Args&&... args) 
 		{
 			return glm::transpose(std::forward<Args>(args)...);
 		}
 
 		template <typename... Args>
-		static auto Inverse(Args&&... args) -> decltype(glm::inverse(std::forward<Args>(args)...)) 
+		static auto Inverse(Args&&... args) 
 		{
 			return glm::inverse(std::forward<Args>(args)...);
 		}

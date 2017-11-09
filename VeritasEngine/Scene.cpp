@@ -8,6 +8,7 @@
 #include "MeshNode.h"
 #include "RenderPass.h"
 #include "MeshSubset.h"
+#include "IAnimationManager.h"
 
 #include "FrameDescription.h"
 #include "../VeritasEngineBase/MathTypes.h"
@@ -32,8 +33,8 @@ struct SceneNode : public VeritasEngine::SmallObject<>
 
 struct VeritasEngine::Scene::Impl
 {
-	Impl(std::shared_ptr<GamePropertyManager> gamePropertyManager)
-		: m_cameraHandle(-1), m_lightHandles(), m_mapping(), m_root(), m_matrixStack(), m_gamePropertyManager{ gamePropertyManager }
+	Impl(std::shared_ptr<GamePropertyManager> gamePropertyManager, std::shared_ptr<IAnimationManager> animationManager)
+		: m_gamePropertyManager{ gamePropertyManager }, m_animationManager { animationManager }
 	{
 		m_lightHandles.reserve(8);
 
@@ -49,7 +50,7 @@ struct VeritasEngine::Scene::Impl
 		m_light = gamePropertyManager->RegisterProperty<Light>("Light", GameObjectPropertyKeys::Light);
 	}
 
-	void RenderResourcedMesh(FrameDescription& renderer, const MeshInstance& instance, const SceneNodeType nodeType, const MeshNode& currentNode)
+	void RenderResourcedMesh(FrameDescription& renderer, const SceneNode& sceneNode, const MeshInstance& instance, const SceneNodeType nodeType, const MeshNode& currentNode)
 	{
 		m_matrixStack.Push(currentNode.GetTransform());
 		auto& stackMatrix = m_matrixStack.Peek();
@@ -69,13 +70,13 @@ struct VeritasEngine::Scene::Impl
 			else if(nodeType == SceneNodeType::AnimatedResourcedMesh)
 			{
 				renderer.AnimatedObjects.emplace_back(stackMatrix, inverseTranspose, &material, subset.GetIndexBuffer().GetNativeBuffer(),
-					subset.GetIndexBufferIndicies(), subset.GetVertexBuffer().GetNativeBuffer(), subset.GetVertexBufferIndicies(), subset.GetVertexSize());
+					subset.GetIndexBufferIndicies(), subset.GetVertexBuffer().GetNativeBuffer(), subset.GetVertexBufferIndicies(), subset.GetVertexSize(), m_animationManager->GetSkinningPalette(sceneNode.m_handle));
 			}
 		}
 
 		for (const auto& item : currentNode.GetChildren())
 		{
-			RenderResourcedMesh(renderer, instance, nodeType, item);
+			RenderResourcedMesh(renderer, sceneNode, instance, nodeType, item);
 		}
 
 		m_matrixStack.Pop();
@@ -83,9 +84,9 @@ struct VeritasEngine::Scene::Impl
 
 	void Render(FrameDescription& renderer, const SceneNode& node)
 	{
-		auto type = *m_nodeType->GetProperty(node.m_handle);
+		const auto type = *m_nodeType->GetProperty(node.m_handle);
 
-		auto matrix = m_worldPosition->GetProperty(node.m_handle);
+		const auto matrix = m_worldPosition->GetProperty(node.m_handle);
 
 		if (matrix != nullptr)
 		{
@@ -97,12 +98,12 @@ struct VeritasEngine::Scene::Impl
 			case SceneNodeType::ResourcedMesh:
 			case SceneNodeType::AnimatedResourcedMesh:
 			{
-				auto meshResource = m_resourcedMesh->GetProperty(node.m_handle);
+				const auto meshResource = m_resourcedMesh->GetProperty(node.m_handle);
 				const MeshInstance& meshInstance = meshResource->GetData<MeshInstance>();
 
 				auto& rootNode = meshInstance.GetRootNode();
 
-				RenderResourcedMesh(renderer, meshInstance, type, rootNode);
+				RenderResourcedMesh(renderer, node, meshInstance, type, rootNode);
 				
 				break;
 			}
@@ -119,13 +120,14 @@ struct VeritasEngine::Scene::Impl
 		}
 	}
 
-	GameObjectHandle m_cameraHandle;
-	std::vector<GameObjectHandle> m_lightHandles;
-	AssocVector<GameObjectHandle, SceneNode*> m_mapping;
-	std::vector<SceneNode> m_root;
-	MatrixStack m_matrixStack;
+	GameObjectHandle m_cameraHandle{ static_cast<GameObjectHandle>(-1) };
+	std::vector<GameObjectHandle> m_lightHandles{};
+	AssocVector<GameObjectHandle, SceneNode*> m_mapping{};
+	std::vector<SceneNode> m_root{};
+	MatrixStack m_matrixStack{};
 
 	std::shared_ptr<GamePropertyManager> m_gamePropertyManager;
+	std::shared_ptr<IAnimationManager> m_animationManager;
 	GameObjectProperty<SceneNodeType>* m_nodeType;
 	GameObjectProperty<Matrix4x4>* m_worldPosition;
 	GameObjectProperty<ResourceHandle*>* m_resourcedMesh;
@@ -135,8 +137,8 @@ struct VeritasEngine::Scene::Impl
 	GameObjectProperty<Light>* m_light;
 };
 
-VeritasEngine::Scene::Scene(std::shared_ptr<GamePropertyManager> gamePropertyManager)
-	: m_impl(std::make_unique<Impl>(gamePropertyManager))
+VeritasEngine::Scene::Scene(std::shared_ptr<GamePropertyManager> gamePropertyManager, std::shared_ptr<IAnimationManager> animationManager)
+	: m_impl(std::make_unique<Impl>(gamePropertyManager, animationManager))
 {
 
 }

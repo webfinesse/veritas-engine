@@ -22,7 +22,7 @@ namespace VeritasEngine
 		void Init() override;
 
 		void SetPassParameters(PassBuffer& passBuffer) override;
-		void SetPerObjectBuffer(const PerObjectBufferDescription& buffer) override;
+		void SetPerObjectBuffer(const PerAnimatedObjectBufferDescription& buffer) override;
 	private:
 		struct Impl;
 		std::unique_ptr<Impl> m_impl;

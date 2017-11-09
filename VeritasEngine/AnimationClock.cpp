@@ -60,12 +60,22 @@ void VeritasEngine::AnimationClock::SetIsPaused(bool isPaused)
 
 bool VeritasEngine::AnimationClock::GetIsLooped() const
 {
-	return m_impl->m_isPaused;
+	return m_impl->m_isLooped;
 }
 
 void VeritasEngine::AnimationClock::SetIsLooped(bool isLooped)
 {
 	m_impl->m_isLooped = isLooped;
+}
+
+const VeritasEngine::TimeDuration& VeritasEngine::AnimationClock::GetDuration() const
+{
+	return m_impl->m_duration;
+}
+
+VeritasEngine::TimeDuration VeritasEngine::AnimationClock::GetCurrentTime() const
+{
+	return TimeDuration{ fmod(m_impl->m_currentTime.count(), m_impl->m_duration.count()) };
 }
 
 VeritasEngine::AnimationClock& VeritasEngine::AnimationClock::operator=(const AnimationClock& other)

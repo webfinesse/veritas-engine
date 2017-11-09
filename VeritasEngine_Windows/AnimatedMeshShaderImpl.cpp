@@ -17,6 +17,11 @@
 
 using namespace Microsoft::WRL;
 
+struct AnimationBuffer
+{
+	VeritasEngine::Matrix4x4 SkinningPalette[MAX_JOINTS];
+};
+
 struct VeritasEngine::AnimatedMeshShaderImpl::Impl
 {
 	Impl(std::shared_ptr<DirectXState> dxState)
@@ -68,6 +73,12 @@ struct VeritasEngine::AnimatedMeshShaderImpl::Impl
 		initData.pSysMem = &poBuffer;
 
 		HHR(m_dxState->Device->CreateBuffer(&cbDesc, &initData, m_perObjectBuffer.GetAddressOf()), "failed creating perObject buffer");
+
+		AnimationBuffer animationBuffer;
+		cbDesc.ByteWidth = sizeof(animationBuffer);
+		initData.pSysMem = &animationBuffer;
+
+		HHR(m_dxState->Device->CreateBuffer(&cbDesc, &initData, m_animationBuffer.GetAddressOf()), "failed creating animation buffer");
 	}
 
 	void Activate()
@@ -76,10 +87,11 @@ struct VeritasEngine::AnimatedMeshShaderImpl::Impl
 		m_dxState->Context->IASetInputLayout(m_inputLayout.Get());
 		m_dxState->Context->PSSetShader(m_pixelShader.Get(), nullptr, 0);
 
-		ID3D11Buffer* buffers[2] = { m_cameraBuffer.Get(), m_perObjectBuffer.Get() };
+		ID3D11Buffer* pixelBuffers[] = { m_cameraBuffer.Get(), m_perObjectBuffer.Get() };
+		ID3D11Buffer* vertexBuffers[] = { m_cameraBuffer.Get(), m_perObjectBuffer.Get(), m_animationBuffer.Get() };
 
-		m_dxState->Context->VSSetConstantBuffers(0, 2, buffers);
-		m_dxState->Context->PSSetConstantBuffers(0, 2, buffers);
+		m_dxState->Context->VSSetConstantBuffers(0, sizeof(vertexBuffers) / sizeof(vertexBuffers[0]), vertexBuffers);
+		m_dxState->Context->PSSetConstantBuffers(0, sizeof(pixelBuffers) / sizeof(pixelBuffers[0]), pixelBuffers);
 	}
 
 	void Deactivate()
@@ -107,7 +119,7 @@ struct VeritasEngine::AnimatedMeshShaderImpl::Impl
 		m_dxState->Context->Unmap(m_cameraBuffer.Get(), 0);
 	}
 
-	void SetPerObjectBuffer(const PerObjectBufferDescription& buffer)
+	void SetPerObjectBuffer(const PerAnimatedObjectBufferDescription& buffer)
 	{
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		HHR(m_dxState->Context->Map(m_perObjectBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource), "mapping per object");
@@ -129,6 +141,13 @@ struct VeritasEngine::AnimatedMeshShaderImpl::Impl
 		std::memcpy(&dataPtr->Material, &buffer.Material->Material, sizeof(GraphicsCardMaterial));
 
 		m_dxState->Context->Unmap(m_perObjectBuffer.Get(), 0);
+
+		HHR(m_dxState->Context->Map(m_animationBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource), "mapping animation buffer");
+
+		const auto animationPtr = static_cast<AnimationBuffer*>(mappedResource.pData);
+		TransposeForBuffer(animationPtr->SkinningPalette, buffer.SkinningPalette, sizeof(buffer.SkinningPalette) / sizeof(buffer.SkinningPalette[0]));
+
+		m_dxState->Context->Unmap(m_animationBuffer.Get(), 0);
 
 		ID3D11ShaderResourceView* resources[3] = { nullptr, nullptr, nullptr };
 
@@ -158,12 +177,20 @@ struct VeritasEngine::AnimatedMeshShaderImpl::Impl
 
 	static void TransposeForBuffer(Matrix4x4* destination, const Matrix4x4& matrixToTranspose)
 	{
-		auto transposed = MathHelpers::Transpose(matrixToTranspose);
-		*destination = transposed;
+		*destination = MathHelpers::Transpose(matrixToTranspose);
+	}
+
+	static void TransposeForBuffer(Matrix4x4 destination[], const Matrix4x4* matriciesToTranspose, int numOfMatricies)
+	{
+		for(int i = 0; i < numOfMatricies; i++)
+		{
+			TransposeForBuffer(&destination[i], matriciesToTranspose[i]);
+		}
 	}
 
 	ComPtr<ID3D11Buffer> m_cameraBuffer;
 	ComPtr<ID3D11Buffer> m_perObjectBuffer;
+	ComPtr<ID3D11Buffer> m_animationBuffer;
 	ComPtr<ID3D11InputLayout> m_inputLayout;
 	ComPtr<ID3D11VertexShader> m_vertexShader;
 	ComPtr<ID3D11PixelShader> m_pixelShader;
@@ -214,7 +241,7 @@ void VeritasEngine::AnimatedMeshShaderImpl::SetPassParameters(PassBuffer& passBu
 	m_impl->SetPassParameters(passBuffer);
 }
 
-void VeritasEngine::AnimatedMeshShaderImpl::SetPerObjectBuffer(const PerObjectBufferDescription& buffer)
+void VeritasEngine::AnimatedMeshShaderImpl::SetPerObjectBuffer(const PerAnimatedObjectBufferDescription& buffer)
 {
 	m_impl->SetPerObjectBuffer(buffer);
 }

@@ -24,8 +24,7 @@ public:
 VeritasEngine::MatrixStack::MatrixStack()
 	: m_impl{ std::make_unique<Impl>() }
 {    
-	Matrix4x4 identitySimd = Matrix4x4();
-	m_impl->m_stack.push_back(identitySimd);
+	m_impl->m_stack.emplace_back();
 }
 
 VeritasEngine::MatrixStack::~MatrixStack() = default;

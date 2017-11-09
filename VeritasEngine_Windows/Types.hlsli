@@ -1,4 +1,7 @@
 #define MAX_LIGHTS 8
+#define MAX_BONES 64
+#define MAX_JOINTS 4
+#define MAX_JOINT_WEIGHTS 3
 
 struct SkinnedVertexIn
 {
@@ -7,7 +10,7 @@ struct SkinnedVertexIn
 	float3 tangentL: TANGENT;
 	float3 binormalL : BINORMAL;
 	float2 diffuseCoord: TEXCOORD0;
-	uint4 jointIndicies: JOINTINDICIES;
+	int4 jointIndicies: JOINTINDICIES;
 	float3 jointWeights: JOINTWEIGHTS;
 };
 

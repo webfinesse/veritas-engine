@@ -1,9 +1,11 @@
 #pragma once
 
+#include "../VeritasEngineBase/MathTypes.h"
+
 namespace VeritasEngine
 {
 	struct PassBuffer;
-	struct PerObjectBufferDescription;
+	struct PerAnimatedObjectBufferDescription;
 	
 	class IAnimatedMeshShader
 	{
@@ -13,7 +15,7 @@ namespace VeritasEngine
 		virtual void Init() = 0;
 
 		virtual void SetPassParameters(PassBuffer& passBuffer) = 0;
-		virtual void SetPerObjectBuffer(const PerObjectBufferDescription& buffer) = 0;
+		virtual void SetPerObjectBuffer(const PerAnimatedObjectBufferDescription& buffer) = 0;
 
 		virtual ~IAnimatedMeshShader() noexcept = default;
 	};

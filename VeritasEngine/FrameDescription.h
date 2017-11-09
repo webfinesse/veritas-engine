@@ -4,6 +4,7 @@
 
 #include "PassBuffer.h"
 #include "BufferIndicies.h"
+#include "Skeleton.h"
 
 namespace VeritasEngine
 {
@@ -13,7 +14,6 @@ namespace VeritasEngine
 	{
 	public:
 		PerObjectBufferDescription()
-			: WorldTransform{}, WorldInverseTranspose{}, Material{}, IndexBuffer {}, IndexIndicies{ 0, 0 }, VertexBuffer{}, VertexIndicies{ 0, 0 }, VertexSize{}
 		{
 		}
 
@@ -24,15 +24,32 @@ namespace VeritasEngine
 
 		}
 
-		const Matrix4x4 WorldTransform;
-		const Matrix4x4 WorldInverseTranspose;
-		const MaterialInstance* Material;
-		void* IndexBuffer;
-		const BufferIndicies& IndexIndicies;
-		void* VertexBuffer;
-		const BufferIndicies& VertexIndicies;
-		const size_t VertexSize;
+		const Matrix4x4 WorldTransform{};
+		const Matrix4x4 WorldInverseTranspose{};
+		const MaterialInstance* Material{nullptr};
+		void* IndexBuffer{nullptr};
+		const BufferIndicies& IndexIndicies{0, 0};
+		void* VertexBuffer{nullptr};
+		const BufferIndicies& VertexIndicies{0, 0};
+		const size_t VertexSize{};
+	};
 
+	struct PerAnimatedObjectBufferDescription : PerObjectBufferDescription
+	{
+		PerAnimatedObjectBufferDescription()
+			: PerObjectBufferDescription()
+		{
+			
+		}
+
+		PerAnimatedObjectBufferDescription(const Matrix4x4& worldTransform, const Matrix4x4& inverseTranspose, const MaterialInstance* material,
+			void* indexBuffer, const BufferIndicies& indexIndicies, void* vertexBuffer, const BufferIndicies& vertexIndicies, size_t vertexSize, const Matrix4x4* skinningPalette)
+			: PerObjectBufferDescription(worldTransform, inverseTranspose, material, indexBuffer, indexIndicies, vertexBuffer, vertexIndicies, vertexSize)
+		{
+			std::memcpy(SkinningPalette, skinningPalette, sizeof(SkinningPalette));
+		}
+
+		Matrix4x4 SkinningPalette[MAX_JOINTS];
 	};
 
 	class FrameDescription
@@ -41,6 +58,6 @@ namespace VeritasEngine
 		float AspectRatio;
 		PassBuffer PassBuffer;
 		std::vector<PerObjectBufferDescription> StaticObjects;
-		std::vector<PerObjectBufferDescription> AnimatedObjects;
+		std::vector<PerAnimatedObjectBufferDescription> AnimatedObjects;
 	};
 }
