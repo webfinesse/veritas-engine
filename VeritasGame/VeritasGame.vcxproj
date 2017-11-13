@@ -22,7 +22,7 @@
     <ProjectGuid>{F789D3BC-0450-45BE-B932-984399B04306}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>VeritasGame</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
     <SccProjectName>SAK</SccProjectName>
     <SccAuxPath>SAK</SccAuxPath>
     <SccLocalPath>SAK</SccLocalPath>

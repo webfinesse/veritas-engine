@@ -1,28 +1,22 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <crtdbg.h>
-#include <memory>
 #include <tchar.h>
+#include <chrono>
 
 #include "../VeritasEngine/EngineFactory.h"
 #include "../VeritasEngine/Engine.h"
 #include "../VeritasEngine/IProcessManager.h"
 #include "../VeritasEngine/IWorldSetup.h"
 #include "../VeritasEngine/IAnimationManager.h"
+#include "../VeritasEngine/IResourceManager.h"
+#include "../VeritasEngine/GameObjectPropertyKeys.h"
 #include "../VeritasEngine/GamePropertyManager.h"
 
-#include "../VeritasEngine/IResourceManager.h"
-#include "../VeritasEngineBase/ResourceHandle.h"
-
 #include "RotateCameraProcess.h"
-#include "RotateObjectProcess.h"
-
-#include <chrono>
-#include <iostream>
-#include "../VeritasEngine/GameObjectPropertyKeys.h"
 
 bool windowResizing = false;
-std::unique_ptr<Engine> engine{nullptr};
+std::unique_ptr<VeritasEngine::Engine> engine{nullptr};
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -143,17 +137,11 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	engine->GetResourceManager().Init(workingDirectory);
 
 	engine->GetWorldSetup().LoadFile("Resources\\\\WorldSetup4.json");
-	
-	auto cameraProcess = std::make_shared<RotateCameraProcess>(engine->GetGamePropertyManager(), 500.0f, std::chrono::seconds(10));
+
+	auto& propertyManager = engine->GetGamePropertyManager();
+	auto cameraProcess = std::make_shared<RotateCameraProcess>(propertyManager, 500.0f, std::chrono::seconds(10));
 	engine->GetProcessManager().AttachProcess(cameraProcess);
 	engine->GetAnimationManager().AddAnimaton(6, VESTRINGHASH(""), true);
-	//auto positionProperty = engine->GetGamePropertyManager().GetProperty<Matrix4x4>(GameObjectPropertyKeys::WorldPosition);
-	//const auto position = positionProperty->GetProperty(6);
-
-	//auto rotation = glm::rotate(*position, glm::pi<float>(), Float3(0, 1, 0));
-
-	//positionProperty->SetProperty(6, rotation);
-
 
 	const auto end = std::chrono::high_resolution_clock::now();
 
