@@ -54,14 +54,14 @@ namespace VeritasEngine
 			return nullptr;
 		}
 
-		void SetProperty(GameObjectHandle& gameObject, T& value)
+		void SetProperty(const GameObjectHandle& gameObject, T& value)
 		{
-			m_properties.emplace(gameObject, make_shared<T>(value));
+			m_properties.emplace(gameObject, std::make_shared<T>(value));
 		}
 
-		void SetProperty(GameObjectHandle& gameObject, T&& value)
+		void SetProperty(const GameObjectHandle& gameObject, T&& value)
 		{
-			m_properties.emplace(gameObject, make_shared<T>(std::forward(value)));
+			m_properties.emplace(gameObject, std::make_shared<T>(std::forward(value)));
 		}
 
 		void RemoveProperty(GameObjectHandle& gameObject)

@@ -1,5 +1,5 @@
 #define MAX_LIGHTS 8
-#define MAX_BONES 64
+#define MAX_BONES 128
 #define MAX_JOINTS 4
 #define MAX_JOINT_WEIGHTS 3
 

@@ -49,20 +49,19 @@ void VeritasEngine::MeshResourceLoader::LoadResource(IResourceManager& manager, 
 
 	MeshInstance mesh{};
 
-	for(auto& serializedSubset : info.m_subsets)
+	const auto vertexBuffer = m_impl->m_renderingServices->GetVertexBufferManager().GetBuffer(info.m_vertexType);
+	mesh.SetVertices(vertexBuffer, reinterpret_cast<unsigned char*>(&info.m_verticies[0]), info.m_verticies.size());
+
+	auto& indexBuffer = m_impl->m_renderingServices->GetIndexBuffer();
+	mesh.SetIndicies(&indexBuffer, &info.m_indicies[0], info.m_indicies.size());
+
+	mesh.SetGlobalInverseTransform(info.m_globalInverseTransform);
+
+	for(const auto& serializedSubset : info.m_subsets)
 	{
-		auto& instanceSubset = mesh.CreateSubset();
-
-		auto vertexBuffer = m_impl->m_renderingServices->GetVertexBufferManager().GetBuffer(info.m_vertexType);
-
-		instanceSubset.SetVertices(vertexBuffer, reinterpret_cast<unsigned char*>(&serializedSubset.m_verticies[0]), serializedSubset.m_verticies.size());
-
-		if (serializedSubset.m_faces.size() > 0)
-		{
-			instanceSubset.SetIndicies(&m_impl->m_renderingServices->GetIndexBuffer(), &serializedSubset.m_faces[0], serializedSubset.m_faces.size());
-		}
-
-		auto material = manager.GetResource(serializedSubset.m_materialId);
+		auto& instanceSubset = mesh.CreateSubset(serializedSubset);
+		
+		const auto material = manager.GetResource(serializedSubset.m_materialId);
 
 		instanceSubset.SetMaterial(material);
 	}

@@ -15,6 +15,7 @@ struct GetAnimationResult
 {
 	const VeritasEngine::Animation* Animation{};
 	const VeritasEngine::Skeleton* Skeleton{};
+	const VeritasEngine::MeshInstance* Mesh{};
 };
 
 
@@ -52,6 +53,7 @@ struct VeritasEngine::AnimationManager::Impl
 			result.Animation = &*animation;
 		}
 
+		result.Mesh = &meshInstance;
 		result.Skeleton = &meshInstance.GetSkeleton()->GetData<Skeleton>();
 		
 		return result;
@@ -88,6 +90,8 @@ void VeritasEngine::AnimationManager::CalculateSkinningPalettes(TimeDuration upd
 		{
 			anim.Clock.Update(update);
 
+			//const auto currentTime = 0;
+			//const auto currentTime = TimeDuration(0.5f).count();
 			const auto currentTime = anim.Clock.GetCurrentTime().count();
 
 			for(const auto& boneInfo : animationResult.Animation->BoneInfo)
@@ -100,7 +104,7 @@ void VeritasEngine::AnimationManager::CalculateSkinningPalettes(TimeDuration upd
 					previousKeyFrame = std::prev(previousKeyFrame);
 				}
 
-				const auto interpolationFactor = previousKeyFrame->TimeSample == 0 ? currentTime : (currentTime - previousKeyFrame->TimeSample) / previousKeyFrame->TimeSample;
+				const auto interpolationFactor = previousKeyFrame == boneInfo.Keyframes.cbegin() ? 0 : ((currentTime - previousKeyFrame->TimeSample) / (keyFrame->TimeSample - previousKeyFrame->TimeSample));
 
 				const auto scale = glm::mix(previousKeyFrame->Scale, keyFrame->Scale, interpolationFactor);
 				const auto rotation = glm::mix(previousKeyFrame->Rotation, keyFrame->Rotation, interpolationFactor);
@@ -109,19 +113,22 @@ void VeritasEngine::AnimationManager::CalculateSkinningPalettes(TimeDuration upd
 				const auto parentIndex = animationResult.Skeleton->Joints[boneInfo.BoneIndex].ParentIndex;
 				const auto& inverseBindPose = animationResult.Skeleton->Joints[boneInfo.BoneIndex].InverseBindPose;
 
-
-				Matrix4x4 result{};
-				result = glm::scale(result, scale);
-				result *= glm::mat4_cast(rotation);
-				result = glm::translate(result, translation);
+				Matrix4x4 identity{};
+				const auto scaleMatrix = glm::scale(identity, scale);
+				const auto rotationMatrix = glm::mat4_cast(rotation);
+				const auto translationMatrix = glm::translate(identity, translation);
+				const auto result = translationMatrix * rotationMatrix * scaleMatrix;
+				//const auto result = scaleMatrix * rotationMatrix * translationMatrix;
 
 				if(parentIndex == -1)
 				{
-					anim.SkinningPalette[boneInfo.BoneIndex] = result * inverseBindPose;
+					anim.SkinningPalette[boneInfo.BoneIndex] = inverseBindPose * result * animationResult.Mesh->GetGlobalInverseTransform();
+					//anim.SkinningPalette[boneInfo.BoneIndex] = animationResult.Mesh->GetGlobalInverseTransform() * result * inverseBindPose;
 				}
 				else
 				{
-					anim.SkinningPalette[boneInfo.BoneIndex] = anim.SkinningPalette[parentIndex] * result * inverseBindPose;
+					anim.SkinningPalette[boneInfo.BoneIndex] = inverseBindPose * result * anim.SkinningPalette[parentIndex] * animationResult.Mesh->GetGlobalInverseTransform();
+					//anim.SkinningPalette[boneInfo.BoneIndex] = animationResult.Mesh->GetGlobalInverseTransform() * anim.SkinningPalette[parentIndex] * result * inverseBindPose;
 				}
 			}
 		}

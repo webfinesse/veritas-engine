@@ -3,7 +3,6 @@
 
 #include "../VeritasEngineBase/MeshInfo.h"
 #include "../VeritasEngineBase/ResourceId.h"
-#include "../VeritasEngine/SmallObject.h"
 #include "../VeritasEngine/Skeleton.h"
 #include "../VeritasEngine/SkeletonJoint.h"
 
@@ -78,44 +77,33 @@ std::vector<VeritasEngine::SkinnedVertex> SerializeVerticies(std::vector<Veritas
 		currentVertex.Binormal = vertex.Binormal;
 		currentVertex.TextureCoordinates = vertex.TextureCoordinates;
 
-		auto index = 0;
-
-		if (vertex.JointIndicies.size() > 0)
+		for (auto index = 0; index < MAX_JOINT_WEIGHTS; index++)
 		{
-			for (; index < vertex.JointIndicies.size(); index++)
-			{
-				currentVertex.JointIndicies[index] = vertex.JointIndicies[index];
-			}
+			currentVertex.JointIndicies[index] = std::byte(0);
 		}
 
-		for(; index < MAX_JOINT_WEIGHTS; index++)
+		for (auto index = 0; index < vertex.JointIndicies.size(); index++)
 		{
-			currentVertex.JointIndicies[index] = static_cast<std::byte>(-1);
+			currentVertex.JointIndicies[index] = vertex.JointIndicies[index];
+		}
+		
+
+		std::size_t maxWeights = MAX_JOINT_WEIGHTS - 1;
+		for (auto index = 0; index < maxWeights; index++)
+		{
+			currentVertex.JointWeights[index] = 0;
 		}
 
-		index = 0;
-		auto cumulativeWeight = 1.0f;
+		float cumulativeWeight = 0;
 
-		if (vertex.JointWeights.size() > 0)
+		auto length = std::min(vertex.JointWeights.size(), maxWeights);
+		for (auto index = 0; index < length; index++)
 		{
-			cumulativeWeight = 0;
-
-			const auto jointWeightLength = vertex.JointWeights.size() - 1;
-			for (; index < jointWeightLength; index++)
-			{
-				currentVertex.JointWeights[index] = vertex.JointWeights[index];
-				cumulativeWeight += vertex.JointWeights[index];
-			}
+			currentVertex.JointWeights[index] = vertex.JointWeights[index];
+			cumulativeWeight += currentVertex.JointWeights[index];
 		}
 
-		for (; index < MAX_JOINT_WEIGHTS - 1; index++)
-		{
-			const auto remainingWeight = 1 - cumulativeWeight;
-			assert(remainingWeight >= 0);
-
-			currentVertex.JointWeights[index] = remainingWeight;
-			cumulativeWeight += remainingWeight;
-		}
+		assert(cumulativeWeight <= 1.0005);				
 	}
 
 	return result;
@@ -127,14 +115,17 @@ MeshType SerializeMeshInfo(VeritasACP::MeshExporterResult& meshInfo)
 	MeshType mi;
 
 	mi.m_subsets.reserve(meshInfo.m_subsets.size());
+	mi.m_globalInverseTransform = meshInfo.m_globalInverseTransform;
 
 	for (auto& subset : meshInfo.m_subsets)
 	{
-		typename MeshType::SubsetType newSubset;
+		VeritasEngine::SerializedMeshSubset newSubset;
 
-		newSubset.m_verticies = SerializeVerticies<typename MeshType::VertexType>(subset.m_vertices);
-		newSubset.m_faces = move(subset.m_faces);
-		newSubset.m_materialId = move(subset.m_material);
+		newSubset.m_vertexBaseIndex = subset.m_vertexBaseIndex;
+		newSubset.m_vertexCount = subset.m_vertexCount;
+		newSubset.m_indexBaseIndex = subset.m_indexBaseIndex;
+		newSubset.m_indexCount = subset.m_indexCount;
+		newSubset.m_materialId = std::move(subset.m_material);
 
 		mi.m_subsets.emplace_back(newSubset);
 	}
@@ -233,6 +224,8 @@ void VeritasACP::MeshSerializer::Serialize(MeshExporterResult& meshInfo, fs::pat
 	if (meshInfo.m_animations.size() > 0)
 	{
 		auto result = SerializeMeshInfo<VeritasEngine::SkinnedMeshInfo>(meshInfo);
+		result.m_verticies = SerializeVerticies<VeritasEngine::SkinnedMeshInfo::VertexType>(meshInfo.m_verticies);
+		result.m_indicies = std::move(meshInfo.m_indicies);
 		result.m_skeletonId = SerializeSkeleton(meshInfo, path);
 		result.m_animations = SerializeAnimations(meshInfo);
 		SerializeArchive(result, path, L".veam");
@@ -240,6 +233,8 @@ void VeritasACP::MeshSerializer::Serialize(MeshExporterResult& meshInfo, fs::pat
 	else
 	{
 		auto result = SerializeMeshInfo<VeritasEngine::MeshInfo>(meshInfo);
+		result.m_verticies = SerializeVerticies<VeritasEngine::MeshInfo::VertexType>(meshInfo.m_verticies);
+		result.m_indicies = std::move(meshInfo.m_indicies);
 		SerializeArchive(result, path, L".vem");
 	}
 }

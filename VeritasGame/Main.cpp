@@ -9,6 +9,7 @@
 #include "../VeritasEngine/IProcessManager.h"
 #include "../VeritasEngine/IWorldSetup.h"
 #include "../VeritasEngine/IAnimationManager.h"
+#include "../VeritasEngine/GamePropertyManager.h"
 
 #include "../VeritasEngine/IResourceManager.h"
 #include "../VeritasEngineBase/ResourceHandle.h"
@@ -18,11 +19,10 @@
 
 #include <chrono>
 #include <iostream>
+#include "../VeritasEngine/GameObjectPropertyKeys.h"
 
 bool windowResizing = false;
 std::unique_ptr<Engine> engine{nullptr};
-
-using namespace std;
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -144,9 +144,16 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 	engine->GetWorldSetup().LoadFile("Resources\\\\WorldSetup4.json");
 	
-	auto cameraProcess = std::make_shared<RotateCameraProcess>(engine->GetGamePropertyManager(), 500.0f, 10s);
+	auto cameraProcess = std::make_shared<RotateCameraProcess>(engine->GetGamePropertyManager(), 500.0f, std::chrono::seconds(10));
 	engine->GetProcessManager().AttachProcess(cameraProcess);
-	engine->GetAnimationManager().AddAnimaton(6, VESTRINGHASH("Spider_Armature|walk_ani_vor"), true);
+	engine->GetAnimationManager().AddAnimaton(6, VESTRINGHASH(""), true);
+	//auto positionProperty = engine->GetGamePropertyManager().GetProperty<Matrix4x4>(GameObjectPropertyKeys::WorldPosition);
+	//const auto position = positionProperty->GetProperty(6);
+
+	//auto rotation = glm::rotate(*position, glm::pi<float>(), Float3(0, 1, 0));
+
+	//positionProperty->SetProperty(6, rotation);
+
 
 	const auto end = std::chrono::high_resolution_clock::now();
 

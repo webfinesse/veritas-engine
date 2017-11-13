@@ -1,6 +1,7 @@
 #include <vector>
 #include <algorithm>
 #include <string>
+#include <numeric>
 
 #include "ExportMesh.h"
 #include "ExportMaterial.h"
@@ -34,29 +35,30 @@ struct VeritasACP::ExportMesh::Impl
 		return meshInfo->m_subsets.back();
 	}
 
-	static void ProcessVertex(aiMesh* mesh, MeshExporterSubset& meshInfo)
+	static void ProcessVertex(aiMesh* mesh, MeshExporterResult& result, MeshExporterSubset& subset)
 	{
-		meshInfo.m_vertices.reserve(mesh->mNumVertices);
+		subset.m_vertexBaseIndex = result.m_verticies.size();
+		subset.m_vertexCount = mesh->mNumVertices;
 
 		for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 		{
 			auto& vertex = mesh->mVertices[i];
 
-			meshInfo.m_vertices.emplace_back();
-			auto& position = meshInfo.m_vertices.back().Position;
+			result.m_verticies.emplace_back();
+			auto& position = result.m_verticies.back().Position;
 			position.x = vertex.x;
 			position.y = vertex.y;
 			position.z = vertex.z;
 		}
 	}
 
-	static void ProcessNormals(aiMesh* mesh, MeshExporterSubset& meshInfo)
+	static void ProcessNormals(aiMesh* mesh, MeshExporterResult& result, MeshExporterSubset& subset)
 	{
 		if (mesh->HasNormals())
 		{
 			for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 			{
-				auto& vertex = meshInfo.m_vertices[i].Normal;
+				auto& vertex = result.m_verticies[subset.m_vertexBaseIndex + i].Normal;
 				vertex.x = mesh->mNormals[i].x;
 				vertex.y = mesh->mNormals[i].y;
 				vertex.z = mesh->mNormals[i].z;
@@ -67,12 +69,12 @@ struct VeritasACP::ExportMesh::Impl
 		{
 			for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 			{
-				auto& tangent = meshInfo.m_vertices[i].Tangent;
+				auto& tangent = result.m_verticies[subset.m_vertexBaseIndex + i].Tangent;
 				tangent.x = mesh->mTangents[i].x;
 				tangent.y = mesh->mTangents[i].y;
 				tangent.z = mesh->mTangents[i].z;
 
-				auto& binormal = meshInfo.m_vertices[i].Binormal;
+				auto& binormal = result.m_verticies[subset.m_vertexBaseIndex + i].Binormal;
 				binormal.x = mesh->mBitangents[i].x;
 				binormal.y = mesh->mBitangents[i].y;
 				binormal.z = mesh->mBitangents[i].z;
@@ -80,13 +82,13 @@ struct VeritasACP::ExportMesh::Impl
 		}
 	}
 
-	static void ProcessUVCoords(aiMesh* mesh, MeshExporterSubset& meshInfo)
+	static void ProcessUVCoords(aiMesh* mesh, MeshExporterResult& result, MeshExporterSubset& subset)
 	{
 		if (mesh->HasTextureCoords(0))
 		{
 			for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 			{
-				auto& vertex = meshInfo.m_vertices[i].TextureCoordinates;
+				auto& vertex = result.m_verticies[subset.m_vertexBaseIndex + i].TextureCoordinates;
 				auto& coords = mesh->mTextureCoords[0][i];
 
 				vertex.x = coords.x;
@@ -95,7 +97,7 @@ struct VeritasACP::ExportMesh::Impl
 		}
 	}
 
-	void ProcessMaterial(const aiScene* scene, aiMesh* mesh, std::shared_ptr<MeshExporterResult> meshInfo)
+	void ProcessMaterial(const aiScene* scene, aiMesh* mesh, MeshExporterResult& result)
 	{
 		if (scene->HasMaterials())
 		{
@@ -105,22 +107,25 @@ struct VeritasACP::ExportMesh::Impl
 			{
 				ExportMaterial materialExporter;
 
-				meshInfo->m_subsets.back().m_material = materialExporter.Export(m_basePath, scene, mesh);
+				result.m_subsets.back().m_material = materialExporter.Export(m_basePath, scene, mesh);
 
-				m_processedMaterials.emplace(mesh->mMaterialIndex, meshInfo->m_subsets.back().m_material);
+				m_processedMaterials.emplace(mesh->mMaterialIndex, result.m_subsets.back().m_material);
 			}
 			else
 			{
-				meshInfo->m_subsets.back().m_material = item->second;
+				result.m_subsets.back().m_material = item->second;
 			}
 		}
 	}
 
-	static void ProcessFaces(aiMesh* mesh, MeshExporterSubset& meshInfo)
+	static void ProcessFaces(aiMesh* mesh, MeshExporterResult& result, MeshExporterSubset& subset)
 	{
 		if (mesh->HasFaces())
 		{
-			auto& facesCollection = meshInfo.m_faces;
+			subset.m_indexBaseIndex = result.m_indicies.size();			
+
+			auto& facesCollection = result.m_indicies;
+			const auto& initialIndex = facesCollection.size();
 			for (unsigned int i = 0; i < mesh->mNumFaces; i++)
 			{
 				aiFace& face = mesh->mFaces[i];
@@ -129,6 +134,8 @@ struct VeritasACP::ExportMesh::Impl
 					facesCollection.emplace_back(face.mIndices[j]);
 				}
 			}
+
+			subset.m_indexCount = facesCollection.size() - initialIndex;
 		}
 	}
 
@@ -136,9 +143,14 @@ struct VeritasACP::ExportMesh::Impl
 	{
 		static_assert(sizeof(VeritasEngine::Matrix4x4) == sizeof(aiMatrix4x4), "Matrix sizes do not match");
 
+		// assimp is a row major library, however we are a column major engine, so we need to transpose the matrix
+
 		VeritasEngine::Matrix4x4 result{};
 
-		memcpy(&result, &assImpMatrix, sizeof(VeritasEngine::Matrix4x4));
+		auto transposed = assImpMatrix;
+		transposed.Transpose();
+
+		memcpy(&result, &transposed, sizeof(VeritasEngine::Matrix4x4));
 
 		return result;
 	}
@@ -221,6 +233,8 @@ struct VeritasACP::ExportMesh::Impl
 				const auto currentBone = mesh->mBones[boneIndex];
 				const auto existingJoint = meshResult.m_skeleton.JointIndexMap.find(currentBone->mName.C_Str());
 
+				auto index = meshResult.m_skeleton.Joints.size();
+
 				if (existingJoint == meshResult.m_skeleton.JointIndexMap.end())
 				{
 					MeshExporterSkeletonJoint joint;
@@ -228,23 +242,30 @@ struct VeritasACP::ExportMesh::Impl
 					joint.InverseBindPose = ConvertTransform(currentBone->mOffsetMatrix);
 					joint.ParentIndex = -1;
 
-					auto index = meshResult.m_skeleton.Joints.size();
-
-					for (unsigned int weightIndex = 0; weightIndex < currentBone->mNumWeights; weightIndex++)
-					{
-						auto& currentWeight = currentBone->mWeights[weightIndex];
-						auto& vertex = meshInfo.m_vertices[currentWeight.mVertexId];
-						vertex.JointWeights.emplace_back(currentWeight.mWeight);
-						vertex.JointIndicies.emplace_back(static_cast<std::byte>(index));
-					}
-
 					meshResult.m_skeleton.Joints.emplace_back(joint);
 					meshResult.m_skeleton.JointIndexMap[joint.Name] = static_cast<int>(index);
 				}
 				else
 				{
-					assert(0);
+					index = existingJoint->second;
 				}
+
+				for (unsigned int weightIndex = 0; weightIndex < currentBone->mNumWeights; weightIndex++)
+				{
+					auto& currentWeight = currentBone->mWeights[weightIndex];
+					auto& vertex = meshResult.m_verticies[meshInfo.m_vertexBaseIndex + currentWeight.mVertexId];
+
+					const auto existingIndex = std::find_if(vertex.JointIndicies.cbegin(), vertex.JointIndicies.cend(), [index](std::byte jointIndex) { return std::size_t(jointIndex) == index; });
+					if (existingIndex == vertex.JointIndicies.cend())
+					{
+						vertex.JointWeights.emplace_back(currentWeight.mWeight);
+						vertex.JointIndicies.emplace_back(static_cast<std::byte>(index));
+					}
+					else
+					{
+						assert(vertex.JointWeights[existingIndex - vertex.JointIndicies.cbegin()] == currentWeight.mWeight);
+					}
+				}				
 			}
 		}
 	}
@@ -312,6 +333,7 @@ std::shared_ptr<VeritasACP::MeshExporterResult> VeritasACP::ExportMesh::Export(f
 	Assimp::Importer importer;
 	importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_LINE | aiPrimitiveType_POINT);
 	importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS, aiComponent_CAMERAS | aiComponent_COLORS | aiComponent_LIGHTS | aiComponent_TANGENTS_AND_BITANGENTS);
+	importer.SetPropertyInteger(AI_CONFIG_PP_LBW_MAX_WEIGHTS, 4);
 
 	auto* scene = importer.ReadFile(fileName.generic_string().c_str(), aiProcess_ConvertToLeftHanded |
 		aiProcess_TransformUVCoords |
@@ -335,22 +357,38 @@ std::shared_ptr<VeritasACP::MeshExporterResult> VeritasACP::ExportMesh::Export(f
 		{
 			auto result = std::make_shared<MeshExporterResult>();
 
+			auto verticiesLength = 0;
+			auto facesLength = 0;
+			for (auto i = 0; i < scene->mNumMeshes; i++)
+			{
+				verticiesLength += scene->mMeshes[i]->mNumVertices;
+				facesLength += scene->mMeshes[i]->mNumFaces * 3;
+			}
+
+			result->m_subsets.reserve(scene->mNumMeshes);
+			result->m_verticies.reserve(verticiesLength);
+			result->m_indicies.reserve(facesLength);
+
 			for (unsigned int i = 0; i < scene->mNumMeshes; i++)
 			{
 				auto& currentSubset = m_impl->AddSubset(result);
 
-				auto* mesh = scene->mMeshes[i];
+				auto* mesh = scene->mMeshes[i];				
 
-				m_impl->ProcessVertex(mesh, currentSubset);
-				m_impl->ProcessNormals(mesh, currentSubset);
-				m_impl->ProcessUVCoords(mesh, currentSubset);
-				m_impl->ProcessMaterial(scene, mesh, result);
-				m_impl->ProcessFaces(mesh, currentSubset);
+				m_impl->ProcessVertex(mesh, *result, currentSubset);
+				m_impl->ProcessNormals(mesh, *result, currentSubset);
+				m_impl->ProcessUVCoords(mesh, *result, currentSubset);
+				m_impl->ProcessMaterial(scene, mesh, *result);
+				m_impl->ProcessFaces(mesh, *result, currentSubset);
 				m_impl->ProcessBones(mesh, *result, currentSubset);
 			}
 
 			m_impl->ProcessNode(scene->mRootNode, result->m_root, *result, -1);
 			m_impl->ProcessAnimations(scene, *result);
+
+			auto rootTransform = scene->mRootNode->mTransformation;
+			rootTransform.Inverse();
+			result->m_globalInverseTransform = m_impl->ConvertTransform(rootTransform);
 
 			return result;
 		}

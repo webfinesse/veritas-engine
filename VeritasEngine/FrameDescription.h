@@ -18,8 +18,8 @@ namespace VeritasEngine
 		}
 
 		PerObjectBufferDescription(const Matrix4x4& worldTransform, const Matrix4x4& inverseTranspose, const MaterialInstance* material, 
-								   void* indexBuffer, const BufferIndicies& indexIndicies,  void* vertexBuffer, const BufferIndicies& vertexIndicies, size_t vertexSize)
-			: WorldTransform(worldTransform), WorldInverseTranspose(inverseTranspose), Material(material), IndexBuffer{ indexBuffer }, IndexIndicies{ indexIndicies }, VertexBuffer{ vertexBuffer }, VertexIndicies{ vertexIndicies }, VertexSize{ vertexSize }
+								   void* indexBuffer, const BufferIndicies& indexIndicies, unsigned int meshIndexStartIndex, void* vertexBuffer, const BufferIndicies& vertexIndicies, size_t vertexSize, unsigned int meshVertexStartIndex)
+			: WorldTransform(worldTransform), WorldInverseTranspose(inverseTranspose), Material(material), IndexBuffer{ indexBuffer }, IndexIndicies{ indexIndicies }, VertexBuffer{ vertexBuffer }, VertexIndicies{ vertexIndicies }, VertexSize{ vertexSize }, MeshIndexStartIndex{ meshIndexStartIndex }, MeshVertexStartIndex{ meshVertexStartIndex }
 		{
 
 		}
@@ -31,7 +31,9 @@ namespace VeritasEngine
 		const BufferIndicies& IndexIndicies{0, 0};
 		void* VertexBuffer{nullptr};
 		const BufferIndicies& VertexIndicies{0, 0};
-		const size_t VertexSize{};
+		const std::size_t VertexSize{};
+		const unsigned int MeshIndexStartIndex{};
+		const unsigned int MeshVertexStartIndex{};
 	};
 
 	struct PerAnimatedObjectBufferDescription : PerObjectBufferDescription
@@ -43,8 +45,8 @@ namespace VeritasEngine
 		}
 
 		PerAnimatedObjectBufferDescription(const Matrix4x4& worldTransform, const Matrix4x4& inverseTranspose, const MaterialInstance* material,
-			void* indexBuffer, const BufferIndicies& indexIndicies, void* vertexBuffer, const BufferIndicies& vertexIndicies, size_t vertexSize, const Matrix4x4* skinningPalette)
-			: PerObjectBufferDescription(worldTransform, inverseTranspose, material, indexBuffer, indexIndicies, vertexBuffer, vertexIndicies, vertexSize)
+			void* indexBuffer, const BufferIndicies& indexIndicies, unsigned int meshIndexStartIndex, void* vertexBuffer, const BufferIndicies& vertexIndicies, size_t vertexSize, unsigned int meshVertexStartIndex, const Matrix4x4* skinningPalette)
+			: PerObjectBufferDescription(worldTransform, inverseTranspose, material, indexBuffer, indexIndicies, meshIndexStartIndex, vertexBuffer, vertexIndicies, vertexSize, meshVertexStartIndex)
 		{
 			std::memcpy(SkinningPalette, skinningPalette, sizeof(SkinningPalette));
 		}

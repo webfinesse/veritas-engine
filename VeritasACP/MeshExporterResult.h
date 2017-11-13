@@ -6,6 +6,7 @@
 #include "../VeritasEngineBase/ResourceId.h"
 #include "MeshExporterVertex.h"
 #include "../VeritasEngine/StringHash.h"
+#include "../VeritasEngine/MatrixStack.h"
 
 namespace VeritasACP
 {
@@ -30,28 +31,18 @@ namespace VeritasACP
 
 	struct MeshExporterSubset
 	{
-		MeshExporterSubset()
-			: m_vertices{}, m_faces {}, m_material{}
-		{
-
-		}
-
-		std::vector<MeshExporterVertex> m_vertices;
-		std::vector<unsigned int> m_faces;
+		unsigned int m_vertexBaseIndex;
+		unsigned int m_vertexCount;
+		unsigned int m_indexBaseIndex;
+		unsigned int m_indexCount;
 		VeritasEngine::ResourceId m_material;
 	};
 
 	struct MeshExporterNode
 	{
-		MeshExporterNode()
-			: m_transform{}, meshIndicies{}, m_children{}
-		{
-
-		}
-
-		VeritasEngine::Matrix4x4 m_transform;
-		std::vector<unsigned int> meshIndicies;
-		std::vector<MeshExporterNode> m_children;
+		VeritasEngine::Matrix4x4 m_transform{};
+		std::vector<unsigned int> meshIndicies{};
+		std::vector<MeshExporterNode> m_children{};
 	};
 
 	struct SqtExporterResult
@@ -80,16 +71,14 @@ namespace VeritasACP
 
 	struct MeshExporterResult
 	{
-		MeshExporterResult()
-			: m_subsets{}, m_animations{}, m_root{}, m_skeleton{}
-		{
+		std::vector<MeshExporterVertex> m_verticies{};
+		std::vector<unsigned int> m_indicies{};
+		std::vector<MeshExporterSubset> m_subsets{};
+		std::unordered_map<std::string, AnimationClipExporterResult> m_animations{};
+		VeritasEngine::Matrix4x4 m_globalInverseTransform{};
+		MeshExporterNode m_root{};
+		MeshExporterSkeleton m_skeleton{};
 
-		}
-
-		std::vector<MeshExporterSubset> m_subsets;
-		std::unordered_map<std::string, AnimationClipExporterResult> m_animations;
-		MeshExporterNode m_root;
-		MeshExporterSkeleton m_skeleton;
 	};
 }
 

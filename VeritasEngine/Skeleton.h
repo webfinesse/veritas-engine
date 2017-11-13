@@ -7,7 +7,7 @@
 
 #include "SkeletonJoint.h"
 
-constexpr auto MAX_JOINTS{ 64 };
+constexpr auto MAX_JOINTS{ 128 };
 
 namespace VeritasEngine
 {

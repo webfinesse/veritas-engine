@@ -98,8 +98,8 @@ struct VeritasEngine::MeshShaderImpl::Impl
 		PassBuffer* dataPtr = static_cast<PassBuffer*>(mappedResource.pData);
 
 		std::memcpy(dataPtr->Lights, passBuffer.Lights, sizeof(decltype(passBuffer.Lights)));
-		TransposeForBuffer(&dataPtr->ViewMatrix, passBuffer.ViewMatrix);
-		TransposeForBuffer(&dataPtr->ProjectionMatrix, passBuffer.ProjectionMatrix);
+		WriteMatrixToBuffer(&dataPtr->ViewMatrix, passBuffer.ViewMatrix);
+		WriteMatrixToBuffer(&dataPtr->ProjectionMatrix, passBuffer.ProjectionMatrix);
 		dataPtr->EyePosition = passBuffer.EyePosition;	
 
 		m_dxState->Context->Unmap(m_cameraBuffer.Get(), 0);
@@ -121,8 +121,8 @@ struct VeritasEngine::MeshShaderImpl::Impl
 		auto hasSpecularMap = buffer.Material->SpecularMap != nullptr;
 		dataPtr->HasSpecularMap = hasSpecularMap ? 1 : 0;
 
-		TransposeForBuffer(&dataPtr->WorldTransform, buffer.WorldTransform);
-		TransposeForBuffer(&dataPtr->WorldInverseTranspose, buffer.WorldInverseTranspose);
+		WriteMatrixToBuffer(&dataPtr->WorldTransform, buffer.WorldTransform);
+		WriteMatrixToBuffer(&dataPtr->WorldInverseTranspose, buffer.WorldInverseTranspose);
 
 		std::memcpy(&dataPtr->Material, &buffer.Material->Material, sizeof(GraphicsCardMaterial));
 
@@ -154,10 +154,9 @@ struct VeritasEngine::MeshShaderImpl::Impl
 		m_dxState->Context->PSSetShaderResources(0, 3, resources);
 	}
 
-	static void TransposeForBuffer(Matrix4x4* destination, const Matrix4x4& matrixToTranspose)
+	static void WriteMatrixToBuffer(Matrix4x4* destination, const Matrix4x4& matrixToTranspose)
 	{
-		auto transposed = MathHelpers::Transpose(matrixToTranspose);
-		*destination = transposed;
+		*destination = matrixToTranspose;
 	}
 
 	ComPtr<ID3D11Buffer> m_cameraBuffer;

@@ -161,12 +161,12 @@ public:
 		m_dxState->Context->IASetVertexBuffers(0, 1, &nativeVertexBuffer, strides, offsets);
 	}
 
-	void SetIndexBuffer(void* buffer)
+	void SetIndexBuffer(void* buffer, UINT startIndex)
 	{
-		m_dxState->Context->IASetIndexBuffer(static_cast<ID3D11Buffer*>(buffer), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
+		m_dxState->Context->IASetIndexBuffer(static_cast<ID3D11Buffer*>(buffer), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, startIndex * sizeof(UINT));
 	}
 
-	void DrawIndexed(size_t indexCount, size_t indexOffset, size_t baseVertexIndex)
+	void DrawIndexed(std::size_t indexCount, std::size_t indexOffset, std::size_t baseVertexIndex)
 	{
 		m_dxState->Context->DrawIndexed(static_cast<UINT>(indexCount), static_cast<UINT>(indexOffset), static_cast<UINT>(baseVertexIndex));
 	}
@@ -181,10 +181,10 @@ public:
 		for(const auto& object : desc.StaticObjects)
 		{
 			const unsigned int strides[1] = { static_cast<unsigned int>(object.VertexSize) };
-			const unsigned int offsets[1] = { 0 };
+			const unsigned int offsets[1] = { object.MeshVertexStartIndex * object.VertexSize };
 
 			SetVertexBuffer(object.VertexBuffer, strides, offsets);
-			SetIndexBuffer(object.IndexBuffer);
+			SetIndexBuffer(object.IndexBuffer, object.MeshIndexStartIndex);
 
 			m_meshShader->SetPerObjectBuffer(object);
 
@@ -197,10 +197,10 @@ public:
 		for (const auto& object : desc.AnimatedObjects)
 		{
 			const unsigned int strides[1] = { static_cast<unsigned int>(object.VertexSize) };
-			const unsigned int offsets[1] = { 0 };
+			const unsigned int offsets[1] = { object.MeshVertexStartIndex * object.VertexSize };
 
 			SetVertexBuffer(object.VertexBuffer, strides, offsets);
-			SetIndexBuffer(object.IndexBuffer);
+			SetIndexBuffer(object.IndexBuffer, object.MeshIndexStartIndex);
 
 			m_animatedMeshShader->SetPerObjectBuffer(object);
 

@@ -62,16 +62,9 @@ struct VeritasEngine::Scene::Impl
 			auto& subset = instance.GetSubset(meshIndex);
 			const MaterialInstance& material = subset.GetMaterial()->GetData<MaterialInstance>();
 
-			if (nodeType == SceneNodeType::ResourcedMesh)
-			{
-				renderer.StaticObjects.emplace_back(stackMatrix, inverseTranspose, &material, subset.GetIndexBuffer().GetNativeBuffer(),
-					subset.GetIndexBufferIndicies(), subset.GetVertexBuffer().GetNativeBuffer(), subset.GetVertexBufferIndicies(), subset.GetVertexSize());
-			}
-			else if(nodeType == SceneNodeType::AnimatedResourcedMesh)
-			{
-				renderer.AnimatedObjects.emplace_back(stackMatrix, inverseTranspose, &material, subset.GetIndexBuffer().GetNativeBuffer(),
-					subset.GetIndexBufferIndicies(), subset.GetVertexBuffer().GetNativeBuffer(), subset.GetVertexBufferIndicies(), subset.GetVertexSize(), m_animationManager->GetSkinningPalette(sceneNode.m_handle));
-			}
+			renderer.StaticObjects.emplace_back(stackMatrix, inverseTranspose, &material, instance.GetIndexBuffer().GetNativeBuffer(),
+				subset.GetIndexBufferIndicies(), instance.GetIndexBufferStartIndex(), instance.GetVertexBuffer().GetNativeBuffer(), subset.GetVertexBufferIndicies(), instance.GetVertexSize(), instance.GetVertexBufferStartIndex());
+			
 		}
 
 		for (const auto& item : currentNode.GetChildren())
@@ -80,6 +73,27 @@ struct VeritasEngine::Scene::Impl
 		}
 
 		m_matrixStack.Pop();
+	}
+
+	void RenderAnimatedResourcedMesh(FrameDescription& renderer, const SceneNode& sceneNode, const MeshInstance& instance, const SceneNodeType nodeType, const MeshNode& currentNode)
+	{
+		auto& stackMatrix = m_matrixStack.Peek();
+		auto inverse = VeritasEngine::MathHelpers::Inverse(stackMatrix);
+		auto inverseTranspose = VeritasEngine::MathHelpers::Transpose(inverse);
+
+		for (const auto& meshIndex : currentNode.GetMeshIndices())
+		{
+			auto& subset = instance.GetSubset(meshIndex);
+			const MaterialInstance& material = subset.GetMaterial()->GetData<MaterialInstance>();
+
+			renderer.AnimatedObjects.emplace_back(stackMatrix, inverseTranspose, &material, instance.GetIndexBuffer().GetNativeBuffer(),
+				subset.GetIndexBufferIndicies(), instance.GetIndexBufferStartIndex(), instance.GetVertexBuffer().GetNativeBuffer(), subset.GetVertexBufferIndicies(), instance.GetVertexSize(), instance.GetVertexBufferStartIndex(), m_animationManager->GetSkinningPalette(sceneNode.m_handle));
+		}
+
+		for (const auto& item : currentNode.GetChildren())
+		{
+			RenderAnimatedResourcedMesh(renderer, sceneNode, instance, nodeType, item);
+		}
 	}
 
 	void Render(FrameDescription& renderer, const SceneNode& node)
@@ -96,7 +110,6 @@ struct VeritasEngine::Scene::Impl
 		switch (type)
 		{
 			case SceneNodeType::ResourcedMesh:
-			case SceneNodeType::AnimatedResourcedMesh:
 			{
 				const auto meshResource = m_resourcedMesh->GetProperty(node.m_handle);
 				const MeshInstance& meshInstance = meshResource->GetData<MeshInstance>();
@@ -105,6 +118,17 @@ struct VeritasEngine::Scene::Impl
 
 				RenderResourcedMesh(renderer, node, meshInstance, type, rootNode);
 				
+				break;
+			}
+			case SceneNodeType::AnimatedResourcedMesh:
+			{
+				const auto meshResource = m_resourcedMesh->GetProperty(node.m_handle);
+				const MeshInstance& meshInstance = meshResource->GetData<MeshInstance>();
+
+				auto& rootNode = meshInstance.GetRootNode();
+
+				RenderAnimatedResourcedMesh(renderer, node, meshInstance, type, rootNode);
+
 				break;
 			}
 		}
@@ -186,7 +210,11 @@ void VeritasEngine::Scene::OnRender(FrameDescription& renderer)
 			auto near = 1.0f;
 			auto far = 3000.0f;
 
-			renderer.PassBuffer.ProjectionMatrix = MathHelpers::CreatePerspectiveMatrix(quarterPi, aspectRatio, near, far);
+			// this is an opengl perspective matrix, change it to work for directx. https://www.gamedev.net/forums/topic/692095-d3d-glm-depth-reconstruction-issues/
+			auto projectionMatrix = MathHelpers::CreatePerspectiveMatrix(quarterPi, aspectRatio, near, far);
+			projectionMatrix = glm::scale(projectionMatrix, Float3(1.0f, 1.0f, 0.5f));
+			renderer.PassBuffer.ProjectionMatrix = glm::translate(projectionMatrix, Float3(0.0f, 0.0f, 0.5f));
+
 			renderer.PassBuffer.EyePosition = Float4(positionVec, 0);
 
 			size_t i = 0;

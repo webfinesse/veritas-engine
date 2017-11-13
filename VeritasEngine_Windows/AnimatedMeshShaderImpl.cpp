@@ -112,8 +112,8 @@ struct VeritasEngine::AnimatedMeshShaderImpl::Impl
 		PassBuffer* dataPtr = static_cast<PassBuffer*>(mappedResource.pData);
 
 		std::memcpy(dataPtr->Lights, passBuffer.Lights, sizeof(decltype(passBuffer.Lights)));
-		TransposeForBuffer(&dataPtr->ViewMatrix, passBuffer.ViewMatrix);
-		TransposeForBuffer(&dataPtr->ProjectionMatrix, passBuffer.ProjectionMatrix);
+		WriteMatrixToBuffer(&dataPtr->ViewMatrix, passBuffer.ViewMatrix);
+		WriteMatrixToBuffer(&dataPtr->ProjectionMatrix, passBuffer.ProjectionMatrix);
 		dataPtr->EyePosition = passBuffer.EyePosition;
 
 		m_dxState->Context->Unmap(m_cameraBuffer.Get(), 0);
@@ -135,8 +135,8 @@ struct VeritasEngine::AnimatedMeshShaderImpl::Impl
 		auto hasSpecularMap = buffer.Material->SpecularMap != nullptr;
 		dataPtr->HasSpecularMap = hasSpecularMap ? 1 : 0;
 
-		TransposeForBuffer(&dataPtr->WorldTransform, buffer.WorldTransform);
-		TransposeForBuffer(&dataPtr->WorldInverseTranspose, buffer.WorldInverseTranspose);
+		WriteMatrixToBuffer(&dataPtr->WorldTransform, buffer.WorldTransform);
+		WriteMatrixToBuffer(&dataPtr->WorldInverseTranspose, buffer.WorldInverseTranspose);
 
 		std::memcpy(&dataPtr->Material, &buffer.Material->Material, sizeof(GraphicsCardMaterial));
 
@@ -145,7 +145,7 @@ struct VeritasEngine::AnimatedMeshShaderImpl::Impl
 		HHR(m_dxState->Context->Map(m_animationBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource), "mapping animation buffer");
 
 		const auto animationPtr = static_cast<AnimationBuffer*>(mappedResource.pData);
-		TransposeForBuffer(animationPtr->SkinningPalette, buffer.SkinningPalette, sizeof(buffer.SkinningPalette) / sizeof(buffer.SkinningPalette[0]));
+		WriteMatrixToBuffer(animationPtr->SkinningPalette, buffer.SkinningPalette, sizeof(buffer.SkinningPalette) / sizeof(buffer.SkinningPalette[0]));
 
 		m_dxState->Context->Unmap(m_animationBuffer.Get(), 0);
 
@@ -175,16 +175,16 @@ struct VeritasEngine::AnimatedMeshShaderImpl::Impl
 		m_dxState->Context->PSSetShaderResources(0, 3, resources);
 	}
 
-	static void TransposeForBuffer(Matrix4x4* destination, const Matrix4x4& matrixToTranspose)
+	static void WriteMatrixToBuffer(Matrix4x4* destination, const Matrix4x4& matrixToTranspose)
 	{
-		*destination = MathHelpers::Transpose(matrixToTranspose);
+		*destination = matrixToTranspose;
 	}
 
-	static void TransposeForBuffer(Matrix4x4 destination[], const Matrix4x4* matriciesToTranspose, int numOfMatricies)
+	static void WriteMatrixToBuffer(Matrix4x4 destination[], const Matrix4x4* matriciesToTranspose, int numOfMatricies)
 	{
 		for(int i = 0; i < numOfMatricies; i++)
 		{
-			TransposeForBuffer(&destination[i], matriciesToTranspose[i]);
+			WriteMatrixToBuffer(&destination[i], matriciesToTranspose[i]);
 		}
 	}
 

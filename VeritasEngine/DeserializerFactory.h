@@ -77,64 +77,6 @@ namespace VeritasEngine
 	};
 
 	template<>
-	class VeritasEngine::DeserializerFactory < VeritasEngine::MeshInstance >
-	{
-	public:
-		using FUNCTIONTYPE = MeshInstance(*)(Engine& engine, JsonValue& values);
-
-		static FUNCTIONTYPE GetDeserializer()
-		{
-			return &Deserialize;
-		}
-
-	private:
-		static MeshInstance Deserialize(Engine& engine, JsonValue& values)
-		{
-			MeshInstance m{};
-
-			auto format = values.find("VertexFormat")->second.get_value<unsigned int>();
-			std::vector<Vertex> verticies;
-			
-			auto verticiesArray = values.find("Verticies");
-			for (const auto& vertexRoot : verticiesArray->second)
-			{
-				VeritasEngine::Vertex v;
-				const auto& vertex = vertexRoot.second;
-				v.Position[0] = vertex.find("x")->second.get_value<float>();
-				v.Position[1] = vertex.find("y")->second.get_value<float>();
-				v.Position[2] = vertex.find("z")->second.get_value<float>();
-
-				v.Normal[0] = vertex.find("nx")->second.get_value<float>();
-				v.Normal[1] = vertex.find("ny")->second.get_value<float>();
-				v.Normal[2] = vertex.find("nz")->second.get_value<float>();
-
-				verticies.emplace_back(std::move(v));
-			}
-
-			auto indiciesArray = values.find("Subsets");
-
-			for (const auto& subsetRoot : indiciesArray->second)
-			{
-				auto& subset = m.CreateSubset();
-
-				subset.SetVertices(engine.GetRenderingServices().GetVertexBufferManager().GetBuffer(format), reinterpret_cast<unsigned char*>(&verticies[0]), verticies.size());
-
-				std::vector<unsigned int> indicies;
-
-				for (const auto& indexIter : subsetRoot.second)
-				{
-					auto value = indexIter.second.get_value<unsigned int>();
-					indicies.push_back(value);
-				}
-
-				subset.SetIndicies(&engine.GetRenderingServices().GetIndexBuffer(), &indicies[0], indicies.size());
-			}
-
-			return m;
-		}
-	};
-
-	template<>
 	class VeritasEngine::DeserializerFactory < VeritasEngine::SceneNodeType >
 	{
 	public:

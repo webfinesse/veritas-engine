@@ -4,36 +4,22 @@
 #include <memory>
 #include "SmallObject.h"
 
-#include "VertexTypeHandle.h"
-
 namespace VeritasEngine
 {
-	class IVertexBuffer;
-	class IIndexBuffer;
+	struct SerializedMeshSubset;
 	class ResourceHandle;
 	class BufferIndicies;
 
 	class MeshSubset: public SmallObject<>
 	{
 	public:
-		MeshSubset();
+		MeshSubset(const SerializedMeshSubset& subset);
 		~MeshSubset();
 
-		void SetVertices(IVertexBuffer* vertexBuffer, unsigned char* verticies, size_t numOfVertices);
-		size_t GetVertexSize() const;
-		size_t GetVertexCount() const;
-		IVertexBuffer& GetVertexBuffer() const;
-		size_t GetVertexBufferBaseIndex() const;
 		const BufferIndicies& GetVertexBufferIndicies() const;
-
-		void SetIndicies(IIndexBuffer* indexBuffer, unsigned int* indicies, size_t numOfIndicies);
-		size_t IndexCount() const;
-		IIndexBuffer& GetIndexBuffer() const;
-		size_t GetIndexOffset() const;
 		const BufferIndicies& GetIndexBufferIndicies() const;
 
 		void SetMaterial(const ResourceHandle* const material);
-
 		const ResourceHandle* const GetMaterial() const;
 
 		MeshSubset(const MeshSubset& rhs);
