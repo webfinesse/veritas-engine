@@ -1,7 +1,6 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <crtdbg.h>
-#include <tchar.h>
 #include <chrono>
 
 #include "../VeritasEngine/EngineFactory.h"
@@ -13,9 +12,14 @@
 #include "../VeritasEngine/GameObjectPropertyKeys.h"
 #include "../VeritasEngine/GamePropertyManager.h"
 
+#include "../VeritasEngineBase/StringHelper.h"
+
 #include "RotateCameraProcess.h"
 
 bool windowResizing = false;
+constexpr unsigned int width = 1024;
+constexpr unsigned int height = 768;
+
 std::unique_ptr<VeritasEngine::Engine> engine{nullptr};
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -73,13 +77,15 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
-int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nShowCmd)
+HWND CreateGameWindow(_In_ HINSTANCE hInstance)
 {
+#if _DEBUG
 	int tmpDbgFlag = _CrtSetDbgFlag(_CRTDBG_REPORT_FLAG);
 	tmpDbgFlag |= _CRTDBG_LEAK_CHECK_DF;
 	_CrtSetDbgFlag(tmpDbgFlag);
+#endif
 
-	const wchar_t CLASS_NAME[] = L"Sample Window Class";
+	const wchar_t CLASS_NAME[] = L"VeritasEngine";
 
 	WNDCLASSW wc{};
 
@@ -92,8 +98,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 	// Create the window.
 
-	unsigned int width = 1024;
-	unsigned int height = 768;
+	
 
 	HWND hwnd = CreateWindowExW(
 		0,                              // Optional window styles.
@@ -101,56 +106,51 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		nullptr,    // Window text
 		WS_OVERLAPPEDWINDOW,            // Window style
 
-		// Size and position
+										// Size and position
 		CW_USEDEFAULT, CW_USEDEFAULT, width, height,
 
 		nullptr,       // Parent window    
 		nullptr,       // Menu
 		hInstance,  // Instance handle
 		nullptr        // Additional application data
-		);
+	);
 
-	if (hwnd == nullptr)
-	{
-		return 0;
-	}
+	return hwnd;
+}
 
-	ShowWindow(hwnd, nShowCmd);
-
-	auto start = std::chrono::high_resolution_clock::now();
+void InitializeEngine(const HWND hwnd)
+{
+	const auto start = std::chrono::high_resolution_clock::now();
 
 	engine = std::move(VeritasEngine::CreateEngine());
 	engine->Init(hwnd, width, height);
 
-	/*auto objectProcess = std::make_shared<RotateObjectProcess>(2);
-	engine.GetProcessManager().AttachProcess(objectProcess);
-
-	objectProcess = std::make_shared<RotateObjectProcess>(3);
-	engine.GetProcessManager().AttachProcess(objectProcess);*/
-
 	char wdBuffer[MAX_PATH + 20];
 	GetCurrentDirectoryA(sizeof(wdBuffer), wdBuffer);
 
-	std::string workingDirectory(wdBuffer);
-	workingDirectory += "\\Resources";
+	engine->GetResourceManager().Init(VeritasEngine::FormatString("%s\\Resources", wdBuffer));
 
-	engine->GetResourceManager().Init(workingDirectory);
+	engine->GetWorldSetup().LoadFile("Resources\\WorldSetup4.json");
 
-	engine->GetWorldSetup().LoadFile("Resources\\\\WorldSetup4.json");
-
-	auto& propertyManager = engine->GetGamePropertyManager();
-	auto cameraProcess = std::make_shared<RotateCameraProcess>(propertyManager, 500.0f, std::chrono::seconds(10));
+	const auto cameraProcess = std::make_shared<RotateCameraProcess>(engine->GetGamePropertyManager(), 500.0f, std::chrono::seconds(10));
 	engine->GetProcessManager().AttachProcess(cameraProcess);
 	engine->GetAnimationManager().AddAnimaton(6, VESTRINGHASH(""), true);
 
 	const auto end = std::chrono::high_resolution_clock::now();
 
-	auto startTimeString = std::wstring(L"\r\nStart up time: ");
-	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-	startTimeString += std::to_wstring(duration.count());
-	startTimeString += std::wstring(L" ms");
+	const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+	const auto startTimeString = VeritasEngine::FormatString(L"\r\nStart up time: %d ms\r\n", duration.count());
 
 	OutputDebugString(startTimeString.c_str());
+}
+
+int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nShowCmd)
+{
+	const auto hwnd = CreateGameWindow(hInstance);
+
+	InitializeEngine(hwnd);
+
+	ShowWindow(hwnd, nShowCmd);
 
 	// Run the message loop.
 	MSG msg{};
@@ -170,8 +170,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 		if(loopCount > 2500)
 		{
-			std::wstring newTitle(L"FPS: ");
-			newTitle += std::to_wstring(engine->GetCurrentFps());
+			const auto newTitle = VeritasEngine::FormatString(L"FPS: %.2f", engine->GetCurrentFps());
 
 			SetWindowText(hwnd, newTitle.c_str());
 			loopCount = 0;

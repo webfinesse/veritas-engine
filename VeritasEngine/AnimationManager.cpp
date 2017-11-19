@@ -90,9 +90,9 @@ void VeritasEngine::AnimationManager::CalculateSkinningPalettes(TimeDuration upd
 		{
 			anim.Clock.Update(update);
 
-			//const auto currentTime = 0;
+			const auto currentTime = 0;
 			//const auto currentTime = TimeDuration(0.5f).count();
-			const auto currentTime = anim.Clock.GetCurrentTime().count();
+			//const auto currentTime = anim.Clock.GetCurrentTime().count();
 
 			for(const auto& boneInfo : animationResult.Animation->BoneInfo)
 			{
@@ -122,12 +122,12 @@ void VeritasEngine::AnimationManager::CalculateSkinningPalettes(TimeDuration upd
 
 				if(parentIndex == -1)
 				{
-					anim.SkinningPalette[boneInfo.BoneIndex] = inverseBindPose * result * animationResult.Mesh->GetGlobalInverseTransform();
+					anim.SkinningPalette[boneInfo.BoneIndex] = inverseBindPose * result;
 					//anim.SkinningPalette[boneInfo.BoneIndex] = animationResult.Mesh->GetGlobalInverseTransform() * result * inverseBindPose;
 				}
 				else
 				{
-					anim.SkinningPalette[boneInfo.BoneIndex] = inverseBindPose * result * anim.SkinningPalette[parentIndex] * animationResult.Mesh->GetGlobalInverseTransform();
+					anim.SkinningPalette[boneInfo.BoneIndex] = inverseBindPose * result * anim.SkinningPalette[parentIndex];
 					//anim.SkinningPalette[boneInfo.BoneIndex] = animationResult.Mesh->GetGlobalInverseTransform() * anim.SkinningPalette[parentIndex] * result * inverseBindPose;
 				}
 			}
