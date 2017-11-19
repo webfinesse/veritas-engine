@@ -70,13 +70,13 @@ VeritasEngine::AnimationManager::AnimationManager(std::shared_ptr<GamePropertyMa
 	
 }
 
-void VeritasEngine::AnimationManager::AddAnimaton(GameObjectHandle handle, StringHash animationName, bool isLooped)
+void VeritasEngine::AnimationManager::AddAnimaton(GameObjectHandle handle, StringHash animationName, bool isLooped, float timeScale)
 {
 	const auto animationResult = m_impl->GetAnimation(handle, animationName);
 
 	if(animationResult.Animation != nullptr)
 	{
-		m_impl->m_states.emplace_back(handle, animationName, TimeDuration{ animationResult.Animation->Duration }, TimeDuration{ 0 }, isLooped);
+		m_impl->m_states.emplace_back(handle, animationName, TimeDuration{ animationResult.Animation->Duration }, TimeDuration{ 0 }, isLooped, timeScale);
 	}
 }
 
@@ -90,9 +90,9 @@ void VeritasEngine::AnimationManager::CalculateSkinningPalettes(TimeDuration upd
 		{
 			anim.Clock.Update(update);
 
-			const auto currentTime = 0;
+			//const auto currentTime = 0;
 			//const auto currentTime = TimeDuration(0.5f).count();
-			//const auto currentTime = anim.Clock.GetCurrentTime().count();
+			const auto currentTime = anim.Clock.GetCurrentTime().count();
 
 			for(const auto& boneInfo : animationResult.Animation->BoneInfo)
 			{
@@ -106,19 +106,14 @@ void VeritasEngine::AnimationManager::CalculateSkinningPalettes(TimeDuration upd
 
 				const auto interpolationFactor = previousKeyFrame == boneInfo.Keyframes.cbegin() ? 0 : ((currentTime - previousKeyFrame->TimeSample) / (keyFrame->TimeSample - previousKeyFrame->TimeSample));
 
-				const auto scale = glm::mix(previousKeyFrame->Scale, keyFrame->Scale, interpolationFactor);
-				const auto rotation = glm::mix(previousKeyFrame->Rotation, keyFrame->Rotation, interpolationFactor);
-				const auto translation = glm::mix(previousKeyFrame->Translation, keyFrame->Translation, interpolationFactor);
+				const auto scale = MathHelpers::Interpolate(previousKeyFrame->Scale, keyFrame->Scale, interpolationFactor);
+				const auto rotation = MathHelpers::Interpolate(previousKeyFrame->Rotation, keyFrame->Rotation, interpolationFactor);
+				const auto translation = MathHelpers::Interpolate(previousKeyFrame->Translation, keyFrame->Translation, interpolationFactor);
 
 				const auto parentIndex = animationResult.Skeleton->Joints[boneInfo.BoneIndex].ParentIndex;
 				const auto& inverseBindPose = animationResult.Skeleton->Joints[boneInfo.BoneIndex].InverseBindPose;
 
-				Matrix4x4 identity{};
-				const auto scaleMatrix = glm::scale(identity, scale);
-				const auto rotationMatrix = glm::mat4_cast(rotation);
-				const auto translationMatrix = glm::translate(identity, translation);
-				const auto result = translationMatrix * rotationMatrix * scaleMatrix;
-				//const auto result = scaleMatrix * rotationMatrix * translationMatrix;
+				const auto result = MathHelpers::CalculateSQT(scale, rotation, translation);
 
 				if(parentIndex == -1)
 				{

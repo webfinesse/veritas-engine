@@ -25,7 +25,7 @@ void RotateCameraProcess::OnUpdate(VeritasEngine::TimeDuration delta)
 
 	const auto percentComplete = m_clock.GetPercentComplete();
 
-	const float nextRadians = glm::three_over_two_pi<float>() + (glm::two_pi<float>() * percentComplete);
+	const float nextRadians = VeritasEngine::ThreeOverTwoPi + (VeritasEngine::TwoPi * percentComplete);
 	
 	cameraPosition->x = m_cameraDistance * cos(nextRadians);
 	cameraPosition->z = m_cameraDistance * sin(nextRadians);

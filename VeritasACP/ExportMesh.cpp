@@ -311,6 +311,8 @@ struct VeritasACP::ExportMesh::Impl
 					}
 				}
 
+				std::sort(clip.m_poses.begin(), clip.m_poses.end(), [&result](auto left, auto right) { return result.m_skeleton.Joints[left.m_jointIndex].ParentIndex < result.m_skeleton.Joints[right.m_jointIndex].ParentIndex; });
+
 				result.m_animations.emplace(make_pair(clip.m_name, clip));
 			}
 		}

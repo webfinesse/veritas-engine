@@ -54,8 +54,8 @@ struct VeritasEngine::Scene::Impl
 	{
 		m_matrixStack.Push(currentNode.GetTransform());
 		auto& stackMatrix = m_matrixStack.Peek();
-		auto inverse = VeritasEngine::MathHelpers::Inverse(stackMatrix);
-		auto inverseTranspose = VeritasEngine::MathHelpers::Transpose(inverse);
+		auto inverse = MathHelpers::Inverse(stackMatrix);
+		auto inverseTranspose = MathHelpers::Transpose(inverse);
 
 		for (const auto& meshIndex : currentNode.GetMeshIndices())
 		{
@@ -205,15 +205,10 @@ void VeritasEngine::Scene::OnRender(FrameDescription& renderer)
 
 			renderer.PassBuffer.ViewMatrix = MathHelpers::CreateLookAtMatrix(positionVec, cameraTarget, cameraUp);
 
-			auto quarterPi = glm::quarter_pi<float>();
-			auto aspectRatio = renderer.AspectRatio;
-			auto near = 1.0f;
-			auto far = 3000.0f;
-
 			// this is an opengl perspective matrix, change it to work for directx. https://www.gamedev.net/forums/topic/692095-d3d-glm-depth-reconstruction-issues/
-			auto projectionMatrix = MathHelpers::CreatePerspectiveMatrix(quarterPi, aspectRatio, near, far);
-			projectionMatrix = glm::scale(projectionMatrix, Float3(1.0f, 1.0f, 0.5f));
-			renderer.PassBuffer.ProjectionMatrix = glm::translate(projectionMatrix, Float3(0.0f, 0.0f, 0.5f));
+			auto projectionMatrix = MathHelpers::CreatePerspectiveMatrix(VeritasEngine::QuarterPi, renderer.AspectRatio, 1.0f, 3000.0f);
+			projectionMatrix = MathHelpers::Scale(projectionMatrix, Float3(1.0f, 1.0f, 0.5f));
+			renderer.PassBuffer.ProjectionMatrix = MathHelpers::Translate(projectionMatrix, Float3(0.0f, 0.0f, 0.5f));
 
 			renderer.PassBuffer.EyePosition = Float4(positionVec, 0);
 

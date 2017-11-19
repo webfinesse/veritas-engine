@@ -5,6 +5,7 @@
 #include <glm/matrix.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/euler_angles.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 namespace VeritasEngine
 {
@@ -15,26 +16,74 @@ namespace VeritasEngine
 	using Float4 = glm::vec4;
 	using Quaternion = glm::quat;
 
+	constexpr float QuarterPi{ glm::quarter_pi<float>() };
+	constexpr float ThreeOverTwoPi { glm::three_over_two_pi<float>() };
+	constexpr float TwoPi { glm::two_pi<float>() };
+
 	class MathHelpers
 	{
-	public: 
-		template <typename... Args>
-		static auto Transpose(Args&&... args) 
+	public:
+		static auto Interpolate(const Float3 from, const Float3 to, float interpolationFactor)
 		{
-			return glm::transpose(std::forward<Args>(args)...);
+			return glm::mix(from, to, interpolationFactor);
 		}
 
-		template <typename... Args>
-		static auto Inverse(Args&&... args) 
+		static auto Interpolate(const Float4 from, const Float4 to, float interpolationFactor)
 		{
-			return glm::inverse(std::forward<Args>(args)...);
+			return glm::mix(from, to, interpolationFactor);
+		}
+
+		static auto Interpolate(const Quaternion from, const Quaternion to, float interpolationFactor)
+		{
+			return glm::mix(from, to, interpolationFactor);
+		}
+
+		static auto Transpose(const Matrix4x4& matrix) 
+		{
+			return glm::transpose(matrix);
+		}
+
+		static auto Inverse(const Matrix4x4& matrix) 
+		{
+			return glm::inverse(matrix);
+		}
+
+		static auto Inverse(const Quaternion& matrix)
+		{
+			return glm::inverse(matrix);
+		}
+
+		static auto Translate(const Matrix4x4 matrixToTranslate, const Float3 translation)
+		{
+			return glm::translate(matrixToTranslate, translation);
+		}
+
+		static auto Scale(const Matrix4x4 matrixToScale, const Float3 scale)
+		{
+			return glm::scale(matrixToScale, scale);
+		}
+
+		static auto Rotate(const Matrix4x4 matrixToRotate, const Quaternion rotation)
+		{
+			return matrixToRotate * glm::toMat4(rotation);
+		}
+
+		static auto CalculateSQT(const Float3 scale, const Quaternion rotation, const Float3 translation)
+		{
+			Matrix4x4 result{};
+
+			result = MathHelpers::Translate(result, translation);
+			result = MathHelpers::Scale(result, scale);
+			result = MathHelpers::Rotate(result, rotation);
+
+			return result;
 		}
 
 		static Matrix4x4 CreateLookAtMatrix(const Float3& eye, const Float3& target, const Float3& up) {
 			return glm::lookAtLH(eye, target, up);
 		}
 
-		static Matrix4x4 CreatePerspectiveMatrix(float& fov, float& aspect, float& zNear, float& zFar)
+		static Matrix4x4 CreatePerspectiveMatrix(float fov, float aspect, float zNear, float zFar)
 		{
 			return glm::perspectiveLH(fov, aspect, zNear, zFar);
 		}

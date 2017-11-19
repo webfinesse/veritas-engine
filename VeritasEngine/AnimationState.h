@@ -12,8 +12,8 @@ namespace VeritasEngine
 	
 	struct AnimationState
 	{
-		AnimationState(GameObjectHandle handle, StringHash animationName, TimeDuration duration, TimeDuration startPoint, bool isLooped)
-			: Handle { handle }, AnimationName{ animationName }, Clock{ duration, startPoint, 1, isLooped }
+		AnimationState(GameObjectHandle handle, StringHash animationName, TimeDuration duration, TimeDuration startPoint, bool isLooped, float timeScale = 1)
+			: Handle { handle }, AnimationName{ animationName }, Clock{ duration, startPoint, timeScale, isLooped }
 		{
 			
 		}

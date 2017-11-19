@@ -97,9 +97,6 @@ HWND CreateGameWindow(_In_ HINSTANCE hInstance)
 	RegisterClassW(&wc);
 
 	// Create the window.
-
-	
-
 	HWND hwnd = CreateWindowExW(
 		0,                              // Optional window styles.
 		CLASS_NAME,                     // Window class
@@ -134,7 +131,7 @@ void InitializeEngine(const HWND hwnd)
 
 	const auto cameraProcess = std::make_shared<RotateCameraProcess>(engine->GetGamePropertyManager(), 500.0f, std::chrono::seconds(10));
 	engine->GetProcessManager().AttachProcess(cameraProcess);
-	engine->GetAnimationManager().AddAnimaton(6, VESTRINGHASH(""), true);
+	engine->GetAnimationManager().AddAnimaton(6, VESTRINGHASH(""), true, 0.1f);
 
 	const auto end = std::chrono::high_resolution_clock::now();
 
