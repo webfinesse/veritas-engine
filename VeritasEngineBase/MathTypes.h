@@ -9,7 +9,7 @@
 
 namespace VeritasEngine
 {
-	using Matrix4x4 = glm::mat4x4;
+	using Matrix4x4 = glm::mat4;
 
 	using Float2 = glm::vec2;
 	using Float3 = glm::vec3;
@@ -72,9 +72,9 @@ namespace VeritasEngine
 		{
 			Matrix4x4 result{};
 
-			result = MathHelpers::Translate(result, translation);
 			result = MathHelpers::Scale(result, scale);
 			result = MathHelpers::Rotate(result, rotation);
+			result = MathHelpers::Translate(result, translation);			
 
 			return result;
 		}

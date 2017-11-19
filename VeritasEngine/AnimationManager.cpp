@@ -91,20 +91,20 @@ void VeritasEngine::AnimationManager::CalculateSkinningPalettes(TimeDuration upd
 			anim.Clock.Update(update);
 
 			//const auto currentTime = 0;
-			//const auto currentTime = TimeDuration(0.5f).count();
-			const auto currentTime = anim.Clock.GetCurrentTime().count();
+			const auto currentTime = TimeDuration(0.08f).count();
+			//const auto currentTime = anim.Clock.GetCurrentTime().count();
 
 			for(const auto& boneInfo : animationResult.Animation->BoneInfo)
 			{
 				const auto& keyFrame = std::lower_bound(boneInfo.Keyframes.cbegin(), boneInfo.Keyframes.cend(), currentTime, [](const Keyframe& left, float valueToFind) { return left.TimeSample < valueToFind; });
 				auto previousKeyFrame = keyFrame;
 
-				if(keyFrame->TimeSample != currentTime && keyFrame != boneInfo.Keyframes.cbegin())
+				auto interpolationFactor = (currentTime / keyFrame->TimeSample);
+				if(keyFrame != boneInfo.Keyframes.cbegin())
 				{
 					previousKeyFrame = std::prev(previousKeyFrame);
+					interpolationFactor = ((currentTime - previousKeyFrame->TimeSample) / (keyFrame->TimeSample - previousKeyFrame->TimeSample));
 				}
-
-				const auto interpolationFactor = previousKeyFrame == boneInfo.Keyframes.cbegin() ? 0 : ((currentTime - previousKeyFrame->TimeSample) / (keyFrame->TimeSample - previousKeyFrame->TimeSample));
 
 				const auto scale = MathHelpers::Interpolate(previousKeyFrame->Scale, keyFrame->Scale, interpolationFactor);
 				const auto rotation = MathHelpers::Interpolate(previousKeyFrame->Rotation, keyFrame->Rotation, interpolationFactor);
@@ -117,13 +117,11 @@ void VeritasEngine::AnimationManager::CalculateSkinningPalettes(TimeDuration upd
 
 				if(parentIndex == -1)
 				{
-					anim.SkinningPalette[boneInfo.BoneIndex] = inverseBindPose * result;
-					//anim.SkinningPalette[boneInfo.BoneIndex] = animationResult.Mesh->GetGlobalInverseTransform() * result * inverseBindPose;
+					anim.SkinningPalette[boneInfo.BoneIndex] = inverseBindPose * result * animationResult.Mesh->GetGlobalInverseTransform();
 				}
 				else
 				{
-					anim.SkinningPalette[boneInfo.BoneIndex] = inverseBindPose * result * anim.SkinningPalette[parentIndex];
-					//anim.SkinningPalette[boneInfo.BoneIndex] = animationResult.Mesh->GetGlobalInverseTransform() * anim.SkinningPalette[parentIndex] * result * inverseBindPose;
+					anim.SkinningPalette[boneInfo.BoneIndex] = inverseBindPose * result * anim.SkinningPalette[parentIndex] * animationResult.Mesh->GetGlobalInverseTransform();
 				}
 			}
 		}
