@@ -16,7 +16,7 @@ namespace VeritasEngine
 	class ResourceManager : public SmallObject<>, public IResourceManager
 	{
 	public:
-		ResourceManager(std::vector<std::shared_ptr<IResourceLoader>> resourceLoaders);
+		ResourceManager(std::vector<std::unique_ptr<IResourceLoader>> resourceLoaders);
 		ResourceManager(ResourceManager&& other) noexcept;
 		~ResourceManager() override;
 		ResourceManager& operator=(ResourceManager&& other) noexcept;

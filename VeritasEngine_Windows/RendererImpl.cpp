@@ -22,10 +22,9 @@ struct VeritasEngine::RendererImpl::Impl
 {
 public:
 	Impl(std::shared_ptr<DirectXState> dxState, std::shared_ptr<IMeshShader> meshShader, std::shared_ptr<IAnimatedMeshShader> animatedMeshShader)
-		: m_dxState { std::move(dxState) }, m_meshShader{ std::move(meshShader) }, m_animatedMeshShader { std::move(animatedMeshShader) }
+		: m_dxState { dxState }, m_meshShader{ meshShader }, m_animatedMeshShader { animatedMeshShader }
 	{
-
-	
+			
 	}
 
 	void Init(void* osData, unsigned int bufferWidth, unsigned int bufferHeight)

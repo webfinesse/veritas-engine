@@ -18,11 +18,11 @@ struct ResourcePathParts
 
 struct VeritasEngine::ResourceManager::Impl : public VeritasEngine::SmallObject<>
 {
-	Impl(std::vector<std::shared_ptr<IResourceLoader>> resourceLoaders)
+	Impl(std::vector<std::unique_ptr<IResourceLoader>> resourceLoaders)
 	{
-		for(size_t i = 0; i < resourceLoaders.size(); i++)
+		for(auto& loader : resourceLoaders)
 		{
-			m_loaders[VeritasEngine::Hash(resourceLoaders[i].get()->GetExtension())] = std::move(resourceLoaders[i]);
+			m_loaders.insert(std::make_pair(VeritasEngine::Hash(loader->GetExtension()), std::move(loader)));
 		}
 	}
 
@@ -62,9 +62,9 @@ struct VeritasEngine::ResourceManager::Impl : public VeritasEngine::SmallObject<
 		return parts;
 	}
 
-	std::unordered_map<VeritasEngine::ResourceId, ResourceHandle> m_resources;
+	std::unordered_map<VeritasEngine::ResourceId, ResourceHandle> m_resources{};
 	static const std::string m_emptyZipName;
-	AssocVector<StringHash, std::shared_ptr<IResourceLoader>> m_loaders;
+	std::unordered_map<StringHash, std::unique_ptr<IResourceLoader>> m_loaders{};
 
 private:
 	std::unordered_map<std::string, std::string> m_files;
@@ -72,8 +72,8 @@ private:
 
 const std::string VeritasEngine::ResourceManager::Impl::m_emptyZipName = "";
 
-VeritasEngine::ResourceManager::ResourceManager(std::vector<std::shared_ptr<IResourceLoader>> resourceLoaders)
-	: m_impl{ std::make_unique<Impl>(resourceLoaders) }
+VeritasEngine::ResourceManager::ResourceManager(std::vector<std::unique_ptr<IResourceLoader>> resourceLoaders)
+	: m_impl{ std::make_unique<Impl>(std::move(resourceLoaders)) }
 {
 
 }
@@ -117,9 +117,9 @@ VeritasEngine::ResourceHandle* VeritasEngine::ResourceManager::GetResource(const
 		zip_file zip(parts.m_zipPath);
 		auto& stream = zip.open(parts.m_archivePath);
 
-		auto loader = m_impl->m_loaders.find(Hash(parts.m_extension));
+		const auto& loader = m_impl->m_loaders.find(Hash(parts.m_extension));
 
-		if(loader != m_impl->m_loaders.end())
+		if(loader != m_impl->m_loaders.cend())
 		{
 			m_impl->m_resources.emplace(resourcePath, ResourceHandle());
 
