@@ -1,7 +1,7 @@
-#pragma once
+#ifndef H_WINDOWS_DEPENDENCY_INJECTOR
+#define H_WINDOWS_DEPENDENCY_INJECTOR
 
-#include <../Includes/boost-di/di.hpp>
-#include <../Includes/boost-di/shared_scope.hpp>
+#include "../VeritasEngineBase/shared_scope.hpp"
 
 #include "IndexBufferImpl.h"
 #include "VertexBufferFactory.h"
@@ -25,3 +25,5 @@ inline auto CreateWindowsWindowsDependencyInjector()
 		di::bind<VeritasEngine::IRenderer>().to<VeritasEngine::RendererImpl>().in(shared)
 	);
 }
+
+#endif

@@ -63,6 +63,9 @@
     <ClInclude Include="StringHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="shared_scope.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FileHelper.cpp">

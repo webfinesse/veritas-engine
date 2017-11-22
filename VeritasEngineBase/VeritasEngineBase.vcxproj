@@ -31,6 +31,7 @@
     <ClInclude Include="ResourceHandle.h" />
     <ClInclude Include="ResourceHandle_details.h" />
     <ClInclude Include="ResourceId.h" />
+    <ClInclude Include="shared_scope.hpp" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="StringHelper.h" />
     <ClInclude Include="zip_file.hpp" />

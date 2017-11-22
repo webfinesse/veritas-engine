@@ -1,7 +1,7 @@
-#pragma once
+#ifndef H_ENGINE_DEPENDENCY_INJECTOR
+#define H_ENGINE_DEPENDENCY_INJECTOR
 
-#include <../Includes/boost-di/di.hpp>
-#include <../Includes/boost-di/shared_scope.hpp>
+#include "../VeritasEngineBase/shared_scope.hpp"
 
 #include "ProcessManager.h"
 
@@ -42,3 +42,5 @@ inline auto CreateEngineDependencyInjector()
 		di::bind<VeritasEngine::IResourceManager>().to<VeritasEngine::ResourceManager>().in(shared)
 	);
 }
+
+#endif
