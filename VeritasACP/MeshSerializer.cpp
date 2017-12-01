@@ -21,6 +21,7 @@ void SerializeMeshNodes(VeritasACP::MeshExporterNode& node, VeritasEngine::Seria
 {
 	targetNode.m_transform = node.m_transform;
 	targetNode.meshIndicies = node.meshIndicies;
+	targetNode.m_jointIndex = node.m_jointIndex;
 
 	for (auto& childNode : node.m_children)
 	{
@@ -197,17 +198,29 @@ std::vector<VeritasEngine::Animation> SerializeAnimations(VeritasACP::MeshExport
 
 			info.BoneIndex = boneInfo.m_jointIndex;
 
-			info.Keyframes.reserve(boneInfo.m_keyframes.size());
+			info.ScaleChannel.reserve(boneInfo.ScaleChannel.size());
+			info.RotationChannel.reserve(boneInfo.RotationChannel.size());
+			info.TranslationChannel.reserve(boneInfo.TranslationChannel.size());
 
-			for(const auto& keyframe : boneInfo.m_keyframes)
+			for(const auto scale : boneInfo.ScaleChannel)
 			{
-				info.Keyframes.emplace_back();
-				auto& currentKeyFrame = info.Keyframes.back();
+				info.ScaleChannel.emplace_back();
+				info.ScaleChannel.back().Data = scale.m_data;
+				info.ScaleChannel.back().Time = scale.m_time;
+			}
 
-				currentKeyFrame.TimeSample = keyframe.m_timeSample;
-				currentKeyFrame.Scale = keyframe.m_scale;
-				currentKeyFrame.Rotation = keyframe.m_rotation;
-				currentKeyFrame.Translation = keyframe.m_translation;
+			for (const auto rotation : boneInfo.RotationChannel)
+			{
+				info.RotationChannel.emplace_back();
+				info.RotationChannel.back().Data = rotation.m_data;
+				info.RotationChannel.back().Time = rotation.m_time;
+			}
+
+			for (const auto translation : boneInfo.TranslationChannel)
+			{
+				info.TranslationChannel.emplace_back();
+				info.TranslationChannel.back().Data = translation.m_data;
+				info.TranslationChannel.back().Time = translation.m_time;
 			}
 		}
 	}

@@ -7,6 +7,7 @@
 #include "Engine.h"
 #include "Scene.h"
 #include "RenderingServices.h"
+#include "DeserializerFactory.h"
 
 struct VeritasEngine::WorldSetup::Impl
 {
@@ -70,6 +71,9 @@ VeritasEngine::WorldSetup::~WorldSetup() = default;
 void VeritasEngine::WorldSetup::Init(Engine& engine)
 {
 	m_impl->m_engine = &engine;
+	m_impl->m_deserializeMapping->Register(CompileTimeHash("animation"), [](Engine& engine, GameObjectHandle handle, JsonValue& values) {
+		AnimationDeserializerFactory::GetDeserializer()(engine, handle, values);
+	});
 }
 
 void VeritasEngine::WorldSetup::LoadFile(const char* filename)

@@ -87,7 +87,7 @@ struct VeritasEngine::Scene::Impl
 			const MaterialInstance& material = subset.GetMaterial()->GetData<MaterialInstance>();
 
 			renderer.AnimatedObjects.emplace_back(stackMatrix, inverseTranspose, &material, instance.GetIndexBuffer().GetNativeBuffer(),
-				subset.GetIndexBufferIndicies(), instance.GetIndexBufferStartIndex(), instance.GetVertexBuffer().GetNativeBuffer(), subset.GetVertexBufferIndicies(), instance.GetVertexSize(), instance.GetVertexBufferStartIndex(), m_animationManager->GetSkinningPalette(sceneNode.m_handle));
+				subset.GetIndexBufferIndicies(), instance.GetIndexBufferStartIndex(), instance.GetVertexBuffer().GetNativeBuffer(), subset.GetVertexBufferIndicies(), instance.GetVertexSize(), instance.GetVertexBufferStartIndex(), m_animationManager->GetGlobalPoses(sceneNode.m_handle));
 		}
 
 		for (const auto& item : currentNode.GetChildren())
@@ -127,7 +127,11 @@ struct VeritasEngine::Scene::Impl
 
 				auto& rootNode = meshInstance.GetRootNode();
 
+				m_matrixStack.Push(rootNode.GetTransform());
+
 				RenderAnimatedResourcedMesh(renderer, node, meshInstance, type, rootNode);
+
+				m_matrixStack.Pop();
 
 				break;
 			}

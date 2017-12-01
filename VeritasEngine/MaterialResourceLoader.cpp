@@ -33,20 +33,22 @@ void VeritasEngine::MaterialResourceLoader::LoadResource(IResourceManager& manag
 
 	if(material.DiffuseMap.length() > 0)
 	{
-		auto diffuse = manager.GetResource(material.DiffuseMap);
-		materialInstance.DiffuseMap = diffuse;
+		materialInstance.DiffuseMap = manager.GetResource(material.DiffuseMap);
 	}
 
 	if (material.NormalMap.length() > 0)
 	{
-		auto normal = manager.GetResource(material.NormalMap);
-		materialInstance.NormalMap = normal;
+		materialInstance.NormalMap = manager.GetResource(material.NormalMap);
 	}
 
 	if (material.SpecularMap.length() > 0)
 	{
-		auto specular = manager.GetResource(material.SpecularMap);
-		materialInstance.SpecularMap = specular;
+		materialInstance.SpecularMap = manager.GetResource(material.SpecularMap);
+	}
+
+	if(material.TransparentMap.length() > 0)
+	{
+		materialInstance.TransparentMap = manager.GetResource(material.TransparentMap);
 	}
 
 	handle.SetData(std::move(materialInstance));

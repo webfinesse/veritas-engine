@@ -190,6 +190,7 @@ struct VeritasACP::ExportMesh::Impl
 		{
 			auto nodeName = std::string(node->mName.C_Str());
 			currentJointIndex = ProcessSkeletonBoneName(nodeName, result, currentJointIndex);
+			meshNode.m_jointIndex = currentJointIndex;
 		}
 
 		for (unsigned int i = 0; i < node->mNumMeshes; ++i)
@@ -279,7 +280,8 @@ struct VeritasACP::ExportMesh::Impl
 				const auto animation = scene->mAnimations[animationIndex];
 
 				AnimationClipExporterResult clip;
-				clip.m_duration = static_cast<float>(animation->mDuration);
+				const auto ticksPerSec = animation->mTicksPerSecond != 0 ? animation->mTicksPerSecond : 1.0f;
+				clip.m_duration = float(animation->mDuration / ticksPerSec);
 				clip.m_hashedName = VeritasEngine::Hash(animation->mName.C_Str());
 				clip.m_name = std::string(animation->mName.C_Str());
 
@@ -296,17 +298,30 @@ struct VeritasACP::ExportMesh::Impl
 						auto& currentPose = clip.m_poses.back();
 
 						currentPose.m_jointName = std::move(jointName);
-						currentPose.m_jointIndex = mapping->second;
+						currentPose.m_jointIndex = mapping->second;						
 
-						for (unsigned int poseIndex = 0; poseIndex < channel->mNumScalingKeys; poseIndex++)
+						for (unsigned int scaleIndex = 0; scaleIndex < channel->mNumScalingKeys; scaleIndex++)
 						{
-							currentPose.m_keyframes.emplace_back();
-							auto& keyFrame = currentPose.m_keyframes.back();
+							currentPose.ScaleChannel.emplace_back();
+							auto& pose = currentPose.ScaleChannel.back();
+							pose.m_data = ConvertVec3(channel->mScalingKeys[scaleIndex].mValue);
+							pose.m_time = channel->mScalingKeys[scaleIndex].mTime / ticksPerSec;
+						}
 
-							keyFrame.m_timeSample = static_cast<float>(channel->mScalingKeys[poseIndex].mTime);
-							keyFrame.m_scale = ConvertVec3(channel->mScalingKeys[poseIndex].mValue);
-							keyFrame.m_rotation = ConvertQuaternion(channel->mRotationKeys[poseIndex].mValue);
-							keyFrame.m_translation = ConvertVec3(channel->mPositionKeys[poseIndex].mValue);
+						for (unsigned int translationIndex = 0; translationIndex < channel->mNumPositionKeys; translationIndex++)
+						{
+							currentPose.TranslationChannel.emplace_back();
+							auto& pose = currentPose.TranslationChannel.back();
+							pose.m_data = ConvertVec3(channel->mPositionKeys[translationIndex].mValue);
+							pose.m_time = channel->mPositionKeys[translationIndex].mTime / ticksPerSec;
+						}
+						
+						for (unsigned int rotationIndex = 0; rotationIndex < channel->mNumRotationKeys; rotationIndex++)
+						{
+							currentPose.RotationChannel.emplace_back();
+							auto& pose = currentPose.RotationChannel.back();
+							pose.m_data = ConvertQuaternion(channel->mRotationKeys[rotationIndex].mValue);
+							pose.m_time = channel->mRotationKeys[rotationIndex].mTime / ticksPerSec;
 						}
 					}
 				}
@@ -341,8 +356,6 @@ std::shared_ptr<VeritasACP::MeshExporterResult> VeritasACP::ExportMesh::Export(f
 		aiProcess_TransformUVCoords |
 		aiProcessPreset_TargetRealtime_Fast |
 		aiProcess_LimitBoneWeights |
-		aiProcess_OptimizeGraph |
-		aiProcess_OptimizeMeshes |
 		aiProcess_RemoveComponent |
 		aiProcess_RemoveRedundantMaterials);
 

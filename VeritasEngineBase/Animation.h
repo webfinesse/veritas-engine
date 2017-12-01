@@ -9,29 +9,30 @@
 
 namespace VeritasEngine
 {
-	struct Keyframe
+	template <typename T>
+	struct Channel
 	{
-		Float3 Scale; // 0 - 96
-		Quaternion Rotation; // 96 - 224
-		Float3 Translation; // 224 - 320
-		float TimeSample; // 320 - 352
+		T Data;
+		float Time;
 
 		template <class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(Scale, Rotation, Translation, TimeSample);
+			archive(Data, Time);
 		}
 	};
 
 	struct BoneInformation
 	{
 		int BoneIndex;
-		std::vector<Keyframe> Keyframes;
+		std::vector<Channel<VeritasEngine::Float3>> ScaleChannel;
+		std::vector<Channel<VeritasEngine::Float3>> TranslationChannel;
+		std::vector<Channel<VeritasEngine::Quaternion>> RotationChannel;
 
 		template <class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(BoneIndex, Keyframes);
+			archive(BoneIndex, ScaleChannel, TranslationChannel, RotationChannel);
 		}
 	};
 

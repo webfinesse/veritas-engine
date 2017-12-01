@@ -10,6 +10,8 @@
 
 #include <vector>
 #include <algorithm>
+#include "MatrixStack.h"
+#include "MeshNode.h"
 
 struct GetAnimationResult
 {
@@ -59,6 +61,50 @@ struct VeritasEngine::AnimationManager::Impl
 		return result;
 	}
 
+	template <typename T>
+	static T GetChannel(const std::vector<Channel<T>>& vector, float currentTime)
+	{
+		auto& keyFrame = std::lower_bound(vector.cbegin(), vector.cend(), currentTime, [](const Channel<T>& left, float valueToFind) { return left.Time < valueToFind; });
+
+		if(keyFrame == vector.cend())
+		{
+			keyFrame = vector.cbegin();
+		}
+
+		auto previousKeyFrame = keyFrame;
+
+		auto interpolationFactor = keyFrame->Time == 0 ? currentTime : (currentTime / keyFrame->Time);
+		if (keyFrame != vector.cbegin())
+		{
+			previousKeyFrame = std::prev(previousKeyFrame);
+			interpolationFactor = ((currentTime - previousKeyFrame->Time) / (keyFrame->Time - previousKeyFrame->Time));
+		}
+
+		return MathHelpers::Interpolate(previousKeyFrame->Data, keyFrame->Data, interpolationFactor);
+	}
+
+	static void CalculateGlobalPoses(const GetAnimationResult& animationResult, MatrixStack& matrixStack, const MeshNode& currentNode, AnimationState& anim)
+	{
+		const auto jointIndex = currentNode.GetJointIndex();
+		if (jointIndex >= 0)
+		{
+			matrixStack.Push(anim.LocalPoses[jointIndex]);
+
+			anim.GlobalPoses[jointIndex] = animationResult.Mesh->GetGlobalInverseTransform() * matrixStack.Peek() * animationResult.Skeleton->Joints[jointIndex].InverseBindPose;
+		}
+		else
+		{
+			matrixStack.Push(currentNode.GetTransform());
+		}
+
+		for (const auto& child : currentNode.GetChildren())
+		{
+			CalculateGlobalPoses(animationResult, matrixStack, child, anim);
+		}
+
+		matrixStack.Pop();
+	}
+
 	mutable GameObjectProperty<ResourceHandle*>* m_meshProperty{ nullptr };
 	std::shared_ptr<GamePropertyManager> m_gamePropertyManager;
 	std::vector<AnimationState> m_states{};
@@ -80,7 +126,7 @@ void VeritasEngine::AnimationManager::AddAnimaton(GameObjectHandle handle, Strin
 	}
 }
 
-void VeritasEngine::AnimationManager::CalculateSkinningPalettes(TimeDuration update)
+void VeritasEngine::AnimationManager::CalculatePoses(TimeDuration update)
 {
 	for(auto& anim : m_impl->m_states)
 	{
@@ -90,51 +136,30 @@ void VeritasEngine::AnimationManager::CalculateSkinningPalettes(TimeDuration upd
 		{
 			anim.Clock.Update(update);
 
-			//const auto currentTime = 0;
-			const auto currentTime = TimeDuration(0.08f).count();
-			//const auto currentTime = anim.Clock.GetCurrentTime().count();
+			const auto currentTime = anim.Clock.GetCurrentTime().count();
 
 			for(const auto& boneInfo : animationResult.Animation->BoneInfo)
 			{
-				const auto& keyFrame = std::lower_bound(boneInfo.Keyframes.cbegin(), boneInfo.Keyframes.cend(), currentTime, [](const Keyframe& left, float valueToFind) { return left.TimeSample < valueToFind; });
-				auto previousKeyFrame = keyFrame;
+				const auto scale = Impl::GetChannel(boneInfo.ScaleChannel, currentTime);
+				const auto rotation = Impl::GetChannel(boneInfo.RotationChannel, currentTime);
+				const auto translation = Impl::GetChannel(boneInfo.TranslationChannel, currentTime);
 
-				auto interpolationFactor = (currentTime / keyFrame->TimeSample);
-				if(keyFrame != boneInfo.Keyframes.cbegin())
-				{
-					previousKeyFrame = std::prev(previousKeyFrame);
-					interpolationFactor = ((currentTime - previousKeyFrame->TimeSample) / (keyFrame->TimeSample - previousKeyFrame->TimeSample));
-				}
-
-				const auto scale = MathHelpers::Interpolate(previousKeyFrame->Scale, keyFrame->Scale, interpolationFactor);
-				const auto rotation = MathHelpers::Interpolate(previousKeyFrame->Rotation, keyFrame->Rotation, interpolationFactor);
-				const auto translation = MathHelpers::Interpolate(previousKeyFrame->Translation, keyFrame->Translation, interpolationFactor);
-
-				const auto parentIndex = animationResult.Skeleton->Joints[boneInfo.BoneIndex].ParentIndex;
-				const auto& inverseBindPose = animationResult.Skeleton->Joints[boneInfo.BoneIndex].InverseBindPose;
-
-				const auto result = MathHelpers::CalculateSQT(scale, rotation, translation);
-
-				if(parentIndex == -1)
-				{
-					anim.SkinningPalette[boneInfo.BoneIndex] = inverseBindPose * result * animationResult.Mesh->GetGlobalInverseTransform();
-				}
-				else
-				{
-					anim.SkinningPalette[boneInfo.BoneIndex] = inverseBindPose * result * anim.SkinningPalette[parentIndex] * animationResult.Mesh->GetGlobalInverseTransform();
-				}
+				anim.LocalPoses[boneInfo.BoneIndex] = MathHelpers::CalculateSQT(scale, rotation, translation);
 			}
+
+			MatrixStack matrixStack;
+			Impl::CalculateGlobalPoses(animationResult, matrixStack, animationResult.Mesh->GetRootNode(), anim);
 		}
 	}
 }
 
-const VeritasEngine::Matrix4x4* VeritasEngine::AnimationManager::GetSkinningPalette(GameObjectHandle handle)
+const VeritasEngine::Matrix4x4* VeritasEngine::AnimationManager::GetGlobalPoses(GameObjectHandle handle)
 {
 	const auto& iter = std::find_if(m_impl->m_states.cbegin(), m_impl->m_states.cend(), [handle](AnimationState s) { return s.Handle == handle; });
 
 	if(iter != m_impl->m_states.cend())
 	{
-		return iter->SkinningPalette;
+		return iter->GlobalPoses;
 	}
 
 	return nullptr;

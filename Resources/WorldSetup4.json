@@ -5,7 +5,7 @@
     "CameraPosition": {
       "x": 0,
       "y": 0,
-      "z": -150
+      "z": -500
     },
     "CameraTarget": {
       "x": 0,
@@ -113,22 +113,55 @@
     "SceneNodeType": "AnimatedResourcedMesh",
     "ResourcedMesh": "spider/spider.veam",
     "WorldPosition": {
-      "_11": 10,
+      "_11": -25,
+      "_12": 0,
+      "_13": 2.18556943e-06,
+      "_14": 0,
+      "_21": 0,
+      "_22": 25,
+      "_23": 0,
+      "_24": 0,
+      "_31": -2.18556943e-06,
+      "_32": 0,
+      "_33": -25,
+      "_34": 0,
+      "_41": -75,
+      "_42": -25,
+      "_43": 0,
+      "_44": 1
+    },
+    "animation": {
+      "animationname": "",
+      "islooped": true,
+      "timescale":  1.0 
+    } 
+  },
+  {
+    "Id": 7,
+    "SceneNodeType": "AnimatedResourcedMesh",
+    "ResourcedMesh": "bob/boblampclean.veam",
+    "WorldPosition": {
+      "_11": 1,
       "_12": 0,
       "_13": 0,
       "_14": 0,
       "_21": 0,
-      "_22": 10,
+      "_22": 1,
       "_23": 0,
       "_24": 0,
       "_31": 0,
       "_32": 0,
-      "_33": 10,
+      "_33": 1,
       "_34": 0,
-      "_41": -100,
-      "_42": 0,
+      "_41": 100,
+      "_42": -25,
       "_43": 0,
       "_44": 1
+    },
+    "animation": {
+      "animationname": "",
+      "islooped": true,
+      "timescale": 1.0
     }
   }
 ]

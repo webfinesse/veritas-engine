@@ -25,8 +25,9 @@ namespace VeritasEngine
 		MaterialInstance(const Material& material);
 
 		GraphicsCardMaterial Material;
-		ResourceHandle* DiffuseMap;
-		ResourceHandle* NormalMap;
-		ResourceHandle* SpecularMap;
+		ResourceHandle* DiffuseMap{};
+		ResourceHandle* NormalMap{};
+		ResourceHandle* SpecularMap{};
+		ResourceHandle* TransparentMap{};
 	};
 }

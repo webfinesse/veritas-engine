@@ -33,11 +33,12 @@ namespace VeritasEngine
 		VeritasEngine::Matrix4x4 m_transform{};
 		std::vector<unsigned int> meshIndicies{};
 		std::vector<SerializedMeshNode> m_children{};
+		int m_jointIndex{-1};
 
 		template <class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_transform, meshIndicies, m_children);
+			archive(m_transform, meshIndicies, m_children, m_jointIndex);
 		}
 	};
 
@@ -59,7 +60,7 @@ namespace VeritasEngine
 		template <class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_root, m_subsets, m_verticies, m_indicies, m_animations, m_skeletonId, m_vertexType);
+			archive(m_root, m_subsets, m_verticies, m_indicies, m_animations, m_globalInverseTransform, m_skeletonId, m_vertexType);
 		}
 	};
 

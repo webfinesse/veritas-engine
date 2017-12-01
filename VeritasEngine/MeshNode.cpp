@@ -5,13 +5,13 @@
 struct VeritasEngine::MeshNode::Impl : public VeritasEngine::SmallObject<>
 {
 	Impl()
-		: m_transform{}, m_meshIndicies{}, m_children{}
+		: m_transform{}, m_meshIndicies{}, m_children{}, m_jointIndex{}
 	{
 
 	}
 
 	Impl(SerializedMeshNode& serializedNode)
-		: m_transform{ serializedNode.m_transform }, m_meshIndicies{ serializedNode.meshIndicies }, m_children{ serializedNode.m_children.begin(), serializedNode.m_children.end() }
+		: m_transform{ serializedNode.m_transform }, m_meshIndicies{ serializedNode.meshIndicies }, m_children{ serializedNode.m_children.begin(), serializedNode.m_children.end() }, m_jointIndex{ serializedNode.m_jointIndex }
 	{
 
 	}
@@ -20,6 +20,7 @@ struct VeritasEngine::MeshNode::Impl : public VeritasEngine::SmallObject<>
 	VeritasEngine::Matrix4x4 m_transform;
 	std::vector<unsigned int> m_meshIndicies;
 	std::vector<MeshNode> m_children;
+	int m_jointIndex;
 };
 
 VeritasEngine::MeshNode::MeshNode()
@@ -44,6 +45,16 @@ const VeritasEngine::Matrix4x4& VeritasEngine::MeshNode::GetTransform() const
 void VeritasEngine::MeshNode::SetTransform(const Matrix4x4& transform)
 {
 	m_impl->m_transform = transform;
+}
+
+const int VeritasEngine::MeshNode::GetJointIndex() const
+{
+	return m_impl->m_jointIndex;
+}
+
+const void VeritasEngine::MeshNode::SetJointIndex(int index)
+{
+	m_impl->m_jointIndex = index;
 }
 
 const std::vector<unsigned int>& VeritasEngine::MeshNode::GetMeshIndices() const

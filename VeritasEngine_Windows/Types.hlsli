@@ -70,8 +70,12 @@ cbuffer cbPerObject : register(b1)
 	float4x4 worldTransform;
 	float4x4 worldInverseTranspose;
 	Material material;
-	bool hasDiffuseMap;
-	bool hasNormalMap;
-	bool hasSpecularMap;
-	float perObjectPad;
+	int shaderFlags;
+	float3 perObjectPad;
 };
+
+#define ShaderFlags_None 0
+#define ShaderFlags_HasDiffuseMap 1
+#define ShaderFlags_HasNormalMap 2
+#define ShaderFlags_HasSpecularMap 4
+#define ShaderFlags_HasTransparancyMap 8

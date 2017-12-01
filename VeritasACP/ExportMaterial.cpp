@@ -38,6 +38,7 @@ VeritasEngine::ResourceId VeritasACP::ExportMaterial::Export(fs::path& basePath,
 	VeritasEngine::Material mat;
 
 	aiString texPath;
+	bool hasDiffuseMap = false;
 
 	if (material->GetTexture(aiTextureType_DIFFUSE, 0, &texPath) == AI_SUCCESS)
 	{
@@ -46,6 +47,7 @@ VeritasEngine::ResourceId VeritasACP::ExportMaterial::Export(fs::path& basePath,
 		auto copy = basePath;
 		auto fullPath = copy.append(fileName);
 		mat.DiffuseMap = textureExporter.Export(fullPath, false);
+		hasDiffuseMap = true;
 	}
 
 	if (material->GetTexture(aiTextureType_NORMALS, 0, &texPath) == AI_SUCCESS)
@@ -66,10 +68,23 @@ VeritasEngine::ResourceId VeritasACP::ExportMaterial::Export(fs::path& basePath,
 		mat.SpecularMap = textureExporter.Export(fullPath, false);
 	}
 
+	if(material->GetTexture(aiTextureType_OPACITY, 0, &texPath) == AI_SUCCESS)
+	{
+		ExportTexture textureExporter;
+		std::string fileName(texPath.C_Str());
+		auto copy = basePath;
+		auto fullPath = copy.append(fileName);
+		mat.TransparentMap = textureExporter.Export(fullPath, false);
+	}
+
 	aiColor4D diffuse;
 	if (aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, &diffuse) == AI_SUCCESS)
 	{
 		AiColorToFloat4(diffuse, mat.Diffuse);
+	}
+	else if(hasDiffuseMap)
+	{
+		mat.Diffuse = VeritasEngine::Float4(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 
 	aiColor4D ambient;

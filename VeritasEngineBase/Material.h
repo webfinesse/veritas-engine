@@ -17,12 +17,13 @@ namespace VeritasEngine
 		ResourceId DiffuseMap;
 		ResourceId NormalMap;
 		ResourceId SpecularMap;
+		ResourceId TransparentMap;
 		ResourceId ResourceId;
 
 		template <class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(Ambient, Diffuse, Specular, Emissive, DiffuseMap, NormalMap, SpecularMap);
+			archive(Ambient, Diffuse, Specular, Emissive, DiffuseMap, NormalMap, SpecularMap, TransparentMap);
 		}
 	};
 }

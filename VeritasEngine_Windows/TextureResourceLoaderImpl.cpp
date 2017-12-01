@@ -25,15 +25,14 @@ void VeritasEngine::TextureResourceLoaderImpl::Load(std::istream& data, Resource
 
 	data.seekg(0, std::ios::beg);
 
-	uint8_t* img = new uint8_t[length];
+	std::unique_ptr<uint8_t[]> img(new uint8_t[length]);
 
-	data.read(reinterpret_cast<char*>(img), length);
+	data.read(reinterpret_cast<char*>(img.get()), length);
 
 	ComPtr<ID3D11Resource> texture;
 	ComPtr<ID3D11ShaderResourceView> textureView;
-	HHR(DirectX::CreateDDSTextureFromMemory(m_dxState->Device.Get(), m_dxState->Context.Get(), img, length, texture.GetAddressOf(), textureView.GetAddressOf()), "Failed to load texture");
-
-	delete[] img;
+	DirectX::DDS_ALPHA_MODE mode;
+	HHR(DirectX::CreateDDSTextureFromMemory(m_dxState->Device.Get(), m_dxState->Context.Get(), img.get(), length, texture.GetAddressOf(), textureView.GetAddressOf(), 0, &mode), "Failed to load texture");
 
 	handle.SetData(DirectXTextureData{ texture, textureView });
 }

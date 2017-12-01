@@ -72,9 +72,9 @@ namespace VeritasEngine
 		{
 			Matrix4x4 result{};
 
-			result = MathHelpers::Scale(result, scale);
+			result = MathHelpers::Translate(result, translation);
 			result = MathHelpers::Rotate(result, rotation);
-			result = MathHelpers::Translate(result, translation);			
+			result = MathHelpers::Scale(result, scale);			
 
 			return result;
 		}

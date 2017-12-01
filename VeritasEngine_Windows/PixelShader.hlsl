@@ -5,6 +5,7 @@
 Texture2D diffuseTexture : register(t0);
 Texture2D normalTexture : register(t1);
 Texture2D specularTexture : register(t2);
+Texture2D transparentTexture : register(t3);
 
 SamplerState MeshTextureSampler
 {
@@ -54,7 +55,7 @@ float4 main(VertexOut pIn) : SV_TARGET
 {
     float3 normal = pIn.normalW;
 
-    if (hasNormalMap)
+	if ((shaderFlags & ShaderFlags_HasNormalMap) == ShaderFlags_HasNormalMap)
     {
         normal = normalTexture.Sample(MeshTextureSampler, pIn.diffuseCoord).xyz;
         normal = (normal * 2.0f) - 1.0f;
@@ -77,14 +78,14 @@ float4 main(VertexOut pIn) : SV_TARGET
 
     float4 texColor = { 1, 1, 1, 1 };
 
-    if(hasDiffuseMap)
+    if((shaderFlags & ShaderFlags_HasDiffuseMap) == ShaderFlags_HasDiffuseMap)
     {
         texColor = diffuseTexture.Sample(MeshTextureSampler, pIn.diffuseCoord);
     }
 
     float4 specularIntensity = { 1, 1, 1, 1 };
 
-    if (hasSpecularMap)
+	if ((shaderFlags & ShaderFlags_HasSpecularMap) == ShaderFlags_HasSpecularMap)
     {
         specularIntensity = specularTexture.Sample(MeshTextureSampler, pIn.diffuseCoord);
     }

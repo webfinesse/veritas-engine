@@ -125,15 +125,19 @@ struct VeritasEngine::AnimatedMeshShaderImpl::Impl
 		HHR(m_dxState->Context->Map(m_perObjectBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource), "mapping per object");
 
 		PerObjectBuffer* dataPtr = static_cast<PerObjectBuffer*>(mappedResource.pData);
+		dataPtr->ShaderFlags = ShaderFlags_None;
 
-		auto hasDiffuseMap = buffer.Material->DiffuseMap != nullptr;
-		dataPtr->HasDiffuseMap = hasDiffuseMap ? 1 : 0;
+		const auto hasDiffuseMap = buffer.Material->DiffuseMap != nullptr;
+		dataPtr->ShaderFlags |= hasDiffuseMap ? ShaderFlags_HasDiffuseMap : ShaderFlags_None;
+		
+		const auto hasNormalMap = buffer.Material->NormalMap != nullptr;
+		dataPtr->ShaderFlags |= hasNormalMap ? ShaderFlags_HasNormalMap : ShaderFlags_None;
 
-		auto hasNormalMap = buffer.Material->NormalMap != nullptr;
-		dataPtr->HasNormalMap = hasNormalMap ? 1 : 0;
+		const auto hasSpecularMap = buffer.Material->SpecularMap != nullptr;
+		dataPtr->ShaderFlags |= hasSpecularMap ? ShaderFlags_HasSpecularMap : ShaderFlags_None;
 
-		auto hasSpecularMap = buffer.Material->SpecularMap != nullptr;
-		dataPtr->HasSpecularMap = hasSpecularMap ? 1 : 0;
+		const auto hasTransparencyMap = buffer.Material->TransparentMap != nullptr;
+		dataPtr->ShaderFlags |= hasTransparencyMap ? ShaderFlags_HasTransparancyMap : ShaderFlags_None;
 
 		WriteMatrixToBuffer(&dataPtr->WorldTransform, buffer.WorldTransform);
 		WriteMatrixToBuffer(&dataPtr->WorldInverseTranspose, buffer.WorldInverseTranspose);
@@ -149,7 +153,7 @@ struct VeritasEngine::AnimatedMeshShaderImpl::Impl
 
 		m_dxState->Context->Unmap(m_animationBuffer.Get(), 0);
 
-		ID3D11ShaderResourceView* resources[3] = { nullptr, nullptr, nullptr };
+		ID3D11ShaderResourceView* resources[4] = { nullptr, nullptr, nullptr, nullptr };
 
 		if (hasDiffuseMap)
 		{
@@ -172,7 +176,14 @@ struct VeritasEngine::AnimatedMeshShaderImpl::Impl
 			resources[2] = textureData.TextureView.Get();
 		}
 
-		m_dxState->Context->PSSetShaderResources(0, 3, resources);
+		if (hasTransparencyMap)
+		{
+			const DirectXTextureData& textureData = buffer.Material->TransparentMap->GetData<DirectXTextureData>();
+
+			resources[3] = textureData.TextureView.Get();
+		}
+
+		m_dxState->Context->PSSetShaderResources(0, 4, resources);
 	}
 
 	static void WriteMatrixToBuffer(Matrix4x4* destination, const Matrix4x4& matrixToTranspose)

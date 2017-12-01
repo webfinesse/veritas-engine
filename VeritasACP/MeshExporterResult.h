@@ -19,14 +19,8 @@ namespace VeritasACP
 
 	struct MeshExporterSkeleton
 	{
-		MeshExporterSkeleton()
-			: Joints{}, JointIndexMap{}
-		{
-			
-		}
-
-		std::vector<MeshExporterSkeletonJoint> Joints;
-		std::unordered_map<std::string, int> JointIndexMap;
+		std::vector<MeshExporterSkeletonJoint> Joints{};
+		std::unordered_map<std::string, int> JointIndexMap{};
 	};
 
 	struct MeshExporterSubset
@@ -43,22 +37,23 @@ namespace VeritasACP
 		VeritasEngine::Matrix4x4 m_transform{};
 		std::vector<unsigned int> meshIndicies{};
 		std::vector<MeshExporterNode> m_children{};
+		int m_jointIndex{ -1 };
 	};
 
-	struct SqtExporterResult
+	template <typename T>
+	struct Channel
 	{
-		VeritasEngine::Float3 m_scale; // 0 - 96
-		VeritasEngine::Quaternion m_rotation; // 96 - 224
-		VeritasEngine::Float3 m_translation; // 224 - 320
-		float m_timeSample; // 320 - 352
-		
+		T m_data;
+		float m_time;
 	};
 
 	struct AnimationBoneInformation
 	{
 		std::string m_jointName;
 		int m_jointIndex;
-		std::vector<SqtExporterResult> m_keyframes;
+		std::vector<Channel<VeritasEngine::Float3>> ScaleChannel;
+		std::vector<Channel<VeritasEngine::Float3>> TranslationChannel;
+		std::vector<Channel<VeritasEngine::Quaternion>> RotationChannel;
 	};
 
 	struct AnimationClipExporterResult

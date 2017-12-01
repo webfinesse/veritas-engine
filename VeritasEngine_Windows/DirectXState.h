@@ -35,7 +35,7 @@ namespace VeritasEngine
 			//debugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL); // uncomment when tracking down directx leaks
 			debugDevice = nullptr;
 #else
-			g_device = nullptr;
+			Device = nullptr;
 #endif
 		}
 	};

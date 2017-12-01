@@ -16,8 +16,8 @@ namespace VeritasEngine
 		~AnimationManager() override = default;
 
 		void AddAnimaton(GameObjectHandle handle, StringHash animationName, bool isLooped, float timeScale = 1) override;
-		void CalculateSkinningPalettes(TimeDuration update) override;
-		const Matrix4x4* GetSkinningPalette(GameObjectHandle handle) override; 
+		void CalculatePoses(TimeDuration update) override;
+		const Matrix4x4* GetGlobalPoses(GameObjectHandle handle) override; 
 	private:
 		struct Impl;
 		std::unique_ptr<Impl> m_impl;

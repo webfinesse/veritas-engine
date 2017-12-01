@@ -131,7 +131,7 @@ void VeritasEngine::Engine::Loop()
 	if (!m_impl->m_gameClock->GetIsPaused())
 	{
 		m_impl->m_processManager->UpdateProcesses(delta);
-		m_impl->m_animationManager->CalculateSkinningPalettes(delta);
+		m_impl->m_animationManager->CalculatePoses(delta);
 	}
 
 	m_impl->m_frameDesc.StaticObjects.resize(0);

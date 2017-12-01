@@ -77,10 +77,11 @@ void VeritasEngine::AnimatedMeshResourceLoader::LoadResource(IResourceManager& m
 
 	rootNode.SetTransform(info.m_root.m_transform);
 	rootNode.SetMeshIndices(info.m_root.meshIndicies);
+	rootNode.SetJointIndex(info.m_root.m_jointIndex);
 
 	for (auto& child : info.m_root.m_children)
 	{
-		rootNode.AddChild({ child });
+		rootNode.AddChild(child);
 	}
 
 	handle.SetData(std::move(mesh));

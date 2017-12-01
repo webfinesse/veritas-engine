@@ -7,6 +7,7 @@
 #include "IRenderingServices.h"
 #include "VertexBufferManager.h"
 #include "IVertexBuffer.h"
+#include "IAnimationManager.h"
 
 #include "../VeritasEngineBase/Light.h"
 #include "../VeritasEngineBase/MathTypes.h"
@@ -33,7 +34,40 @@ namespace VeritasEngine
 			static_assert(true, "A deserializer was not found for the specified type");
 			return nullptr;
 		}
+	};
 
+	class DeserializerFactoryHelper
+	{
+	public:
+		template <typename T>
+		static T GetDeserializedValue(Engine& engine, JsonValue& values, const std::string jsonTag, T defaultValue)
+		{
+			auto const& value = values.find(jsonTag);
+
+			if (value != values.not_found())
+			{
+				return DeserializerFactory<T>::GetDeserializer()(engine, value->second);
+			}
+			else
+			{
+				return defaultValue;
+			}
+		}
+
+		template <typename T>
+		static T GetValue(JsonValue& values, const std::string jsonTag, T defaultValue)
+		{
+			auto const& value = values.find(jsonTag);
+
+			if (value != values.not_found())
+			{
+				return value->second.get_value<T>();
+			}
+			else
+			{
+				return defaultValue;
+			}
+		}
 	};
 
 	template<>
@@ -172,47 +206,17 @@ namespace VeritasEngine
 		}
 
 	private:
-		template <typename T>
-		static T GetDeserialzedValue(Engine& engine, JsonValue& values, std::string jsonTag, T defaultValue)
-		{
-			auto const& value = values.find(jsonTag);
-
-			if(value != values.not_found())
-			{
-				return DeserializerFactory<T>::GetDeserializer()(engine, value->second);
-			}
-			else
-			{
-				return defaultValue;
-			}
-		}
-
-		template <typename T>
-		static T GetValue(JsonValue& values, std::string jsonTag, T defaultValue)
-		{
-			auto const& value = values.find(jsonTag);
-
-			if (value != values.not_found())
-			{
-				return value->second.get_value<T>();
-			}
-			else
-			{
-				return defaultValue;
-			}
-		}
-
 		static VeritasEngine::Light Deserialize(Engine& engine, JsonValue& values)
 		{
 			VeritasEngine::Light returnValue;
 
-			returnValue.Position = GetDeserialzedValue(engine, values, "position", Float4());
-			returnValue.Direction = GetDeserialzedValue(engine, values, "direction", Float4());
-			returnValue.Color = GetDeserialzedValue(engine, values, "color", Float4());
-			returnValue.SpotAngle = GetValue(values, "spotAngle", 0.0f);
-			returnValue.ConstantAttenuation = GetValue(values, "constantattenuation", 0.0f);
-			returnValue.QuadraticAttenuation = GetValue(values, "quadraticattenuation", 0.0f);
-			returnValue.Enabled = GetValue(values, "enabled", 1);
+			returnValue.Position = DeserializerFactoryHelper::GetDeserializedValue(engine, values, "position", Float4());
+			returnValue.Direction = DeserializerFactoryHelper::GetDeserializedValue(engine, values, "direction", Float4());
+			returnValue.Color = DeserializerFactoryHelper::GetDeserializedValue(engine, values, "color", Float4());
+			returnValue.SpotAngle = DeserializerFactoryHelper::GetValue(values, "spotAngle", 0.0f);
+			returnValue.ConstantAttenuation = DeserializerFactoryHelper::GetValue(values, "constantattenuation", 0.0f);
+			returnValue.QuadraticAttenuation = DeserializerFactoryHelper::GetValue(values, "quadraticattenuation", 0.0f);
+			returnValue.Enabled = DeserializerFactoryHelper::GetValue(values, "enabled", 1);
 
 			auto type = LightType::Directional;
 
@@ -255,6 +259,27 @@ namespace VeritasEngine
 			auto resource = engine.GetResourceManager().GetResource(resourceId);
 
 			return resource;
+		}
+	};
+
+	class AnimationDeserializerFactory
+	{
+	public:
+		using FUNCTIONTYPE = void(*)(Engine& engine, GameObjectHandle handle, JsonValue& values);
+
+		static FUNCTIONTYPE GetDeserializer()
+		{
+			return &Deserialize;
+		}
+
+	private:
+		static void Deserialize(Engine& engine, GameObjectHandle handle, JsonValue& values)
+		{
+			const std::string animationName = DeserializerFactoryHelper::GetValue(values, "animationname", std::string(""));
+			const bool isLooped = DeserializerFactoryHelper::GetValue(values, "islooped", false);
+			const float timeScale = DeserializerFactoryHelper::GetValue(values, "timeScale", 1.0f);
+
+			engine.GetAnimationManager().AddAnimaton(handle, Hash(animationName), isLooped, timeScale);
 		}
 	};
 }

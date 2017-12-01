@@ -21,6 +21,9 @@ namespace VeritasEngine
 		const Matrix4x4& GetTransform() const;
 		void SetTransform(const Matrix4x4& transform);
 
+		const int GetJointIndex() const;
+		const void SetJointIndex(int index);
+
 		const std::vector<unsigned int>& GetMeshIndices() const;
 		void SetMeshIndices(const std::vector<unsigned int>& meshIndices);
 

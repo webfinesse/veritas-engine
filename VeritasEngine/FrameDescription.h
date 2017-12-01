@@ -61,5 +61,6 @@ namespace VeritasEngine
 		PassBuffer PassBuffer;
 		std::vector<PerObjectBufferDescription> StaticObjects;
 		std::vector<PerAnimatedObjectBufferDescription> AnimatedObjects;
+		std::vector<PerAnimatedObjectBufferDescription> TransparentAnimatedObjects;
 	};
 }
