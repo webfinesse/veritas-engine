@@ -16,6 +16,7 @@
 #include "../VeritasEngineBase/ResourceHandle.h"
 #include "ResourceManager.h"
 
+constexpr char extension[] = ".veam";
 
 struct VeritasEngine::AnimatedMeshResourceLoader::Impl
 {
@@ -40,7 +41,13 @@ VeritasEngine::AnimatedMeshResourceLoader::~AnimatedMeshResourceLoader()
 
 const char* VeritasEngine::AnimatedMeshResourceLoader::GetExtension() const
 {
-	return ".veam";
+	return extension;
+}
+
+VeritasEngine::StringHash VeritasEngine::AnimatedMeshResourceLoader::GetExtensionHash() const
+{
+	constexpr auto hash = CompileTimeHash(extension);
+	return hash;
 }
 
 void VeritasEngine::AnimatedMeshResourceLoader::LoadResource(IResourceManager& manager, std::istream& data, ResourceHandle& handle)

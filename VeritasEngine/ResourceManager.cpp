@@ -18,11 +18,11 @@ struct ResourcePathParts
 
 struct VeritasEngine::ResourceManager::Impl : public VeritasEngine::SmallObject<>
 {
-	Impl(std::vector<std::unique_ptr<IResourceLoader>> resourceLoaders)
+	Impl(std::vector<std::unique_ptr<IResourceLoader>>&& resourceLoaders)
 	{
 		for(auto& loader : resourceLoaders)
 		{
-			m_loaders.insert(std::make_pair(VeritasEngine::Hash(loader->GetExtension()), std::move(loader)));
+			m_loaders.insert(std::make_pair(loader->GetExtensionHash(), std::move(loader)));
 		}
 	}
 
@@ -35,19 +35,19 @@ struct VeritasEngine::ResourceManager::Impl : public VeritasEngine::SmallObject<
 	{
 		ResourcePathParts parts;
 
-		std::string::size_type pos = path.find('/');
+		const std::string::size_type pos = path.find('/');
 		if (pos != std::string::npos)
 		{
-			std::string zipName(path.substr(0, pos));
+			const std::string zipName(path.substr(0, pos));
 
-			auto item = m_files.find(zipName);
+			const auto item = m_files.find(zipName);
 
 			if (item != m_files.end())
 			{
 				parts.m_zipPath = item->second;
 				parts.m_archivePath = path.substr(pos + 1);
 
-				auto index = path.find_last_of('.');
+				const auto index = path.find_last_of('.');
 
 				parts.m_extension = path.substr(index);
 			}
@@ -112,7 +112,7 @@ VeritasEngine::ResourceHandle* VeritasEngine::ResourceManager::GetResource(const
 	}
 	else
 	{		
-		auto parts = m_impl->GetResourcePathParts(resourcePath);
+		const auto parts = m_impl->GetResourcePathParts(resourcePath);
 
 		zip_file zip(parts.m_zipPath);
 		auto& stream = zip.open(parts.m_archivePath);

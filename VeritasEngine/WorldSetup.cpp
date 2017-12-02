@@ -11,7 +11,7 @@
 
 struct VeritasEngine::WorldSetup::Impl
 {
-	Impl(std::shared_ptr<IDeserializeMapping> deserializeMapping)
+	Impl(std::shared_ptr<IDeserializeMapping>&& deserializeMapping)
 		: m_deserializeMapping { deserializeMapping }
 	{
 		
@@ -47,7 +47,7 @@ struct VeritasEngine::WorldSetup::Impl
 };
 
 VeritasEngine::WorldSetup::WorldSetup(std::shared_ptr<IDeserializeMapping> deserializeMapping)
-	: m_impl(std::make_unique<Impl>(deserializeMapping))
+	: m_impl{ std::make_unique<Impl>(std::move(deserializeMapping)) }
 {
 }
 
@@ -70,8 +70,9 @@ VeritasEngine::WorldSetup::~WorldSetup() = default;
 
 void VeritasEngine::WorldSetup::Init(Engine& engine)
 {
+	constexpr auto animationHash = CompileTimeHash("animation");
 	m_impl->m_engine = &engine;
-	m_impl->m_deserializeMapping->Register(CompileTimeHash("animation"), [](Engine& engine, GameObjectHandle handle, JsonValue& values) {
+	m_impl->m_deserializeMapping->Register(animationHash, [](Engine& engine, GameObjectHandle handle, JsonValue& values) {
 		AnimationDeserializerFactory::GetDeserializer()(engine, handle, values);
 	});
 }

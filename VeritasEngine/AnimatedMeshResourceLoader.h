@@ -18,6 +18,7 @@ namespace VeritasEngine
 
 		~AnimatedMeshResourceLoader() override;
 		const char* GetExtension() const override;
+		StringHash GetExtensionHash() const override;
 		void LoadResource(IResourceManager& manager, std::istream& data, ResourceHandle& handle) override;
 	
 	private:

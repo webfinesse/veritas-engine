@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iosfwd>
+#include "StringHash.h"
 
 namespace VeritasEngine
 {
@@ -13,6 +14,7 @@ namespace VeritasEngine
 		virtual ~IResourceLoader() = default;
 
 		virtual const char* GetExtension() const = 0;
+		virtual VeritasEngine::StringHash GetExtensionHash() const = 0;
 		virtual void LoadResource(IResourceManager& manager, std::istream& data, ResourceHandle& handle) = 0;
 	};
 }

@@ -9,6 +9,8 @@
 #include "ResourceManager.h"
 #include "../VeritasEngineBase/MaterialInstance.h"
 
+constexpr char extension[] = ".mat";
+
 VeritasEngine::MaterialResourceLoader::MaterialResourceLoader()
 {
 
@@ -18,9 +20,14 @@ VeritasEngine::MaterialResourceLoader::~MaterialResourceLoader() = default;
 
 const char* VeritasEngine::MaterialResourceLoader::GetExtension() const
 {
-	return ".mat";
+	return extension;
 }
 
+VeritasEngine::StringHash VeritasEngine::MaterialResourceLoader::GetExtensionHash() const
+{
+	constexpr auto hash = CompileTimeHash(extension);
+	return hash;
+}
 
 void VeritasEngine::MaterialResourceLoader::LoadResource(IResourceManager& manager, std::istream& data, ResourceHandle& handle)
 {

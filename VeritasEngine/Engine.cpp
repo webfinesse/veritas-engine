@@ -18,13 +18,13 @@
 
 struct VeritasEngine::Engine::Impl : public VeritasEngine::SmallObject<>
 {
-	Impl(std::shared_ptr<IProcessManager> processManager, 
-		 std::shared_ptr<IWorldSetup> worldSetup, 
-		 std::shared_ptr<IRenderingServices> renderingServices, 
-	     std::shared_ptr<IResourceManager> resourceManager,
-		 std::shared_ptr<IGameClock> gameClock,
-		 std::shared_ptr<GamePropertyManager> gamePropertyManager,
-		 std::shared_ptr<IAnimationManager> animationManager)
+	Impl(std::shared_ptr<IProcessManager>&& processManager, 
+		 std::shared_ptr<IWorldSetup>&& worldSetup, 
+		 std::shared_ptr<IRenderingServices>&& renderingServices, 
+	     std::shared_ptr<IResourceManager>&& resourceManager,
+		 std::shared_ptr<IGameClock>&& gameClock,
+		 std::shared_ptr<GamePropertyManager>&& gamePropertyManager,
+		 std::shared_ptr<IAnimationManager>&& animationManager)
 		: m_gameClock{ gameClock }, m_processManager{ processManager }, m_worldSetup{ worldSetup }, m_resourceManager{ resourceManager }, m_renderingServices{ renderingServices }, m_gamePropertyManager { gamePropertyManager }, m_animationManager{ animationManager }
 	{
 
@@ -50,7 +50,7 @@ VeritasEngine::Engine::Engine(std::shared_ptr<IProcessManager> processManager,
 						      std::shared_ptr<IGameClock> gameClock,
 							  std::shared_ptr<GamePropertyManager> gamePropertyManager,
 							  std::shared_ptr<IAnimationManager> animationManager)
-	: m_impl(std::make_unique<Impl>(processManager, worldSetup, renderingServices, resourceManager, gameClock, gamePropertyManager, animationManager))
+	: m_impl{ std::make_unique<Impl>(std::move(processManager), std::move(worldSetup), std::move(renderingServices), std::move(resourceManager), std::move(gameClock), std::move(gamePropertyManager), std::move(animationManager)) }
 {
 	
 }

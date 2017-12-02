@@ -16,6 +16,8 @@
 #include "../VeritasEngineBase/ResourceHandle.h"
 #include "ResourceManager.h"
 
+constexpr char extension[] = ".vem";
+
 struct VeritasEngine::MeshResourceLoader::Impl
 {
 	Impl(std::shared_ptr<IRenderingServices> renderingServices)
@@ -36,7 +38,13 @@ VeritasEngine::MeshResourceLoader::~MeshResourceLoader() = default;
 
 const char* VeritasEngine::MeshResourceLoader::GetExtension() const
 {
-	return ".vem";
+	return extension;
+}
+
+VeritasEngine::StringHash VeritasEngine::MeshResourceLoader::GetExtensionHash() const
+{
+	constexpr auto hash = CompileTimeHash(extension);
+	return hash;
 }
 
 void VeritasEngine::MeshResourceLoader::LoadResource(IResourceManager& manager, std::istream& data, ResourceHandle& handle)

@@ -272,7 +272,6 @@ namespace VeritasEngine
 			return &Deserialize;
 		}
 
-	private:
 		static void Deserialize(Engine& engine, GameObjectHandle handle, JsonValue& values)
 		{
 			const std::string animationName = DeserializerFactoryHelper::GetValue(values, "animationname", std::string(""));
