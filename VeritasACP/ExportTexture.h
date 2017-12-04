@@ -8,13 +8,22 @@
 
 namespace VeritasACP
 {
+	struct ExportTextureResult
+	{
+		VeritasEngine::ResourceId ResourceName;
+		unsigned int OriginalHeight;
+		unsigned int OriginalWidth;
+		unsigned int NewHeight;
+		unsigned int NewWidth;
+	};
+
 	class ExportTexture
 	{
 	public:
 		ExportTexture();
 		~ExportTexture();
 
-		VeritasEngine::ResourceId Export(fs::path& fileName, bool isNormalMap);
+		ExportTextureResult Export(fs::path& fileName, bool isNormalMap);
 
 	private:
 		struct Impl;

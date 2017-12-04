@@ -9,12 +9,21 @@
 
 namespace VeritasACP
 {
+	struct ExportMaterialResult
+	{
+		VeritasEngine::ResourceId ResourceName{};
+		unsigned int OriginalTextureWidth{};
+		unsigned int OriginalTextureHeight{};
+		unsigned int NewTextureWidth{};
+		unsigned int NewTextureHeight{};
+	};
+
 	class ExportMaterial
 	{
 	public:
 		ExportMaterial();
 		~ExportMaterial();
 
-		VeritasEngine::ResourceId Export(fs::path& basePath, const aiScene * scene, aiMesh * mesh);
+		ExportMaterialResult Export(fs::path& basePath, const aiScene * scene, aiMesh * mesh);
 	};
 }

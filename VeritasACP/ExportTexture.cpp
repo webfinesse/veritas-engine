@@ -34,17 +34,49 @@ struct MyErrorHandler : public nvtt::ErrorHandler
 	}
 };
 
-VeritasEngine::ResourceId VeritasACP::ExportTexture::Export(fs::path& fileName, bool isNormalMap)
+// from nvtt.h
+
+/** Return the next power of two.
+* @see http://graphics.stanford.edu/~seander/bithacks.html
+* @warning Behaviour for 0 is undefined.
+* @note isPowerOfTwo(x) == true -> nextPowerOfTwo(x) == x
+* @note nextPowerOfTwo(x) = 2 << log2(x-1)
+*/
+inline uint nextPowerOfTwo(uint x)
+{
+	nvDebugCheck(x != 0);
+#if 1	// On modern CPUs this is supposed to be as fast as using the bsr instruction.
+	x--;
+	x |= x >> 1;
+	x |= x >> 2;
+	x |= x >> 4;
+	x |= x >> 8;
+	x |= x >> 16;
+	return x + 1;
+#else
+	uint p = 1;
+	while (x > p) {
+		p += p;
+	}
+	return p;
+#endif
+}
+
+VeritasACP::ExportTextureResult VeritasACP::ExportTexture::Export(fs::path& fileName, bool isNormalMap)
 {
 	nvtt::InputOptions inputOptions;
 	nv::Image image;
+	ExportTextureResult result;
 
 	image.load(fileName.generic_string().c_str());
 
+	result.OriginalHeight = image.height();
+	result.OriginalWidth = image.width();
+
 	inputOptions.setNormalMap(isNormalMap);
-	inputOptions.setRoundMode(nvtt::RoundMode_ToPreviousPowerOfTwo);	
+	inputOptions.setRoundMode(nvtt::RoundMode_ToNextPowerOfTwo);	
 	inputOptions.setTextureLayout(nvtt::TextureType_2D, image.width(), image.height());
-	auto result = inputOptions.setMipmapData(image.pixels(), image.width(), image.height());
+	inputOptions.setMipmapData(image.pixels(), image.width(), image.height());
 
 	nvtt::CompressionOptions compressionOptions;
 	compressionOptions.setFormat(nvtt::Format_BC3);
@@ -64,9 +96,12 @@ VeritasEngine::ResourceId VeritasACP::ExportTexture::Export(fs::path& fileName, 
 
 	context.process(inputOptions, compressionOptions, outputOptions);
 
+	result.NewHeight = nextPowerOfTwo(image.height());
+	result.NewWidth = nextPowerOfTwo(image.width());
+
 	VeritasACP::ACPState::Instance().AddAsset(resourceName);
 
-	VeritasEngine::ResourceId textureInfo = ACPState::Instance().GetResourceIdGenerator().GenerateId(resourceName);
+	result.ResourceName = ACPState::Instance().GetResourceIdGenerator().GenerateId(resourceName);
 
-	return textureInfo;
+	return result;
 }

@@ -31,7 +31,7 @@ void AiColorToFloat4(aiColor4D& aiColor, VeritasEngine::Float4& engineColor)
 	engineColor.a = aiColor.a;
 }
 
-VeritasEngine::ResourceId VeritasACP::ExportMaterial::Export(fs::path& basePath, const aiScene * scene, aiMesh * mesh)
+VeritasACP::ExportMaterialResult VeritasACP::ExportMaterial::Export(fs::path& basePath, const aiScene * scene, aiMesh * mesh)
 {
 	auto* material = scene->mMaterials[mesh->mMaterialIndex];
 
@@ -40,41 +40,50 @@ VeritasEngine::ResourceId VeritasACP::ExportMaterial::Export(fs::path& basePath,
 	aiString texPath;
 	bool hasDiffuseMap = false;
 
+	ExportMaterialResult result;
+
 	if (material->GetTexture(aiTextureType_DIFFUSE, 0, &texPath) == AI_SUCCESS)
 	{
 		ExportTexture textureExporter;
-		std::string fileName(texPath.C_Str());
+		const std::string fileName(texPath.C_Str());
 		auto copy = basePath;
 		auto fullPath = copy.append(fileName);
-		mat.DiffuseMap = textureExporter.Export(fullPath, false);
+		const auto textureResult = textureExporter.Export(fullPath, false);
+
+		mat.DiffuseMap = textureResult.ResourceName;
+		result.OriginalTextureHeight = textureResult.OriginalHeight;
+		result.OriginalTextureWidth = textureResult.OriginalWidth;
+		result.NewTextureHeight = textureResult.NewHeight;
+		result.NewTextureWidth = textureResult.NewWidth;
+
 		hasDiffuseMap = true;
 	}
 
 	if (material->GetTexture(aiTextureType_NORMALS, 0, &texPath) == AI_SUCCESS)
 	{
 		ExportTexture textureExporter;
-		std::string fileName(texPath.C_Str());
+		const std::string fileName(texPath.C_Str());
 		auto copy = basePath;
 		auto fullPath = copy.append(fileName);
-		mat.NormalMap = textureExporter.Export(fullPath, true);
+		mat.NormalMap = textureExporter.Export(fullPath, true).ResourceName;
 	}
 
 	if (material->GetTexture(aiTextureType_SPECULAR, 0, &texPath) == AI_SUCCESS)
 	{
 		ExportTexture textureExporter;
-		std::string fileName(texPath.C_Str());
+		const std::string fileName(texPath.C_Str());
 		auto copy = basePath;
 		auto fullPath = copy.append(fileName);
-		mat.SpecularMap = textureExporter.Export(fullPath, false);
+		mat.SpecularMap = textureExporter.Export(fullPath, false).ResourceName;
 	}
 
 	if(material->GetTexture(aiTextureType_OPACITY, 0, &texPath) == AI_SUCCESS)
 	{
 		ExportTexture textureExporter;
-		std::string fileName(texPath.C_Str());
+		const std::string fileName(texPath.C_Str());
 		auto copy = basePath;
 		auto fullPath = copy.append(fileName);
-		mat.TransparentMap = textureExporter.Export(fullPath, false);
+		mat.TransparentMap = textureExporter.Export(fullPath, false).ResourceName;
 	}
 
 	aiColor4D diffuse;
@@ -126,5 +135,7 @@ VeritasEngine::ResourceId VeritasACP::ExportMaterial::Export(fs::path& basePath,
 
 	VeritasACP::ACPState::Instance().AddAsset(outputPath);
 
-	return VeritasACP::ACPState::Instance().GetResourceIdGenerator().GenerateId(outputPath);
+	result.ResourceName = VeritasACP::ACPState::Instance().GetResourceIdGenerator().GenerateId(outputPath);
+
+	return result;
 }

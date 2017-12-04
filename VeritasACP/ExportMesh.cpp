@@ -97,17 +97,27 @@ struct VeritasACP::ExportMesh::Impl
 		}
 	}
 
-	void ProcessMaterial(const aiScene* scene, aiMesh* mesh, MeshExporterResult& result)
+	void ProcessMaterial(const aiScene* scene, aiMesh* mesh, MeshExporterResult& result, MeshExporterSubset& subset)
 	{
 		if (scene->HasMaterials())
 		{
-			auto item = m_processedMaterials.find(mesh->mMaterialIndex);
+			const auto item = m_processedMaterials.find(mesh->mMaterialIndex);
 
 			if (item == m_processedMaterials.end())
 			{
 				ExportMaterial materialExporter;
 
-				result.m_subsets.back().m_material = materialExporter.Export(m_basePath, scene, mesh);
+				const auto materialResult = materialExporter.Export(m_basePath, scene, mesh);
+				result.m_subsets.back().m_material = materialResult.ResourceName;
+
+				const auto heightRatio = materialResult.NewTextureHeight / float(materialResult.OriginalTextureHeight ? materialResult.OriginalTextureHeight : 1);
+				const auto widthRatio = materialResult.NewTextureWidth / float(materialResult.OriginalTextureWidth ? materialResult.OriginalTextureWidth : 1);
+
+				for (unsigned int i = 0; i < mesh->mNumVertices; i++)
+				{
+					result.m_verticies[subset.m_vertexBaseIndex + i].TextureCoordinates.x *= widthRatio;
+					result.m_verticies[subset.m_vertexBaseIndex + i].TextureCoordinates.y *= heightRatio;
+				}
 
 				m_processedMaterials.emplace(mesh->mMaterialIndex, result.m_subsets.back().m_material);
 			}
@@ -393,7 +403,7 @@ std::shared_ptr<VeritasACP::MeshExporterResult> VeritasACP::ExportMesh::Export(f
 				m_impl->ProcessVertex(mesh, *result, currentSubset);
 				m_impl->ProcessNormals(mesh, *result, currentSubset);
 				m_impl->ProcessUVCoords(mesh, *result, currentSubset);
-				m_impl->ProcessMaterial(scene, mesh, *result);
+				m_impl->ProcessMaterial(scene, mesh, *result, currentSubset);
 				m_impl->ProcessFaces(mesh, *result, currentSubset);
 				m_impl->ProcessBones(mesh, *result, currentSubset);
 			}
