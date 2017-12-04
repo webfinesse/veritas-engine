@@ -110,15 +110,6 @@ struct VeritasACP::ExportMesh::Impl
 				const auto materialResult = materialExporter.Export(m_basePath, scene, mesh);
 				result.m_subsets.back().m_material = materialResult.ResourceName;
 
-				const auto heightRatio = materialResult.NewTextureHeight / float(materialResult.OriginalTextureHeight ? materialResult.OriginalTextureHeight : 1);
-				const auto widthRatio = materialResult.NewTextureWidth / float(materialResult.OriginalTextureWidth ? materialResult.OriginalTextureWidth : 1);
-
-				for (unsigned int i = 0; i < mesh->mNumVertices; i++)
-				{
-					result.m_verticies[subset.m_vertexBaseIndex + i].TextureCoordinates.x *= widthRatio;
-					result.m_verticies[subset.m_vertexBaseIndex + i].TextureCoordinates.y *= heightRatio;
-				}
-
 				m_processedMaterials.emplace(mesh->mMaterialIndex, result.m_subsets.back().m_material);
 			}
 			else
