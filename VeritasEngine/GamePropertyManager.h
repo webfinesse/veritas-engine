@@ -65,6 +65,6 @@ namespace VeritasEngine
 
 	private:
 		std::shared_ptr<IDeserializeMapping> m_deserializeMapping {};
-		AssocVector<StringHash, std::any> m_properties {};
+		AssocVector<StringHash, std::any> m_properties{};
 	};
 }

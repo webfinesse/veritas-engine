@@ -37,7 +37,7 @@ struct VeritasACP::ExportMesh::Impl
 
 	static void ProcessVertex(aiMesh* mesh, MeshExporterResult& result, MeshExporterSubset& subset)
 	{
-		subset.m_vertexBaseIndex = result.m_verticies.size();
+		subset.m_vertexBaseIndex = unsigned(result.m_verticies.size());
 		subset.m_vertexCount = mesh->mNumVertices;
 
 		for (unsigned int i = 0; i < mesh->mNumVertices; i++)
@@ -123,7 +123,7 @@ struct VeritasACP::ExportMesh::Impl
 	{
 		if (mesh->HasFaces())
 		{
-			subset.m_indexBaseIndex = result.m_indicies.size();			
+			subset.m_indexBaseIndex = unsigned(result.m_indicies.size());
 
 			auto& facesCollection = result.m_indicies;
 			const auto& initialIndex = facesCollection.size();
@@ -136,7 +136,7 @@ struct VeritasACP::ExportMesh::Impl
 				}
 			}
 
-			subset.m_indexCount = facesCollection.size() - initialIndex;
+			subset.m_indexCount = unsigned(facesCollection.size() - initialIndex);
 		}
 	}
 
@@ -306,7 +306,7 @@ struct VeritasACP::ExportMesh::Impl
 							currentPose.ScaleChannel.emplace_back();
 							auto& pose = currentPose.ScaleChannel.back();
 							pose.m_data = ConvertVec3(channel->mScalingKeys[scaleIndex].mValue);
-							pose.m_time = channel->mScalingKeys[scaleIndex].mTime / ticksPerSec;
+							pose.m_time = float(channel->mScalingKeys[scaleIndex].mTime / ticksPerSec);
 						}
 
 						for (unsigned int translationIndex = 0; translationIndex < channel->mNumPositionKeys; translationIndex++)
@@ -314,7 +314,7 @@ struct VeritasACP::ExportMesh::Impl
 							currentPose.TranslationChannel.emplace_back();
 							auto& pose = currentPose.TranslationChannel.back();
 							pose.m_data = ConvertVec3(channel->mPositionKeys[translationIndex].mValue);
-							pose.m_time = channel->mPositionKeys[translationIndex].mTime / ticksPerSec;
+							pose.m_time = float(channel->mPositionKeys[translationIndex].mTime / ticksPerSec);
 						}
 						
 						for (unsigned int rotationIndex = 0; rotationIndex < channel->mNumRotationKeys; rotationIndex++)
@@ -322,7 +322,7 @@ struct VeritasACP::ExportMesh::Impl
 							currentPose.RotationChannel.emplace_back();
 							auto& pose = currentPose.RotationChannel.back();
 							pose.m_data = ConvertQuaternion(channel->mRotationKeys[rotationIndex].mValue);
-							pose.m_time = channel->mRotationKeys[rotationIndex].mTime / ticksPerSec;
+							pose.m_time = float(channel->mRotationKeys[rotationIndex].mTime / ticksPerSec);
 						}
 					}
 				}
@@ -375,7 +375,7 @@ std::shared_ptr<VeritasACP::MeshExporterResult> VeritasACP::ExportMesh::Export(f
 
 			auto verticiesLength = 0;
 			auto facesLength = 0;
-			for (auto i = 0; i < scene->mNumMeshes; i++)
+			for (unsigned i = 0; i < scene->mNumMeshes; i++)
 			{
 				verticiesLength += scene->mMeshes[i]->mNumVertices;
 				facesLength += scene->mMeshes[i]->mNumFaces * 3;

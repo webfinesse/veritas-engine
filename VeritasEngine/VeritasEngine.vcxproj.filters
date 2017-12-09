@@ -135,9 +135,6 @@
     <ClInclude Include="MeshSubset.h">
       <Filter>Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="RenderPass.h">
-      <Filter>Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="Scene.h">
       <Filter>Rendering</Filter>
     </ClInclude>

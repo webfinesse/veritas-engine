@@ -259,7 +259,6 @@
     <ClInclude Include="TextureResourceLoader.h" />
     <ClInclude Include="IResourceLoader.h" />
     <ClInclude Include="MeshResourceLoader.h" />
-    <ClInclude Include="RenderPass.h" />
     <ClInclude Include="MatrixStack.h" />
     <ClInclude Include="MeshInstance.h" />
     <ClInclude Include="MeshSubset.h" />

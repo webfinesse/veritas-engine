@@ -40,7 +40,8 @@ namespace VeritasEngine
 	public:
 		static void* operator new(std::size_t size)
 		{
-			return InternalObjAllocator::Instance().Allocate(size);
+			auto addr = InternalObjAllocator::Instance().Allocate(size);
+			return addr;
 		}
 
 		static void operator delete(void* p, std::size_t size)

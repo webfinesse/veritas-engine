@@ -6,7 +6,6 @@
 #include "MatrixStack.h"
 #include "MeshInstance.h"
 #include "MeshNode.h"
-#include "RenderPass.h"
 #include "MeshSubset.h"
 #include "IAnimationManager.h"
 
@@ -33,21 +32,21 @@ struct SceneNode : public VeritasEngine::SmallObject<>
 
 struct VeritasEngine::Scene::Impl
 {
-	Impl(std::shared_ptr<GamePropertyManager> gamePropertyManager, std::shared_ptr<IAnimationManager> animationManager)
-		: m_gamePropertyManager{ gamePropertyManager }, m_animationManager { animationManager }
+	Impl(std::shared_ptr<GamePropertyManager>&& gamePropertyManager, std::shared_ptr<IAnimationManager>&& animationManager)
+		: m_gamePropertyManager{ std::move(gamePropertyManager) }, m_animationManager { std::move(animationManager) }
 	{
 		m_lightHandles.reserve(8);
 
-		m_objectMesh = gamePropertyManager->RegisterProperty<MeshInstance>("Object Mesh", GameObjectPropertyKeys::ObjectMesh);
-		m_resourcedMesh = gamePropertyManager->RegisterProperty<ResourceHandle*>("ResourcedMesh", GameObjectPropertyKeys::ResourcedMesh);
+		m_objectMesh = m_gamePropertyManager->RegisterProperty<MeshInstance>("Object Mesh", GameObjectPropertyKeys::ObjectMesh);
+		m_resourcedMesh = m_gamePropertyManager->RegisterProperty<ResourceHandle*>("ResourcedMesh", GameObjectPropertyKeys::ResourcedMesh);
 
-		m_nodeType = gamePropertyManager->RegisterProperty<SceneNodeType>("Scene Node Type", GameObjectPropertyKeys::SceneNodeType);
-		m_worldPosition = gamePropertyManager->RegisterProperty<Matrix4x4>("World Position", GameObjectPropertyKeys::WorldPosition);
+		m_nodeType = m_gamePropertyManager->RegisterProperty<SceneNodeType>("Scene Node Type", GameObjectPropertyKeys::SceneNodeType);
+		m_worldPosition = m_gamePropertyManager->RegisterProperty<Matrix4x4>("World Position", GameObjectPropertyKeys::WorldPosition);
 
-		m_cameraTarget = gamePropertyManager->RegisterProperty<Float3>("Camera Target", GameObjectPropertyKeys::CameraTarget);
-		m_cameraPosition = gamePropertyManager->RegisterProperty<Float3>("Camera Position", GameObjectPropertyKeys::CameraPosition);
+		m_cameraTarget = m_gamePropertyManager->RegisterProperty<Float3>("Camera Target", GameObjectPropertyKeys::CameraTarget);
+		m_cameraPosition = m_gamePropertyManager->RegisterProperty<Float3>("Camera Position", GameObjectPropertyKeys::CameraPosition);
 
-		m_light = gamePropertyManager->RegisterProperty<Light>("Light", GameObjectPropertyKeys::Light);
+		m_light = m_gamePropertyManager->RegisterProperty<Light>("Light", GameObjectPropertyKeys::Light);
 	}
 
 	void RenderResourcedMesh(FrameDescription& renderer, const SceneNode& sceneNode, const MeshInstance& instance, const SceneNodeType nodeType, const MeshNode& currentNode)
@@ -75,7 +74,7 @@ struct VeritasEngine::Scene::Impl
 		m_matrixStack.Pop();
 	}
 
-	void RenderAnimatedResourcedMesh(FrameDescription& renderer, const SceneNode& sceneNode, const MeshInstance& instance, const SceneNodeType nodeType, const MeshNode& currentNode)
+	void RenderAnimatedResourcedMesh(FrameDescription& renderer, const SceneNode& sceneNode, const MeshInstance& instance, const SceneNodeType nodeType, const MeshNode& currentNode) const
 	{
 		auto& stackMatrix = m_matrixStack.Peek();
 		auto inverse = VeritasEngine::MathHelpers::Inverse(stackMatrix);
@@ -148,7 +147,7 @@ struct VeritasEngine::Scene::Impl
 		}
 	}
 
-	GameObjectHandle m_cameraHandle{ static_cast<GameObjectHandle>(-1) };
+	GameObjectHandle m_cameraHandle{ GameObjectHandle(-1) };
 	std::vector<GameObjectHandle> m_lightHandles{};
 	AssocVector<GameObjectHandle, SceneNode*> m_mapping{};
 	std::vector<SceneNode> m_root{};
@@ -166,7 +165,7 @@ struct VeritasEngine::Scene::Impl
 };
 
 VeritasEngine::Scene::Scene(std::shared_ptr<GamePropertyManager> gamePropertyManager, std::shared_ptr<IAnimationManager> animationManager)
-	: m_impl(std::make_unique<Impl>(gamePropertyManager, animationManager))
+	: m_impl(std::make_unique<Impl>(std::move(gamePropertyManager), std::move(animationManager)))
 {
 
 }
@@ -199,40 +198,34 @@ void VeritasEngine::Scene::OnRender(FrameDescription& renderer)
 	assert(m_impl->m_cameraHandle > 0);
 	assert(m_impl->m_lightHandles.size() > 0);
 
-	for (int i = RenderPass::Terrain; i != RenderPass::End; i++)
+	const auto& positionVec = *m_impl->m_cameraPosition->GetProperty(m_impl->m_cameraHandle);
+	const auto& cameraTarget = *m_impl->m_cameraTarget->GetProperty(m_impl->m_cameraHandle);
+	const Float3 cameraUp = { 0.0f, 1.0f, 0.0f };
+
+	renderer.PassBuffer.ViewMatrix = MathHelpers::CreateLookAtMatrix(positionVec, cameraTarget, cameraUp);
+
+	// this is an opengl perspective matrix, change it to work for directx. https://www.gamedev.net/forums/topic/692095-d3d-glm-depth-reconstruction-issues/
+	auto projectionMatrix = MathHelpers::CreatePerspectiveMatrix(VeritasEngine::QuarterPi, renderer.AspectRatio, 1.0f, 3000.0f);
+	projectionMatrix = MathHelpers::Scale(projectionMatrix, Float3(1.0f, 1.0f, 0.5f));
+	renderer.PassBuffer.ProjectionMatrix = MathHelpers::Translate(projectionMatrix, Float3(0.0f, 0.0f, 0.5f));
+
+	renderer.PassBuffer.EyePosition = Float4(positionVec, 0);
+
+	size_t i = 0;
+	for (; i < m_impl->m_lightHandles.size(); i++)
 	{
-		if (i == RenderPass::Mesh)
-		{
-			const auto& positionVec = *m_impl->m_cameraPosition->GetProperty(m_impl->m_cameraHandle);
-			const auto& cameraTarget = *m_impl->m_cameraTarget->GetProperty(m_impl->m_cameraHandle);
-			const Float3 cameraUp = { 0.0f, 1.0f, 0.0f };
+		const auto light = m_impl->m_light->GetProperty(m_impl->m_lightHandles[i]);
+		renderer.PassBuffer.Lights[i] = *light;
+	}
 
-			renderer.PassBuffer.ViewMatrix = MathHelpers::CreateLookAtMatrix(positionVec, cameraTarget, cameraUp);
+	for (; i < Light::MAX_LIGHTS; i++)
+	{
+		renderer.PassBuffer.Lights[i].Enabled = 0;
+	}
 
-			// this is an opengl perspective matrix, change it to work for directx. https://www.gamedev.net/forums/topic/692095-d3d-glm-depth-reconstruction-issues/
-			auto projectionMatrix = MathHelpers::CreatePerspectiveMatrix(VeritasEngine::QuarterPi, renderer.AspectRatio, 1.0f, 3000.0f);
-			projectionMatrix = MathHelpers::Scale(projectionMatrix, Float3(1.0f, 1.0f, 0.5f));
-			renderer.PassBuffer.ProjectionMatrix = MathHelpers::Translate(projectionMatrix, Float3(0.0f, 0.0f, 0.5f));
-
-			renderer.PassBuffer.EyePosition = Float4(positionVec, 0);
-
-			size_t i = 0;
-			for (; i < m_impl->m_lightHandles.size(); i++)
-			{
-				auto light = m_impl->m_light->GetProperty(m_impl->m_lightHandles[i]);
-				renderer.PassBuffer.Lights[i] = *light;
-			}
-
-			for(; i < Light::MAX_LIGHTS; i++)
-			{
-				renderer.PassBuffer.Lights[i].Enabled = 0;
-			}
-
-			for (const auto& sceneNode : m_impl->m_root)
-			{
-				m_impl->Render(renderer, sceneNode);
-			}
-		}
+	for (const auto& sceneNode : m_impl->m_root)
+	{
+		m_impl->Render(renderer, sceneNode);
 	}
 }
 

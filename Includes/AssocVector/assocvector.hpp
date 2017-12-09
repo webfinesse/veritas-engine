@@ -2498,12 +2498,13 @@ public:
     typedef _Mapped mapped_type;
 
     typedef value_type_key_const value_type;
+	typedef std::allocator_traits<_Allocator> allocator_traits;
 
-    typedef typename _Allocator::size_type size_type;
-    typedef typename _Allocator::difference_type difference_type;
+    typedef typename allocator_traits::size_type size_type;
+    typedef typename allocator_traits::difference_type difference_type;
 
-    typedef typename _Allocator::pointer pointer;
-    typedef typename _Allocator::const_pointer const_pointer;
+    typedef typename allocator_traits::pointer pointer;
+    typedef typename allocator_traits::const_pointer const_pointer;
 
     typedef _Cmp key_compare;
     typedef util::CmpByFirst< value_type_mutable, _Cmp > value_compare;

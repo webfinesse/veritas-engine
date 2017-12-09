@@ -32,12 +32,12 @@ VertexOut main(SkinnedVertexIn vIn)
 	float4 posL = float4(vIn.positionL, 1.0);
 	posL = mul(boneTransform, posL);
 
-	vOut.posW = (worldTransform, posL).xyz;
-	vOut.normalW = mul((float3x3)worldInverseTranspose, mul(boneTransform, vIn.normalL));
+	vOut.posW = mul(worldTransform, posL).xyz;
+	vOut.normalW = mul((float3x3) worldInverseTranspose, mul(boneTransform, vIn.normalL).xyz).xyz;
 	vOut.normalW = normalize(vOut.normalW);
-	vOut.tangentW = mul((float3x3) worldInverseTranspose, mul(boneTransform, vIn.tangentL));
+	vOut.tangentW = mul((float3x3) worldInverseTranspose, mul(boneTransform, vIn.tangentL).xyz).xyz;
 	vOut.tangentW = normalize(vOut.tangentW);
-	vOut.binormalW = mul((float3x3) worldInverseTranspose, mul(boneTransform, vIn.binormalL));
+	vOut.binormalW = mul((float3x3) worldInverseTranspose, mul(boneTransform, vIn.binormalL).xyz).xyz;
 	vOut.binormalW = normalize(vOut.binormalW);
 	vOut.diffuseCoord = vIn.diffuseCoord;
 

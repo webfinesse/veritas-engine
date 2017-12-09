@@ -180,7 +180,7 @@ public:
 		for(const auto& object : desc.StaticObjects)
 		{
 			const unsigned int strides[1] = { static_cast<unsigned int>(object.VertexSize) };
-			const unsigned int offsets[1] = { object.MeshVertexStartIndex * object.VertexSize };
+			const unsigned int offsets[1] = { unsigned(object.MeshVertexStartIndex * object.VertexSize) };
 
 			SetVertexBuffer(object.VertexBuffer, strides, offsets);
 			SetIndexBuffer(object.IndexBuffer, object.MeshIndexStartIndex);
@@ -193,10 +193,10 @@ public:
 		m_animatedMeshShader->Activate();
 		m_animatedMeshShader->SetPassParameters(desc.PassBuffer);
 
-		for (const auto& object : desc.AnimatedObjects)
+		const auto animatedCallback = [&](const PerAnimatedObjectBufferDescription object)
 		{
 			const unsigned int strides[1] = { static_cast<unsigned int>(object.VertexSize) };
-			const unsigned int offsets[1] = { object.MeshVertexStartIndex * object.VertexSize };
+			const unsigned int offsets[1] = { unsigned(object.MeshVertexStartIndex * object.VertexSize) };
 
 			SetVertexBuffer(object.VertexBuffer, strides, offsets);
 			SetIndexBuffer(object.IndexBuffer, object.MeshIndexStartIndex);
@@ -204,7 +204,10 @@ public:
 			m_animatedMeshShader->SetPerObjectBuffer(object);
 
 			DrawIndexed(object.IndexIndicies.NumberOfElements, object.IndexIndicies.StartIndex, object.VertexIndicies.StartIndex);
-		}
+		};
+
+		std::for_each(desc.AnimatedObjects.cbegin(), desc.AnimatedObjects.cend(), animatedCallback);
+		std::for_each(desc.TransparentAnimatedObjects.cbegin(), desc.TransparentAnimatedObjects.cend(), animatedCallback);
 
 		Present();
 	}
