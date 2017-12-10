@@ -276,8 +276,5 @@
     <ClInclude Include="IAnimationManager.h">
       <Filter>Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="BoostExceptionHandler.h">
-      <Filter>Core</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

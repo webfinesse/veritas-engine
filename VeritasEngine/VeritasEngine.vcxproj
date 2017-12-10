@@ -236,7 +236,6 @@
     <ClInclude Include="AnimationClock.h" />
     <ClInclude Include="AnimationManager.h" />
     <ClInclude Include="AnimationState.h" />
-    <ClInclude Include="BoostExceptionHandler.h" />
     <ClInclude Include="BufferIndicies.h" />
     <ClInclude Include="IAnimationManager.h" />
     <ClInclude Include="PassBuffer.h" />
