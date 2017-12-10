@@ -7,7 +7,10 @@
 
 namespace VeritasEngine
 {
-	class EXPORT AnimationClock : SmallObject<>
+#pragma warning(push)
+#pragma warning(disable: 4251)
+
+	class EXPORT AnimationClock : public SmallObject<>
 	{
 	public:
 		AnimationClock(TimeDuration duration, TimeDuration startTime = std::chrono::seconds(0), float timeScale = 1.0f, bool isLooped = false);
@@ -34,6 +37,8 @@ namespace VeritasEngine
 		struct Impl;
 		std::unique_ptr<Impl> m_impl;
 	};
+
+#pragma warning(pop)
 }
 
 
