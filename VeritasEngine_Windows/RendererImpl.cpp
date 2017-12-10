@@ -207,7 +207,6 @@ public:
 		};
 
 		std::for_each(desc.AnimatedObjects.cbegin(), desc.AnimatedObjects.cend(), animatedCallback);
-		std::for_each(desc.TransparentAnimatedObjects.cbegin(), desc.TransparentAnimatedObjects.cend(), animatedCallback);
 
 		Present();
 	}

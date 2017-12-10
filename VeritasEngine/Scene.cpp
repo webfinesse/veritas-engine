@@ -62,7 +62,7 @@ struct VeritasEngine::Scene::Impl
 			const MaterialInstance& material = subset.GetMaterial()->GetData<MaterialInstance>();
 
 			renderer.StaticObjects.emplace_back(stackMatrix, inverseTranspose, &material, instance.GetIndexBuffer().GetNativeBuffer(),
-				subset.GetIndexBufferIndicies(), instance.GetIndexBufferStartIndex(), instance.GetVertexBuffer().GetNativeBuffer(), subset.GetVertexBufferIndicies(), instance.GetVertexSize(), instance.GetVertexBufferStartIndex());
+				subset.GetIndexBufferIndicies(), unsigned(instance.GetIndexBufferStartIndex()), instance.GetVertexBuffer().GetNativeBuffer(), subset.GetVertexBufferIndicies(), instance.GetVertexSize(), unsigned(instance.GetVertexBufferStartIndex()));
 			
 		}
 
@@ -86,7 +86,7 @@ struct VeritasEngine::Scene::Impl
 			const MaterialInstance& material = subset.GetMaterial()->GetData<MaterialInstance>();
 
 			renderer.AnimatedObjects.emplace_back(stackMatrix, inverseTranspose, &material, instance.GetIndexBuffer().GetNativeBuffer(),
-				subset.GetIndexBufferIndicies(), instance.GetIndexBufferStartIndex(), instance.GetVertexBuffer().GetNativeBuffer(), subset.GetVertexBufferIndicies(), instance.GetVertexSize(), instance.GetVertexBufferStartIndex(), m_animationManager->GetGlobalPoses(sceneNode.m_handle));
+				subset.GetIndexBufferIndicies(), unsigned(instance.GetIndexBufferStartIndex()), instance.GetVertexBuffer().GetNativeBuffer(), subset.GetVertexBufferIndicies(), instance.GetVertexSize(), unsigned(instance.GetVertexBufferStartIndex()), m_animationManager->GetGlobalPoses(sceneNode.m_handle));
 		}
 
 		for (const auto& item : currentNode.GetChildren())

@@ -65,7 +65,7 @@ float4 main(VertexOut pIn) : SV_TARGET
 
     CalculateLightSettings settings;
     settings.VertexPositionW = float4(pIn.posW, 1);
-    settings.ViewDirection = normalize(eyePosition - pIn.posW).xyz;
+    settings.ViewDirection = normalize(eyePosition.xyz - pIn.posW).xyz;
     settings.Normal = normal;
     settings.Material = material;
 
