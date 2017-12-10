@@ -94,6 +94,9 @@
     <ClCompile Include="AnimationManager.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
+    <ClCompile Include="BoostExceptionHandler.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DynamicLibraryHelper.h">
@@ -272,6 +275,9 @@
     </ClInclude>
     <ClInclude Include="IAnimationManager.h">
       <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="BoostExceptionHandler.h">
+      <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
