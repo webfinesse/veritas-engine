@@ -1,29 +1,63 @@
 #pragma once
-
-#include <memory>
+#include <any>
 
 namespace VeritasEngine
 {
 	class ResourceHandle
 	{
 	public:
-		ResourceHandle();
+		ResourceHandle()
+		{
+		}
 
-		~ResourceHandle();
+		ResourceHandle(const ResourceHandle& rhs)
+			: m_any{ rhs.m_any }
+		{
+		}
+
+		ResourceHandle( ResourceHandle&& rhs) noexcept
+			: m_any{ std::move(rhs.m_any) }
+		{
+		}
+
+		~ResourceHandle()
+		{
+		}
 
 		template <typename T>
-		const T& GetData() const;
+		const T& GetData() const
+		{
+			const T* ret = std::any_cast<T>(&m_any);
+			return *ret;
+		}
 		
 		template <typename T>
-		void SetData(T&& data);
+		void SetData(T&& data)
+		{
+			m_any = std::move(data);
+		}		
 
-		ResourceHandle(const ResourceHandle& rhs);
-		ResourceHandle& operator=(const ResourceHandle& handle);
+		ResourceHandle& operator=(const ResourceHandle& rhs)
+		{
+			if (this != &rhs)
+			{
+				m_any = rhs.m_any;
+			}
+
+			return *this;
+		}
+
+		ResourceHandle& operator=(ResourceHandle&& rhs) noexcept
+		{
+			if (this != &rhs)
+			{
+				m_any = std::move(rhs.m_any);
+			}
+
+			return *this;
+		}
 
 	private:
-		struct Impl;
-		std::unique_ptr<Impl> m_data;
+		std::any m_any{};
 	};
 }
-
-#include "ResourceHandle_details.h"

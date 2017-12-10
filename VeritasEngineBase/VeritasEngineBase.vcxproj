@@ -29,7 +29,6 @@
     <ClInclude Include="MeshInfo.h" />
     <ClInclude Include="miniz.h" />
     <ClInclude Include="ResourceHandle.h" />
-    <ClInclude Include="ResourceHandle_details.h" />
     <ClInclude Include="ResourceId.h" />
     <ClInclude Include="shared_scope.hpp" />
     <ClInclude Include="Singleton.h" />
@@ -40,7 +39,6 @@
     <ClCompile Include="FileHelper.cpp" />
     <ClCompile Include="MaterialInstance.cpp" />
     <ClCompile Include="miniz.c" />
-    <ClCompile Include="ResourceHandle.cpp" />
     <ClCompile Include="zip_file.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
