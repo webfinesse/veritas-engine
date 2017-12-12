@@ -7,11 +7,11 @@
 
 struct VeritasEngine::RenderingServices::Impl : public VeritasEngine::SmallObject<>
 {
-	Impl(std::shared_ptr<IScene> scene, std::shared_ptr<IIndexBuffer> indexBuffer, std::shared_ptr<IVertexBufferManager> vertexBufferManager, std::shared_ptr<IRenderer> renderer)
-		: m_renderer{ renderer },
-		m_vertexBufferManager{ vertexBufferManager },
-		m_indexBuffer { indexBuffer },
-		m_scene { scene }
+	Impl(std::shared_ptr<IScene>&& scene, std::shared_ptr<IIndexBuffer>&& indexBuffer, std::shared_ptr<IVertexBufferManager>&& vertexBufferManager, std::shared_ptr<IRenderer>&& renderer)
+		: m_renderer{ std::move(renderer) },
+		m_vertexBufferManager{ std::move(vertexBufferManager) },
+		m_indexBuffer { std::move(indexBuffer) },
+		m_scene { std::move(scene) }
 	{
 
 	}
@@ -23,7 +23,7 @@ struct VeritasEngine::RenderingServices::Impl : public VeritasEngine::SmallObjec
 };
 
 VeritasEngine::RenderingServices::RenderingServices(std::shared_ptr<IScene> scene, std::shared_ptr<IIndexBuffer> indexBuffer, std::shared_ptr<IVertexBufferManager> vertexBufferManager, std::shared_ptr<IRenderer> renderer)
-	: m_impl { std::make_unique<Impl>(scene, indexBuffer, vertexBufferManager, renderer) }
+	: m_impl { std::make_unique<Impl>(std::move(scene), std::move(indexBuffer), std::move(vertexBufferManager), std::move(renderer)) }
 {
 
 }

@@ -13,12 +13,11 @@ struct VeritasEngine::MatrixStack::Impl : public VeritasEngine::SmallObject<>
 {
 public:
     Impl()
-    : m_stack{}
     {
 		m_stack.reserve(10);
     }
 
-    std::vector<Matrix4x4> m_stack;
+    std::vector<Matrix4x4> m_stack{};
 };
 
 VeritasEngine::MatrixStack::MatrixStack()

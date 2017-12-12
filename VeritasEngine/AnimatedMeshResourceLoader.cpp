@@ -20,17 +20,17 @@ constexpr char extension[] = ".veam";
 
 struct VeritasEngine::AnimatedMeshResourceLoader::Impl
 {
-	Impl(std::shared_ptr<IRenderingServices> renderingServices)
-		: m_renderingServices { renderingServices }
+	Impl(std::shared_ptr<IRenderingServices>&& renderingServices)
+		: m_renderingServices { std::move(renderingServices) }
 	{
 		
 	}
 
-	std::shared_ptr<IRenderingServices> m_renderingServices;
+	std::shared_ptr<IRenderingServices> m_renderingServices{};
 };
 
 VeritasEngine::AnimatedMeshResourceLoader::AnimatedMeshResourceLoader(std::shared_ptr<IRenderingServices> renderingServices)
-	: m_impl(std::make_unique<Impl>(renderingServices))
+	: m_impl(std::make_unique<Impl>(std::move(renderingServices)))
 {
 
 }

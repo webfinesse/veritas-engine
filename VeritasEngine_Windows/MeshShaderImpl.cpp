@@ -19,8 +19,8 @@ using namespace Microsoft::WRL;
 
 struct VeritasEngine::MeshShaderImpl::Impl
 {
-	Impl(std::shared_ptr<DirectXState> dxState)
-		: m_dxState { dxState }
+	Impl(std::shared_ptr<DirectXState>&& dxState)
+		: m_dxState { std::move(dxState) }
 	{
 		
 	}
@@ -179,7 +179,7 @@ struct VeritasEngine::MeshShaderImpl::Impl
 };
 
 VeritasEngine::MeshShaderImpl::MeshShaderImpl(std::shared_ptr<DirectXState> dxState)
-	: m_impl(std::make_unique<Impl>(dxState))
+	: m_impl(std::make_unique<Impl>(std::move(dxState)))
 {
 
 }

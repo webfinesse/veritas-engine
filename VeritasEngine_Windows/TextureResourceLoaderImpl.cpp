@@ -11,7 +11,7 @@
 #include "DirectXTextureData.h"
 
 VeritasEngine::TextureResourceLoaderImpl::TextureResourceLoaderImpl(std::shared_ptr<DirectXState> dxState)
-	: m_dxState{ dxState }
+	: m_dxState{ std::move(dxState) }
 {
 	
 }

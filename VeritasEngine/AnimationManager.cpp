@@ -5,9 +5,6 @@
 #include "GameObjectPropertyKeys.h"
 #include "../VeritasEngineBase/ResourceHandle.h"
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-
 #include <vector>
 #include <algorithm>
 #include "MatrixStack.h"
@@ -23,8 +20,8 @@ struct GetAnimationResult
 
 struct VeritasEngine::AnimationManager::Impl
 {
-	Impl(std::shared_ptr<GamePropertyManager> gamePropertyManager)
-		: m_gamePropertyManager{ gamePropertyManager }
+	Impl(std::shared_ptr<GamePropertyManager>&& gamePropertyManager)
+		: m_gamePropertyManager{ std::move(gamePropertyManager) }
 	{
 		
 	}
@@ -106,12 +103,12 @@ struct VeritasEngine::AnimationManager::Impl
 	}
 
 	mutable GameObjectProperty<ResourceHandle*>* m_meshProperty{ nullptr };
-	std::shared_ptr<GamePropertyManager> m_gamePropertyManager;
+	std::shared_ptr<GamePropertyManager> m_gamePropertyManager{ nullptr };
 	std::vector<AnimationState> m_states{};
 };
 
 VeritasEngine::AnimationManager::AnimationManager(std::shared_ptr<GamePropertyManager> gamePropertyManager)
-	: m_impl{ std::make_unique<Impl>(gamePropertyManager) }
+	: m_impl{ std::make_unique<Impl>(std::move(gamePropertyManager)) }
 {
 	
 }

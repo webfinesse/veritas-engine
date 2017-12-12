@@ -12,7 +12,7 @@
 struct VeritasEngine::WorldSetup::Impl
 {
 	Impl(std::shared_ptr<IDeserializeMapping>&& deserializeMapping)
-		: m_deserializeMapping { deserializeMapping }
+		: m_deserializeMapping { std::move(deserializeMapping) }
 	{
 		
 	}

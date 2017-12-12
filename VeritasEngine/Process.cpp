@@ -2,13 +2,7 @@
 
 struct VeritasEngine::Process::Impl : public VeritasEngine::SmallObject<>
 {
-	Impl()
-		: m_status{ Process::Status::Uninitalized }
-	{
-
-	}
-
-	Process::Status m_status;
+	Process::Status m_status { Process::Status::Uninitalized };
 };
 
 VeritasEngine::Process::Process()

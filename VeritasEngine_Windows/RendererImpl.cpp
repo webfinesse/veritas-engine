@@ -21,8 +21,8 @@ using namespace Microsoft::WRL;
 struct VeritasEngine::RendererImpl::Impl
 {
 public:
-	Impl(std::shared_ptr<DirectXState> dxState, std::shared_ptr<IMeshShader> meshShader, std::shared_ptr<IAnimatedMeshShader> animatedMeshShader)
-		: m_dxState { dxState }, m_meshShader{ meshShader }, m_animatedMeshShader { animatedMeshShader }
+	Impl(std::shared_ptr<DirectXState>&& dxState, std::shared_ptr<IMeshShader>&& meshShader, std::shared_ptr<IAnimatedMeshShader>&& animatedMeshShader)
+		: m_dxState { std::move(dxState) }, m_meshShader{ std::move(meshShader) }, m_animatedMeshShader { std::move(animatedMeshShader) }
 	{
 			
 	}
@@ -238,7 +238,7 @@ float VeritasEngine::RendererImpl::GetAspectRatio() const
 }
 
 VeritasEngine::RendererImpl::RendererImpl(std::shared_ptr<DirectXState> dxState, std::shared_ptr<IMeshShader> meshShader, std::shared_ptr<IAnimatedMeshShader> animatedMeshShader)
-	: m_impl(std::make_unique<Impl>(dxState, meshShader, animatedMeshShader))
+	: m_impl(std::make_unique<Impl>(std::move(dxState), std::move(meshShader), std::move(animatedMeshShader)))
 {
 
 }

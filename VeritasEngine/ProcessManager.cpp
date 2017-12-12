@@ -3,13 +3,7 @@
 
 struct VeritasEngine::ProcessManager::Impl: public VeritasEngine::SmallObject<>
 {
-	Impl()
-		: m_processes{}
-	{
-
-	}
-
-	std::list<ProcessPtr> m_processes;
+	std::list<ProcessPtr> m_processes{};
 };
 
 VeritasEngine::ProcessManager::ProcessManager()

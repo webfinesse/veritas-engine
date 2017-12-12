@@ -20,8 +20,8 @@ constexpr char extension[] = ".vem";
 
 struct VeritasEngine::MeshResourceLoader::Impl
 {
-	Impl(std::shared_ptr<IRenderingServices> renderingServices)
-		: m_renderingServices { renderingServices }
+	Impl(std::shared_ptr<IRenderingServices>&& renderingServices)
+		: m_renderingServices { std::move(renderingServices) }
 	{
 		
 	}
@@ -30,7 +30,7 @@ struct VeritasEngine::MeshResourceLoader::Impl
 };
 
 VeritasEngine::MeshResourceLoader::MeshResourceLoader(std::shared_ptr<IRenderingServices> renderingServices)
-	: m_impl(std::make_unique<Impl>(renderingServices))
+	: m_impl(std::make_unique<Impl>(std::move(renderingServices)))
 {
 }
 

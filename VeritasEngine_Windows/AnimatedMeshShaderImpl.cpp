@@ -24,8 +24,8 @@ struct AnimationBuffer
 
 struct VeritasEngine::AnimatedMeshShaderImpl::Impl
 {
-	Impl(std::shared_ptr<DirectXState> dxState)
-		: m_dxState{ dxState }
+	Impl(std::shared_ptr<DirectXState>&& dxState)
+		: m_dxState{ std::move(dxState) }
 	{
 
 	}
@@ -209,7 +209,7 @@ struct VeritasEngine::AnimatedMeshShaderImpl::Impl
 };
 
 VeritasEngine::AnimatedMeshShaderImpl::AnimatedMeshShaderImpl(std::shared_ptr<VeritasEngine::DirectXState> dxState)
-	: m_impl(std::make_unique<Impl>(dxState))
+	: m_impl(std::make_unique<Impl>(std::move(dxState)))
 {
 
 }

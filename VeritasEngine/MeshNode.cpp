@@ -5,7 +5,6 @@
 struct VeritasEngine::MeshNode::Impl : public VeritasEngine::SmallObject<>
 {
 	Impl()
-		: m_transform{}, m_meshIndicies{}, m_children{}, m_jointIndex{}
 	{
 
 	}
@@ -17,10 +16,10 @@ struct VeritasEngine::MeshNode::Impl : public VeritasEngine::SmallObject<>
 	}
 
 
-	VeritasEngine::Matrix4x4 m_transform;
-	std::vector<unsigned int> m_meshIndicies;
-	std::vector<MeshNode> m_children;
-	int m_jointIndex;
+	VeritasEngine::Matrix4x4 m_transform{};
+	std::vector<unsigned int> m_meshIndicies{};
+	std::vector<MeshNode> m_children{};
+	int m_jointIndex{};
 };
 
 VeritasEngine::MeshNode::MeshNode()

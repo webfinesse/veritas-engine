@@ -6,8 +6,8 @@
 
 struct VeritasEngine::VertexBufferManager::Impl: public VeritasEngine::SmallObject<>
 {
-	Impl(std::shared_ptr<IVertexBufferFactory> factory)
-		: m_factory{ factory }
+	Impl(std::shared_ptr<IVertexBufferFactory>&& factory)
+		: m_factory{ std::move(factory) }
 	{
 
 	}
@@ -38,7 +38,7 @@ VeritasEngine::IVertexBuffer* VeritasEngine::VertexBufferManager::GetBuffer(Vert
 }
 
 VeritasEngine::VertexBufferManager::VertexBufferManager(std::shared_ptr<IVertexBufferFactory> factory)
-	: m_impl(std::make_unique<Impl>(factory))
+	: m_impl(std::make_unique<Impl>(std::move(factory)))
 {
 	
 }

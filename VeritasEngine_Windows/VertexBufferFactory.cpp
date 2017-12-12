@@ -2,8 +2,8 @@
 #include "VertexBufferImpl.h"
 #include "DirectXState.h"
 
-VeritasEngine::VertexBufferFactory::VertexBufferFactory(const std::shared_ptr<DirectXState> dxState)
-	: m_dxState{ dxState }
+VeritasEngine::VertexBufferFactory::VertexBufferFactory(std::shared_ptr<DirectXState> dxState)
+	: m_dxState{ std::move(dxState) }
 {
 
 }

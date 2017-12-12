@@ -1,6 +1,6 @@
 #include "GameClock.h"
 
-struct VeritasEngine::GameClock::Impl
+struct VeritasEngine::GameClock::Impl : public SmallObject<>
 {
 	TimePoint m_currentTime { std::chrono::high_resolution_clock::now() };
 	bool m_isPaused { false };
