@@ -1,14 +1,15 @@
-﻿#include "AnimationManager.h"
+﻿#include <vector>
+#include <algorithm>
+
+#include "AnimationManager.h"
 #include "AnimationState.h"
 #include "GamePropertyManager.h"
 #include "../VeritasEngineBase/Animation.h"
 #include "GameObjectPropertyKeys.h"
 #include "../VeritasEngineBase/ResourceHandle.h"
-
-#include <vector>
-#include <algorithm>
 #include "MatrixStack.h"
 #include "MeshNode.h"
+#include "IJobManager.h"
 
 struct GetAnimationResult
 {
@@ -20,10 +21,52 @@ struct GetAnimationResult
 
 struct VeritasEngine::AnimationManager::Impl
 {
-	Impl(std::shared_ptr<GamePropertyManager>&& gamePropertyManager)
-		: m_gamePropertyManager{ std::move(gamePropertyManager) }
+	Impl(std::shared_ptr<GamePropertyManager>&& gamePropertyManager, std::shared_ptr<IJobManager>&& jobManager)
+		: m_gamePropertyManager{ std::move(gamePropertyManager) }, m_jobManager { std::move(jobManager) }
 	{
 		
+	}
+
+	Job* CalculatePoses(TimeDuration update)
+	{
+		const auto jobCallback = [&, update](Job* job, const void* data)
+		{
+			for (auto& anim : m_states)
+			{
+				const auto innerJob = [&, update](Job* job, const void* data)
+				{
+					const auto animationResult = GetAnimation(anim.Handle, anim.AnimationName);
+
+					if (animationResult.Animation != nullptr)
+					{
+						anim.Clock.Update(update);
+
+						const auto currentTime = anim.Clock.GetCurrentTime().count();
+
+						for (const auto& boneInfo : animationResult.Animation->BoneInfo)
+						{
+							const auto scale = GetChannel(boneInfo.ScaleChannel, currentTime);
+							const auto rotation = GetChannel(boneInfo.RotationChannel, currentTime);
+							const auto translation = GetChannel(boneInfo.TranslationChannel, currentTime);
+
+							anim.LocalPoses[boneInfo.BoneIndex] = MathHelpers::CalculateSQT(scale, rotation, translation);
+						}
+
+						MatrixStack matrixStack;
+						CalculateGlobalPoses(animationResult, matrixStack, animationResult.Mesh->GetRootNode(), anim);
+					}
+				};
+
+				const auto calcJob = m_jobManager->CreateJobAsChild(job, innerJob);
+				m_jobManager->Run(calcJob);
+			}
+		};
+
+		const auto job = m_jobManager->CreateJob(jobCallback);	
+
+		m_jobManager->Run(job);
+
+		return job;
 	}
 
 	ResourceHandle* GetMesh(GameObjectHandle handle) const
@@ -104,11 +147,12 @@ struct VeritasEngine::AnimationManager::Impl
 
 	mutable GameObjectProperty<ResourceHandle*>* m_meshProperty{ nullptr };
 	std::shared_ptr<GamePropertyManager> m_gamePropertyManager{ nullptr };
+	std::shared_ptr<IJobManager> m_jobManager{ nullptr };
 	std::vector<AnimationState> m_states{};
 };
 
-VeritasEngine::AnimationManager::AnimationManager(std::shared_ptr<GamePropertyManager> gamePropertyManager)
-	: m_impl{ std::make_unique<Impl>(std::move(gamePropertyManager)) }
+VeritasEngine::AnimationManager::AnimationManager(std::shared_ptr<GamePropertyManager> gamePropertyManager, std::shared_ptr<IJobManager> jobManager)
+	: m_impl{ std::make_unique<Impl>(std::move(gamePropertyManager), std::move(jobManager)) }
 {
 	
 }
@@ -123,31 +167,9 @@ void VeritasEngine::AnimationManager::AddAnimaton(GameObjectHandle handle, Strin
 	}
 }
 
-void VeritasEngine::AnimationManager::CalculatePoses(TimeDuration update)
+VeritasEngine::Job* VeritasEngine::AnimationManager::CalculatePoses(TimeDuration update)
 {
-	for(auto& anim : m_impl->m_states)
-	{
-		const auto animationResult = m_impl->GetAnimation(anim.Handle, anim.AnimationName);
-
-		if(animationResult.Animation != nullptr)
-		{
-			anim.Clock.Update(update);
-
-			const auto currentTime = anim.Clock.GetCurrentTime().count();
-
-			for(const auto& boneInfo : animationResult.Animation->BoneInfo)
-			{
-				const auto scale = Impl::GetChannel(boneInfo.ScaleChannel, currentTime);
-				const auto rotation = Impl::GetChannel(boneInfo.RotationChannel, currentTime);
-				const auto translation = Impl::GetChannel(boneInfo.TranslationChannel, currentTime);
-
-				anim.LocalPoses[boneInfo.BoneIndex] = MathHelpers::CalculateSQT(scale, rotation, translation);
-			}
-
-			MatrixStack matrixStack;
-			Impl::CalculateGlobalPoses(animationResult, matrixStack, animationResult.Mesh->GetRootNode(), anim);
-		}
-	}
+	return m_impl->CalculatePoses(update);
 }
 
 const VeritasEngine::Matrix4x4* VeritasEngine::AnimationManager::GetGlobalPoses(GameObjectHandle handle)

@@ -221,6 +221,7 @@
     <ClCompile Include="MeshSubset.cpp" />
     <ClCompile Include="SkeletonResourceLoader.cpp" />
     <ClCompile Include="SmallObject.cpp" />
+    <ClCompile Include="JobManager.cpp" />
     <ClCompile Include="TextureResourceLoader.cpp" />
     <ClCompile Include="Process.cpp" />
     <ClCompile Include="ProcessManager.cpp" />
@@ -238,6 +239,9 @@
     <ClInclude Include="AnimationState.h" />
     <ClInclude Include="BufferIndicies.h" />
     <ClInclude Include="IAnimationManager.h" />
+    <ClInclude Include="IJobManager.h" />
+    <ClInclude Include="Job.h" />
+    <ClInclude Include="JobManager.h" />
     <ClInclude Include="PassBuffer.h" />
     <ClInclude Include="ClockUnits.h" />
     <ClInclude Include="EngineDepenencyInjector.h" />

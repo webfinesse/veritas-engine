@@ -17,6 +17,9 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
+    <Filter Include="JobManager">
+      <UniqueIdentifier>{533bdc5a-65b9-43db-a70d-851999beea5b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ResourceManager.cpp">
@@ -96,6 +99,9 @@
     </ClCompile>
     <ClCompile Include="BoostExceptionHandler.cpp">
       <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="JobManager.cpp">
+      <Filter>JobManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -275,6 +281,15 @@
     </ClInclude>
     <ClInclude Include="IAnimationManager.h">
       <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="JobManager.h">
+      <Filter>JobManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Job.h">
+      <Filter>JobManager</Filter>
+    </ClInclude>
+    <ClInclude Include="IJobManager.h">
+      <Filter>JobManager</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

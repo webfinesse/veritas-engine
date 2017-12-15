@@ -6,6 +6,7 @@
 #include "IResourceManager.h"
 #include "IGameClock.h"
 #include "IAnimationManager.h"
+#include "IJobManager.h"
 
 #include "IRenderer.h"
 #include "VertexBufferManager.h"
@@ -24,8 +25,9 @@ struct VeritasEngine::Engine::Impl : public VeritasEngine::SmallObject<>
 	     std::shared_ptr<IResourceManager>&& resourceManager,
 		 std::shared_ptr<IGameClock>&& gameClock,
 		 std::shared_ptr<GamePropertyManager>&& gamePropertyManager,
-		 std::shared_ptr<IAnimationManager>&& animationManager)
-		: m_gameClock{ gameClock }, m_processManager{ processManager }, m_worldSetup{ worldSetup }, m_resourceManager{ resourceManager }, m_renderingServices{ renderingServices }, m_gamePropertyManager { gamePropertyManager }, m_animationManager{ animationManager }
+		 std::shared_ptr<IAnimationManager>&& animationManager,
+		 std::shared_ptr<IJobManager>&& jobManager)
+		: m_gameClock{ gameClock }, m_processManager{ processManager }, m_worldSetup{ worldSetup }, m_resourceManager{ resourceManager }, m_renderingServices{ renderingServices }, m_gamePropertyManager { gamePropertyManager }, m_animationManager{ animationManager }, m_jobManager { jobManager }
 	{
 
 	}
@@ -37,6 +39,7 @@ struct VeritasEngine::Engine::Impl : public VeritasEngine::SmallObject<>
 	std::shared_ptr<IRenderingServices> m_renderingServices;
 	std::shared_ptr<GamePropertyManager> m_gamePropertyManager;
 	std::shared_ptr<IAnimationManager> m_animationManager;
+	std::shared_ptr<IJobManager> m_jobManager;
 
 	float m_currentFps { 0 };
 	bool m_isInitialized { false };
@@ -49,8 +52,9 @@ VeritasEngine::Engine::Engine(std::shared_ptr<IProcessManager> processManager,
 							  std::shared_ptr<IResourceManager> resourceManager,
 						      std::shared_ptr<IGameClock> gameClock,
 							  std::shared_ptr<GamePropertyManager> gamePropertyManager,
-							  std::shared_ptr<IAnimationManager> animationManager)
-	: m_impl{ std::make_unique<Impl>(std::move(processManager), std::move(worldSetup), std::move(renderingServices), std::move(resourceManager), std::move(gameClock), std::move(gamePropertyManager), std::move(animationManager)) }
+							  std::shared_ptr<IAnimationManager> animationManager,
+							  std::shared_ptr<IJobManager> jobManager)
+	: m_impl{ std::make_unique<Impl>(std::move(processManager), std::move(worldSetup), std::move(renderingServices), std::move(resourceManager), std::move(gameClock), std::move(gamePropertyManager), std::move(animationManager), std::move(jobManager)) }
 {
 	
 }
@@ -110,6 +114,8 @@ void VeritasEngine::Engine::Init(void* osData, unsigned int bufferWidth, unsigne
 	m_impl->m_renderingServices->GetVertexBufferManager().RegisterVertexFormat(Vertex::Type, sizeof(Vertex));
 	m_impl->m_renderingServices->GetVertexBufferManager().RegisterVertexFormat(SkinnedVertex::Type, sizeof(SkinnedVertex));
 
+	m_impl->m_jobManager->Init();
+
 	m_impl->m_isInitialized = true;
 }
 
@@ -128,10 +134,12 @@ void VeritasEngine::Engine::Loop()
 		delta = OneFrame;
 	}
 
+	Job* animationManagerJob{ nullptr };
+
 	if (!m_impl->m_gameClock->GetIsPaused())
 	{
 		m_impl->m_processManager->UpdateProcesses(delta);
-		m_impl->m_animationManager->CalculatePoses(delta);
+		animationManagerJob = m_impl->m_animationManager->CalculatePoses(delta);
 	}
 
 	m_impl->m_frameDesc.StaticObjects.resize(0);
@@ -139,6 +147,11 @@ void VeritasEngine::Engine::Loop()
 
 	auto& renderer = m_impl->m_renderingServices->GetRenderer();
 	m_impl->m_frameDesc.AspectRatio = renderer.GetAspectRatio();
+
+	if(animationManagerJob)
+	{
+		m_impl->m_jobManager->Wait(animationManagerJob);
+	}
 
 	m_impl->m_renderingServices->GetScene().OnRender(m_impl->m_frameDesc);
 	renderer.Render(m_impl->m_frameDesc);
