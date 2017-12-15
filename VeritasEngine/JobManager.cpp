@@ -202,10 +202,14 @@ private:
 		{
 			g_hasJobsConditionVariable.wait(lock, [&] { return impl->m_activeJobCount > 0 || !g_runJobs; });
 
-			const auto job = impl->GetJob();
-			if (job != nullptr)
+			// double check if we need to run jobs since we may be trying to shut down the engine
+			if (g_runJobs)
 			{
-				impl->ExecuteJob(job);
+				const auto job = impl->GetJob();
+				if (job != nullptr)
+				{
+					impl->ExecuteJob(job);
+				}
 			}
 		}		
 	}
