@@ -21,7 +21,7 @@ constexpr unsigned int MAX_NUMBER_OF_QUEUES{ 8 };
 bool g_runJobs { true };
 std::condition_variable g_hasJobsConditionVariable{};
 
-struct VeritasEngine::JobManager::WorkQueue : SmallObject<>
+struct VeritasEngine::JobManager::WorkQueue
 {
 	void Push(Job* job)
 	{
@@ -71,7 +71,7 @@ private:
 	std::mutex m_section{};
 };
 
-struct VeritasEngine::JobManager::Impl : SmallObject<>
+struct VeritasEngine::JobManager::Impl
 {
 	Impl()
 	: m_queueCount{ std::min(std::thread::hardware_concurrency(), MAX_NUMBER_OF_QUEUES) }
@@ -219,7 +219,7 @@ private:
 	static thread_local std::mutex m_threadMainMutex;
 	static thread_local Job m_jobs[NUMBER_OF_JOBS];
 
-	unsigned int m_queueCount; // 4
+	unsigned int m_queueCount;
 	std::atomic_int32_t m_activeJobCount{ 0 };
 	WorkQueue m_queues[MAX_NUMBER_OF_QUEUES];
 	std::vector<std::thread> m_workerThreads{};

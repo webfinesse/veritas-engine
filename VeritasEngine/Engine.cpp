@@ -27,7 +27,7 @@ struct VeritasEngine::Engine::Impl : public VeritasEngine::SmallObject<>
 		 std::shared_ptr<GamePropertyManager>&& gamePropertyManager,
 		 std::shared_ptr<IAnimationManager>&& animationManager,
 		 std::shared_ptr<IJobManager>&& jobManager)
-		: m_gameClock{ gameClock }, m_processManager{ processManager }, m_worldSetup{ worldSetup }, m_resourceManager{ resourceManager }, m_renderingServices{ renderingServices }, m_gamePropertyManager { gamePropertyManager }, m_animationManager{ animationManager }, m_jobManager { jobManager }
+		: m_gameClock{ std::move(gameClock) }, m_processManager{ std::move(processManager) }, m_worldSetup{ std::move(worldSetup) }, m_resourceManager{ std::move(resourceManager) }, m_renderingServices{ std::move(renderingServices) }, m_gamePropertyManager { std::move(gamePropertyManager) }, m_animationManager{ std::move(animationManager) }, m_jobManager { std::move(jobManager) }
 	{
 
 	}
