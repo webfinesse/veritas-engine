@@ -17,13 +17,15 @@ namespace VeritasEngine
 #else
 	constexpr unsigned JOB_DATA_SPACE{ 80 };
 #endif
+#else
+	static_assert(0 && "Padding For Job Not Specified For Platform")
 #endif
 
 	struct Job
 	{
 		JobFunction Callback; // 64 bytes on 64, 40 on 32 bit
 		Job* Parent; // 8 bytes on 64, 4 on 32 bit
-		std::atomic<unsigned> UnfinishedJobs; // 4 bytes on 64
+		std::atomic_int32_t UnfinishedJobs; // 4 bytes on 64
 		char Data[JOB_DATA_SPACE];
 	};
 

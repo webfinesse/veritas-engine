@@ -2,13 +2,19 @@
 
 #include <vector>
 #include <mutex>
-#include <shared_mutex>
-#include <immintrin.h>
+
 #include <thread>
 #include <algorithm>
 #include <cassert>
 
 #include "Job.h"
+
+#if _WIN32 || _WIN64
+#include <immintrin.h>
+#define YIELD_COMMAND _mm_pause();
+#else
+static_assert(0 && "YIELD COMMAND Not Specified For Platform")
+#endif
 
 
 
@@ -25,50 +31,67 @@ struct VeritasEngine::JobManager::WorkQueue
 {
 	void Push(Job* job)
 	{
-		std::scoped_lock<std::mutex> lock{ m_section };
-
-		m_jobs[m_bottom & NUMBER_OF_JOBS_MASK] = job;
-		++m_bottom;
+		auto b = m_bottom.load(std::memory_order_acquire);
+		m_jobs[b & NUMBER_OF_JOBS_MASK] = job;
+		m_bottom.store(b + 1, std::memory_order_release);
 	}
 
 	Job* Pop()
 	{
-		std::scoped_lock<std::mutex> lock{ m_section };
+		auto b = m_bottom.load(std::memory_order_acquire) - 1;
+		m_bottom.exchange(b, std::memory_order_release);
 
-		const auto jobCount = m_bottom - m_top;
-
-		if (jobCount <= 0)
+		auto t = m_top.load();
+		if(t <= b)
 		{
+			auto job = m_jobs[b & NUMBER_OF_JOBS_MASK];
+
+			if(t != b)
+			{
+				return job;
+			}
+
+			if(!m_top.compare_exchange_strong(t, t+1))
+			{
+				job = nullptr;
+			}
+
+			m_bottom = t + 1;
+			return job;
+		}
+		else
+		{
+			m_bottom = t;
 			return nullptr;
 		}
-
-		--m_bottom;
-		return m_jobs[m_bottom & NUMBER_OF_JOBS_MASK];
 	}
 
 	Job* Steal()
 	{
-		std::scoped_lock<std::mutex> lock{ m_section };
+		auto t = m_top.load(std::memory_order_acquire);
+		auto b = m_bottom.load(std::memory_order_acquire);
+		if(t < b)
+		{
+			const auto job = m_jobs[t & NUMBER_OF_JOBS_MASK];
 
-		const auto jobCount = m_bottom - m_top;
-		
+			if(!m_top.compare_exchange_strong(t, t+1))
+			{
+				return nullptr;
+			}
 
-		if (jobCount <= 0)
+			return job;
+		}
+		else
 		{
 			return nullptr;
 		}
-
-		Job* job = m_jobs[m_top & NUMBER_OF_JOBS_MASK];
-		++m_top;
-
-		return job;
 	}
 
 private:
 	Job* m_jobs[NUMBER_OF_JOBS];
-	int m_bottom{ 0 };
-	int m_top{ 0 };
-	std::mutex m_section{};
+	std::atomic_long m_bottom{ 0 };
+	std::atomic_long m_top{ 0 };
+	
 };
 
 struct VeritasEngine::JobManager::Impl
@@ -76,7 +99,7 @@ struct VeritasEngine::JobManager::Impl
 	Impl()
 	: m_queueCount{ std::min(std::thread::hardware_concurrency(), MAX_NUMBER_OF_QUEUES) }
 	{
-
+		static_assert(std::atomic_int32_t::is_always_lock_free == true && "Platform is not lock free");
 	}
 
 	void Init()
@@ -189,7 +212,7 @@ private:
 
 	static void Yield()
 	{
-		_mm_pause();
+		YIELD_COMMAND
 	}
 
 	static void ThreadMain(Impl* impl, const unsigned int queueIndex)
