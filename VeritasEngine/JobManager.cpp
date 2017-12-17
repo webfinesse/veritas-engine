@@ -31,20 +31,15 @@ struct VeritasEngine::JobManager::WorkQueue
 {
 	void Push(Job* job)
 	{
-		auto b = m_bottom.load(std::memory_order_relaxed);
-		m_jobs[b & NUMBER_OF_JOBS_MASK] = job;
-
-		std::atomic_thread_fence(std::memory_order_acquire);
-
-		m_bottom.store(b + 1, std::memory_order_relaxed);
+		const auto b = m_bottom.fetch_add(1);
+		m_jobs[b & NUMBER_OF_JOBS_MASK] = job;		
 	}
 
 	Job* Pop()
 	{
-		auto b = m_bottom.load(std::memory_order_relaxed) - 1;
-		m_bottom.exchange(b, std::memory_order_relaxed);
-
-		auto t = m_top.load(std::memory_order_relaxed);
+		--m_bottom;
+		const auto b = m_bottom.load();
+		auto t = m_top.load();
 		if(t <= b)
 		{
 			auto job = m_jobs[b & NUMBER_OF_JOBS_MASK];
@@ -54,7 +49,7 @@ struct VeritasEngine::JobManager::WorkQueue
 				return job;
 			}
 
-			if(!m_top.compare_exchange_strong(t, t+1, std::memory_order_release))
+			if(!m_top.compare_exchange_strong(t, t+1))
 			{
 				job = nullptr;
 			}
@@ -71,16 +66,13 @@ struct VeritasEngine::JobManager::WorkQueue
 
 	Job* Steal()
 	{
-		auto t = m_top.load(std::memory_order_relaxed);
-
-		std::atomic_thread_fence(std::memory_order_acquire);
-
-		auto b = m_bottom.load(std::memory_order_relaxed);
+		auto t = m_top.load();
+		const auto b = m_bottom.load();
 		if(t < b)
 		{
 			const auto job = m_jobs[t & NUMBER_OF_JOBS_MASK];
 
-			if(!m_top.compare_exchange_strong(t, t+1, std::memory_order_release))
+			if(!m_top.compare_exchange_strong(t, t+1))
 			{
 				return nullptr;
 			}
