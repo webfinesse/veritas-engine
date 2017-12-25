@@ -10,13 +10,12 @@
 #include "MeshNode.h"
 #include "Skeleton.h"
 #include "../VeritasEngineBase/Animation.h"
-#include "../VeritasEngineBase/ResourceHandle.h"
 
 
 struct VeritasEngine::MeshInstance::Impl : SmallObject<>
 {
 	MeshNode m_root{};
-	const ResourceHandle* m_skeleton{};
+	ResourceHandle m_skeleton{};
 	IVertexBuffer* m_vertexBuffer{};
 	IIndexBuffer* m_indexBuffer{};
 	BufferIndicies m_vertexBufferIndicies{0, 0};
@@ -92,12 +91,12 @@ std::size_t VeritasEngine::MeshInstance::GetIndexBufferStartIndex() const
 	return m_impl->m_indexBufferIndicies.StartIndex;
 }
 
-void VeritasEngine::MeshInstance::SetSkeleton(const ResourceHandle* skeleton)
+void VeritasEngine::MeshInstance::SetSkeleton(const ResourceHandle skeleton)
 {
 	m_impl->m_skeleton = skeleton;
 }
 
-const VeritasEngine::ResourceHandle* VeritasEngine::MeshInstance::GetSkeleton() const
+VeritasEngine::ResourceHandle VeritasEngine::MeshInstance::GetSkeleton() const
 {
 	return m_impl->m_skeleton;
 }

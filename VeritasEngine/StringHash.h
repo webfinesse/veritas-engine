@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <string>
+#include <zlib.h>
 
 // based on http://stackoverflow.com/questions/2111667/compile-time-string-hashing
 
@@ -101,9 +102,13 @@ namespace VeritasEngine
 		return Hash(string, strlen(string) - 1) ^ 0xFFFFFFFF;
 	}
 
-	inline StringHash Hash(std::string string)
+	inline StringHash Hash(const std::string& string)
 	{
-		return Hash(string.c_str(), string.length() - 1) ^ 0xFFFFFFFF;
+		//return Hash(string.c_str(), string.length() - 1) ^ 0xFFFFFFFF;
+		unsigned long  crc = crc32(0L, Z_NULL, 0);
+		crc = crc32(crc, reinterpret_cast<const unsigned char*>(string.c_str()), string.length());
+
+		return (crc);
 	}
 }
 

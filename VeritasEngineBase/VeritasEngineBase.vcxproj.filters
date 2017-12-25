@@ -45,9 +45,6 @@
     <ClInclude Include="zip_file.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ResourceHandle.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="MaterialInstance.h">
       <Filter>Header Files</Filter>
     </ClInclude>

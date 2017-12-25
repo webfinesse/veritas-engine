@@ -10,11 +10,14 @@
 namespace VeritasEngine
 {
 	struct Job;
+	class IResourceManager;
 
 	class EXPORT IAnimationManager
 	{
 	public:
 		virtual ~IAnimationManager() = default;
+
+		virtual void Init(std::shared_ptr<IResourceManager> resourceManager) = 0;
 
 		virtual void AddAnimaton(GameObjectHandle handle, StringHash animationName, bool isLooped, float timeScale = 1) = 0;
 		virtual Job* CalculatePoses(TimeDuration update) = 0;

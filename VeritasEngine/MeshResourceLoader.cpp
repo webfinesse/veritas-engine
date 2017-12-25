@@ -13,8 +13,9 @@
 
 #include <memory>
 
-#include "../VeritasEngineBase/ResourceHandle.h"
 #include "ResourceManager.h"
+#include "IJobManager.h"
+#include "ResourceData.h"
 
 constexpr char extension[] = ".vem";
 
@@ -34,8 +35,6 @@ VeritasEngine::MeshResourceLoader::MeshResourceLoader(std::shared_ptr<IRendering
 {
 }
 
-VeritasEngine::MeshResourceLoader::~MeshResourceLoader() = default;
-
 const char* VeritasEngine::MeshResourceLoader::GetExtension() const
 {
 	return extension;
@@ -47,7 +46,7 @@ VeritasEngine::StringHash VeritasEngine::MeshResourceLoader::GetExtensionHash() 
 	return hash;
 }
 
-void VeritasEngine::MeshResourceLoader::LoadResource(IResourceManager& manager, std::istream& data, ResourceHandle& handle)
+void VeritasEngine::MeshResourceLoader::LoadResource(IResourceManager& manager, Job* parentJob, std::istream& data, ResourceData& handle)
 {
 	cereal::BinaryInputArchive archive(data);
 
@@ -65,15 +64,6 @@ void VeritasEngine::MeshResourceLoader::LoadResource(IResourceManager& manager, 
 
 	mesh.SetGlobalInverseTransform(info.m_globalInverseTransform);
 
-	for(const auto& serializedSubset : info.m_subsets)
-	{
-		auto& instanceSubset = mesh.CreateSubset(serializedSubset);
-		
-		const auto material = manager.GetResource(serializedSubset.m_materialId);
-
-		instanceSubset.SetMaterial(material);
-	}
-
 	auto& rootNode = mesh.GetRootNode();
 
 	rootNode.SetTransform(info.m_root.m_transform);
@@ -82,6 +72,12 @@ void VeritasEngine::MeshResourceLoader::LoadResource(IResourceManager& manager, 
 	for (auto& child : info.m_root.m_children)
 	{
 		rootNode.AddChild({ child });
+	}
+
+	for (const auto& serializedSubset : info.m_subsets)
+	{
+		auto& subset = mesh.CreateSubset(serializedSubset);
+		subset.SetMaterial(manager.LoadResource(serializedSubset.m_materialId, parentJob));
 	}
 
 	handle.SetData(std::move(mesh));

@@ -27,7 +27,7 @@ public:
 			
 	}
 
-	void Init(void* osData, unsigned int bufferWidth, unsigned int bufferHeight)
+	void Init(void* osData, unsigned int bufferWidth, unsigned int bufferHeight, std::shared_ptr<IResourceManager> resourceManager)
 	{
 		HWND windowHandle = static_cast<HWND>(osData);
 		int creationFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
@@ -85,8 +85,8 @@ public:
 
 		m_dxState->Context->RSSetState(resultRasterizer.Get());
 
-		m_meshShader->Init();
-		m_animatedMeshShader->Init();
+		m_meshShader->Init(resourceManager);
+		m_animatedMeshShader->Init(resourceManager);
 	}
 
 	void Resize(unsigned int bufferWidth, unsigned int bufferHeight)
@@ -217,9 +217,9 @@ public:
 	std::shared_ptr<IAnimatedMeshShader> m_animatedMeshShader;
 };
 
-void VeritasEngine::RendererImpl::Init(void* osData, unsigned int bufferWidth, unsigned int bufferHeight)
+void VeritasEngine::RendererImpl::Init(void* osData, unsigned int bufferWidth, unsigned int bufferHeight, std::shared_ptr<IResourceManager> resourceManager)
 {
-	m_impl->Init(osData, bufferWidth, bufferHeight);
+	m_impl->Init(osData, bufferWidth, bufferHeight, resourceManager);
 }
 
 void VeritasEngine::RendererImpl::Resize(unsigned int bufferWidth, unsigned int bufferHeight)

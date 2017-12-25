@@ -11,10 +11,9 @@
 
 #include "FrameDescription.h"
 #include "../VeritasEngineBase/MathTypes.h"
-#include "../VeritasEngineBase/MaterialInstance.h"
-#include "../VeritasEngineBase/ResourceHandle.h"
 #include "../VeritasEngineBase/Light.h"
 #include "GamePropertyManager.h"
+#include "ResourceData.h"
 
 #include "GameObjectPropertyKeys.h"
 
@@ -33,12 +32,12 @@ struct SceneNode : public VeritasEngine::SmallObject<>
 struct VeritasEngine::Scene::Impl
 {
 	Impl(std::shared_ptr<GamePropertyManager>&& gamePropertyManager, std::shared_ptr<IAnimationManager>&& animationManager)
-		: m_gamePropertyManager{ std::move(gamePropertyManager) }, m_animationManager { std::move(animationManager) }
+		: m_gamePropertyManager{ std::move(gamePropertyManager) }, m_animationManager{ std::move(animationManager) }
 	{
 		m_lightHandles.reserve(8);
 
 		m_objectMesh = m_gamePropertyManager->RegisterProperty<MeshInstance>("Object Mesh", GameObjectPropertyKeys::ObjectMesh);
-		m_resourcedMesh = m_gamePropertyManager->RegisterProperty<ResourceHandle*>("ResourcedMesh", GameObjectPropertyKeys::ResourcedMesh);
+		m_resourcedMesh = m_gamePropertyManager->RegisterProperty<ResourceHandle>("ResourcedMesh", GameObjectPropertyKeys::ResourcedMesh);
 
 		m_nodeType = m_gamePropertyManager->RegisterProperty<SceneNodeType>("Scene Node Type", GameObjectPropertyKeys::SceneNodeType);
 		m_worldPosition = m_gamePropertyManager->RegisterProperty<Matrix4x4>("World Position", GameObjectPropertyKeys::WorldPosition);
@@ -47,6 +46,11 @@ struct VeritasEngine::Scene::Impl
 		m_cameraPosition = m_gamePropertyManager->RegisterProperty<Float3>("Camera Position", GameObjectPropertyKeys::CameraPosition);
 
 		m_light = m_gamePropertyManager->RegisterProperty<Light>("Light", GameObjectPropertyKeys::Light);
+	}
+
+	void Init(std::shared_ptr<IResourceManager>&& resourceManager)
+	{
+		m_resourceManager = std::move(resourceManager);
 	}
 
 	void RenderResourcedMesh(FrameDescription& renderer, const SceneNode& sceneNode, const MeshInstance& instance, const SceneNodeType nodeType, const MeshNode& currentNode)
@@ -59,11 +63,10 @@ struct VeritasEngine::Scene::Impl
 		for (const auto& meshIndex : currentNode.GetMeshIndices())
 		{
 			auto& subset = instance.GetSubset(meshIndex);
-			const MaterialInstance& material = subset.GetMaterial()->GetData<MaterialInstance>();
 
-			renderer.StaticObjects.emplace_back(stackMatrix, inverseTranspose, &material, instance.GetIndexBuffer().GetNativeBuffer(),
+			renderer.StaticObjects.emplace_back(stackMatrix, inverseTranspose, subset.GetMaterial(), instance.GetIndexBuffer().GetNativeBuffer(),
 				subset.GetIndexBufferIndicies(), unsigned(instance.GetIndexBufferStartIndex()), instance.GetVertexBuffer().GetNativeBuffer(), subset.GetVertexBufferIndicies(), instance.GetVertexSize(), unsigned(instance.GetVertexBufferStartIndex()));
-			
+
 		}
 
 		for (const auto& item : currentNode.GetChildren())
@@ -83,9 +86,8 @@ struct VeritasEngine::Scene::Impl
 		for (const auto& meshIndex : currentNode.GetMeshIndices())
 		{
 			auto& subset = instance.GetSubset(meshIndex);
-			const MaterialInstance& material = subset.GetMaterial()->GetData<MaterialInstance>();
 
-			renderer.AnimatedObjects.emplace_back(stackMatrix, inverseTranspose, &material, instance.GetIndexBuffer().GetNativeBuffer(),
+			renderer.AnimatedObjects.emplace_back(stackMatrix, inverseTranspose, subset.GetMaterial(), instance.GetIndexBuffer().GetNativeBuffer(),
 				subset.GetIndexBufferIndicies(), unsigned(instance.GetIndexBufferStartIndex()), instance.GetVertexBuffer().GetNativeBuffer(), subset.GetVertexBufferIndicies(), instance.GetVertexSize(), unsigned(instance.GetVertexBufferStartIndex()), m_animationManager->GetGlobalPoses(sceneNode.m_handle));
 		}
 
@@ -108,21 +110,28 @@ struct VeritasEngine::Scene::Impl
 
 		switch (type)
 		{
-			case SceneNodeType::ResourcedMesh:
+		case SceneNodeType::ResourcedMesh:
+		{
+			const auto meshResource = m_resourcedMesh->GetProperty(node.m_handle);
+
+			m_resourceManager->GetResource(*meshResource, [&](auto& data)
 			{
-				const auto meshResource = m_resourcedMesh->GetProperty(node.m_handle);
-				const MeshInstance& meshInstance = meshResource->GetData<MeshInstance>();
+				const MeshInstance& meshInstance = data.GetData<MeshInstance>();
 
 				auto& rootNode = meshInstance.GetRootNode();
 
 				RenderResourcedMesh(renderer, node, meshInstance, type, rootNode);
-				
-				break;
-			}
-			case SceneNodeType::AnimatedResourcedMesh:
+			});
+
+			break;
+		}
+		case SceneNodeType::AnimatedResourcedMesh:
+		{
+			const auto meshResource = m_resourcedMesh->GetProperty(node.m_handle);
+
+			m_resourceManager->GetResource(*meshResource, [&](auto& data)
 			{
-				const auto meshResource = m_resourcedMesh->GetProperty(node.m_handle);
-				const MeshInstance& meshInstance = meshResource->GetData<MeshInstance>();
+				const MeshInstance& meshInstance = data.GetData<MeshInstance>();
 
 				auto& rootNode = meshInstance.GetRootNode();
 
@@ -131,9 +140,10 @@ struct VeritasEngine::Scene::Impl
 				RenderAnimatedResourcedMesh(renderer, node, meshInstance, type, rootNode);
 
 				m_matrixStack.Pop();
+			});
 
-				break;
-			}
+			break;
+		}
 		}
 
 		for (const auto& child : node.m_children)
@@ -155,9 +165,10 @@ struct VeritasEngine::Scene::Impl
 
 	std::shared_ptr<GamePropertyManager> m_gamePropertyManager;
 	std::shared_ptr<IAnimationManager> m_animationManager;
+	std::shared_ptr<IResourceManager> m_resourceManager;
 	GameObjectProperty<SceneNodeType>* m_nodeType;
 	GameObjectProperty<Matrix4x4>* m_worldPosition;
-	GameObjectProperty<ResourceHandle*>* m_resourcedMesh;
+	GameObjectProperty<ResourceHandle>* m_resourcedMesh;
 	GameObjectProperty<MeshInstance>* m_objectMesh;
 	GameObjectProperty<Float3>* m_cameraPosition;
 	GameObjectProperty<Float3>* m_cameraTarget;
@@ -172,15 +183,20 @@ VeritasEngine::Scene::Scene(std::shared_ptr<GamePropertyManager> gamePropertyMan
 
 VeritasEngine::Scene::~Scene() = default;
 
+void VeritasEngine::Scene::Init(std::shared_ptr<IResourceManager> resourceManager)
+{
+	m_impl->Init(std::move(resourceManager));
+}
+
 VeritasEngine::Scene::Scene(Scene&& other) noexcept
-	: m_impl { std::move(other.m_impl) }
+	: m_impl{ std::move(other.m_impl) }
 {
 
 }
 
 VeritasEngine::Scene& VeritasEngine::Scene::operator=(Scene&& other) noexcept
 {
-	if(this != &other)
+	if (this != &other)
 	{
 		m_impl = std::move(other.m_impl);
 	}
@@ -196,7 +212,7 @@ void VeritasEngine::Scene::OnUpdate(float deltaTime)
 void VeritasEngine::Scene::OnRender(FrameDescription& renderer)
 {
 	assert(m_impl->m_cameraHandle > 0);
-	assert(m_impl->m_lightHandles.size() > 0);
+	assert(!m_impl->m_lightHandles.empty());
 
 	const auto& positionVec = *m_impl->m_cameraPosition->GetProperty(m_impl->m_cameraHandle);
 	const auto& cameraTarget = *m_impl->m_cameraTarget->GetProperty(m_impl->m_cameraHandle);
@@ -231,8 +247,8 @@ void VeritasEngine::Scene::OnRender(FrameDescription& renderer)
 
 void VeritasEngine::Scene::Add(const GameObjectHandle handle)
 {
-	auto existingChild = m_impl->m_mapping.find(handle);
-	auto end = m_impl->m_mapping.end();
+	const auto existingChild = m_impl->m_mapping.find(handle);
+	const auto end = m_impl->m_mapping.end();
 
 	assert(existingChild == end); // "handle already exists in the graph"
 
@@ -243,7 +259,7 @@ void VeritasEngine::Scene::Add(const GameObjectHandle handle)
 
 	auto type = *m_impl->m_nodeType->GetProperty(handle);
 
-	if (type == SceneNodeType::Camera) 
+	if (type == SceneNodeType::Camera)
 	{
 		m_impl->m_cameraHandle = handle;
 	}
@@ -257,8 +273,8 @@ void VeritasEngine::Scene::Add(const GameObjectHandle handle)
 void VeritasEngine::Scene::AddChild(const GameObjectHandle parentHandle, const GameObjectHandle child)
 {
 	auto item = m_impl->m_mapping.find(parentHandle);
-	auto existingChild = m_impl->m_mapping.find(child);
-	auto end = m_impl->m_mapping.end();
+	const auto existingChild = m_impl->m_mapping.find(child);
+	const auto end = m_impl->m_mapping.end();
 
 	assert(item != end); // "could not find the parent"
 	assert(existingChild == end); // "child already exists in the graph"

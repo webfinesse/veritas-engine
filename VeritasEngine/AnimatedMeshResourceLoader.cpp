@@ -13,8 +13,8 @@
 
 #include <memory>
 
-#include "../VeritasEngineBase/ResourceHandle.h"
 #include "ResourceManager.h"
+#include "ResourceData.h"
 
 constexpr char extension[] = ".veam";
 
@@ -35,10 +35,6 @@ VeritasEngine::AnimatedMeshResourceLoader::AnimatedMeshResourceLoader(std::share
 
 }
 
-VeritasEngine::AnimatedMeshResourceLoader::~AnimatedMeshResourceLoader()
-{
-}
-
 const char* VeritasEngine::AnimatedMeshResourceLoader::GetExtension() const
 {
 	return extension;
@@ -50,7 +46,7 @@ VeritasEngine::StringHash VeritasEngine::AnimatedMeshResourceLoader::GetExtensio
 	return hash;
 }
 
-void VeritasEngine::AnimatedMeshResourceLoader::LoadResource(IResourceManager& manager, std::istream& data, ResourceHandle& handle)
+void VeritasEngine::AnimatedMeshResourceLoader::LoadResource(IResourceManager& manager, Job* parentJob, std::istream& data, ResourceData& handle)
 {
 	cereal::BinaryInputArchive archive(data);
 
@@ -66,19 +62,9 @@ void VeritasEngine::AnimatedMeshResourceLoader::LoadResource(IResourceManager& m
 	auto& indexBuffer = m_impl->m_renderingServices->GetIndexBuffer();
 	mesh.SetIndicies(&indexBuffer, &info.m_indicies[0], info.m_indicies.size());
 
-	mesh.SetGlobalInverseTransform(info.m_globalInverseTransform);
+	mesh.SetGlobalInverseTransform(info.m_globalInverseTransform);	
 
-	for (const auto& serializedSubset : info.m_subsets)
-	{
-		auto& instanceSubset = mesh.CreateSubset(serializedSubset);
-
-		const auto material = manager.GetResource(serializedSubset.m_materialId);
-
-		instanceSubset.SetMaterial(material);
-	}
-
-	mesh.SetAnimations(info.m_animations);
-	mesh.SetSkeleton(manager.GetResource(info.m_skeletonId));
+	mesh.SetAnimations(info.m_animations);	
 
 	auto& rootNode = mesh.GetRootNode();
 
@@ -86,10 +72,18 @@ void VeritasEngine::AnimatedMeshResourceLoader::LoadResource(IResourceManager& m
 	rootNode.SetMeshIndices(info.m_root.meshIndicies);
 	rootNode.SetJointIndex(info.m_root.m_jointIndex);
 
+	for (const auto& serializedSubset : info.m_subsets)
+	{
+		auto& subset = mesh.CreateSubset(serializedSubset);
+		subset.SetMaterial(manager.LoadResource(serializedSubset.m_materialId, parentJob));
+	}
+
 	for (auto& child : info.m_root.m_children)
 	{
 		rootNode.AddChild(child);
 	}
+	
+	mesh.SetSkeleton(manager.LoadResource(info.m_skeletonId, parentJob));
 
 	handle.SetData(std::move(mesh));
 }

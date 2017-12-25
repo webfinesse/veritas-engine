@@ -28,7 +28,6 @@
     <ClInclude Include="MathTypes.h" />
     <ClInclude Include="MeshInfo.h" />
     <ClInclude Include="miniz.h" />
-    <ClInclude Include="ResourceHandle.h" />
     <ClInclude Include="ResourceId.h" />
     <ClInclude Include="shared_scope.hpp" />
     <ClInclude Include="Singleton.h" />

@@ -11,15 +11,7 @@ namespace VeritasEngine
 
 	using JobFunction = std::function<void(Job*, const void*)>;
 
-#if _WIN32 || _WIN64
-#if _WIN64
-	constexpr unsigned JOB_DATA_SPACE{ 52 };
-#else
-	constexpr unsigned JOB_DATA_SPACE{ 80 };
-#endif
-#else
-	static_assert(0 && "Padding For Job Not Specified For Platform")
-#endif
+	constexpr unsigned JOB_DATA_SPACE{ 128 - sizeof(JobFunction) - sizeof(Job*) - sizeof(std::atomic_int32_t) };
 
 	struct Job
 	{

@@ -3,11 +3,11 @@
 
 #include <memory>
 #include "SmallObject.h"
+#include "../VeritasEngineBase/ResourceId.h"
 
 namespace VeritasEngine
 {
 	struct SerializedMeshSubset;
-	class ResourceHandle;
 	class BufferIndicies;
 
 	class MeshSubset: public SmallObject<>
@@ -19,8 +19,8 @@ namespace VeritasEngine
 		const BufferIndicies& GetVertexBufferIndicies() const;
 		const BufferIndicies& GetIndexBufferIndicies() const;
 
-		void SetMaterial(const ResourceHandle* const material);
-		const ResourceHandle* const GetMaterial() const;
+		void SetMaterial(const ResourceHandle material);
+		ResourceHandle GetMaterial() const;
 
 		MeshSubset(const MeshSubset& rhs);
 		MeshSubset& operator=(MeshSubset& rhs);

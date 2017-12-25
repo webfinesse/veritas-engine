@@ -28,7 +28,7 @@ namespace VeritasEngine
 		void SetIsLooped(bool isLooped);
 
 		const TimeDuration& GetDuration() const;
-		TimeDuration GetCurrentTime() const;
+		TimeDuration GetCurrentTimeDuration() const;
 
 		AnimationClock& operator=(const AnimationClock& other);
 		AnimationClock& operator=(AnimationClock&& other) noexcept;

@@ -49,7 +49,7 @@ namespace VeritasEngine
 			InternalObjAllocator::Instance().Deallocate(p, size);
 		}
 
-		virtual ~SmallObject() = default;
+		virtual ~SmallObject() noexcept = default;
 
 	private:
 		struct InternalObjAllocator : SmallObjectAllocator, Singleton<InternalObjAllocator>

@@ -20,7 +20,7 @@ namespace VeritasEngine
 
 		RendererImpl& operator=(RendererImpl&& other) noexcept;
 
-		void Init(void* osData, unsigned int bufferWidth, unsigned int bufferHeight) override;
+		void Init(void* osData, unsigned int bufferWidth, unsigned int bufferHeight, std::shared_ptr<IResourceManager> resourceManager) override;
 		void Resize(unsigned int bufferWidth, unsigned int bufferHeight) override;
 		void Render(FrameDescription& frameDesc) override;
 

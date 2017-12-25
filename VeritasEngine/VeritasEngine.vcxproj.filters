@@ -291,5 +291,8 @@
     <ClInclude Include="IJobManager.h">
       <Filter>JobManager</Filter>
     </ClInclude>
+    <ClInclude Include="ResourceData.h">
+      <Filter>ResourceManager</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

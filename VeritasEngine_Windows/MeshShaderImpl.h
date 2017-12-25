@@ -8,6 +8,7 @@
 namespace VeritasEngine
 {
 	class DirectXState;
+	class IResourceManager;
 
 	class MeshShaderImpl: public IMeshShader
 	{
@@ -20,7 +21,7 @@ namespace VeritasEngine
 
 		void Activate() override;
 		void Deactivate() override;
-		void Init() override;
+		void Init(std::shared_ptr<IResourceManager> resourceManager) override;
 
 		void SetPassParameters(PassBuffer& passBuffer) override;
 		void SetPerObjectBuffer(const PerObjectBufferDescription& buffer) override;

@@ -1,10 +1,11 @@
 ﻿#pragma once
 
 #include "../VeritasEngineBase/MathTypes.h"
+#include "../VeritasEngineBase/ResourceId.h"
+
 
 namespace VeritasEngine
 {
-	class ResourceHandle;
 	struct Material;
 
 	struct GraphicsCardMaterial
@@ -25,9 +26,9 @@ namespace VeritasEngine
 		MaterialInstance(const Material& material);
 
 		GraphicsCardMaterial Material;
-		ResourceHandle* DiffuseMap{};
-		ResourceHandle* NormalMap{};
-		ResourceHandle* SpecularMap{};
-		ResourceHandle* TransparentMap{};
+		ResourceHandle DiffuseMap{};
+		ResourceHandle NormalMap{};
+		ResourceHandle SpecularMap{};
+		ResourceHandle TransparentMap{};
 	};
 }

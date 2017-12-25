@@ -7,6 +7,7 @@
 namespace VeritasEngine
 {
 	class IRenderingServices;
+	class IJobManager;
 
 	class MeshResourceLoader : public IResourceLoader
 	{
@@ -15,10 +16,11 @@ namespace VeritasEngine
 		MeshResourceLoader(MeshResourceLoader&&) noexcept = default;
 		MeshResourceLoader& operator=(MeshResourceLoader&&) noexcept = default;
 
-		~MeshResourceLoader() override;
+		~MeshResourceLoader() override = default;
+
 		const char* GetExtension() const override;
 		StringHash GetExtensionHash() const override;
-		void LoadResource(IResourceManager& manager, std::istream& data, ResourceHandle& handle) override;
+		void LoadResource(IResourceManager& manager, Job* parentJob, std::istream& data, ResourceData& handle) override;
 
 	private:
 		struct Impl;

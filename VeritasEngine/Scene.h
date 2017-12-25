@@ -14,6 +14,7 @@ namespace VeritasEngine
 	class GamePropertyManager;
 	class FrameDescription;
 	class IAnimationManager;
+	class IResourceManager;
 
 	class Scene: public SmallObject<>, public IScene
 	{
@@ -23,6 +24,8 @@ namespace VeritasEngine
 
 		Scene(Scene&& other) noexcept;
 		Scene& operator=(Scene&& other) noexcept;
+
+		void Init(std::shared_ptr<IResourceManager> resourceManager) override;
 
 		void OnUpdate(const float deltaTime) override;
 		void OnRender(FrameDescription& renderer) override;

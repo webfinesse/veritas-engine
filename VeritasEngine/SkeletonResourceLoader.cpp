@@ -4,15 +4,9 @@
 #include "cereal/archives/binary.hpp"
 
 #include "Skeleton.h"
-#include "../VeritasEngineBase/ResourceHandle.h"
+#include "ResourceData.h"
 
 constexpr char extension[] = ".vesk";
-
-VeritasEngine::SkeletonResourceLoader::SkeletonResourceLoader()
-{
-}
-
-VeritasEngine::SkeletonResourceLoader::~SkeletonResourceLoader() = default;
 
 const char* VeritasEngine::SkeletonResourceLoader::GetExtension() const
 {
@@ -25,7 +19,7 @@ VeritasEngine::StringHash VeritasEngine::SkeletonResourceLoader::GetExtensionHas
 	return hash;
 }
 
-void VeritasEngine::SkeletonResourceLoader::LoadResource(IResourceManager& manager, std::istream& data, ResourceHandle& handle)
+void VeritasEngine::SkeletonResourceLoader::LoadResource(IResourceManager& manager, Job* parentJob, std::istream& data, ResourceData& handle)
 {
 	cereal::BinaryInputArchive archive(data);
 

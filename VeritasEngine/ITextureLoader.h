@@ -4,13 +4,13 @@
 
 namespace VeritasEngine
 {
-	class ResourceHandle;
+	class ResourceData;
 
 	class ITextureLoader
 	{
 	public:
 		virtual ~ITextureLoader() noexcept = default;
 
-		virtual void Load(std::istream& data, ResourceHandle& handle) const = 0;
+		virtual void Load(std::istream& data, ResourceData& handle) const = 0;
 	};
 }

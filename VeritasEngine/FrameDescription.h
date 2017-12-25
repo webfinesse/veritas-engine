@@ -5,6 +5,7 @@
 #include "PassBuffer.h"
 #include "BufferIndicies.h"
 #include "Skeleton.h"
+#include "../VeritasEngineBase/ResourceId.h"
 
 namespace VeritasEngine
 {
@@ -15,18 +16,19 @@ namespace VeritasEngine
 	public:
 		PerObjectBufferDescription()
 		{
+			
 		}
 
-		PerObjectBufferDescription(const Matrix4x4& worldTransform, const Matrix4x4& inverseTranspose, const MaterialInstance* material, 
+		PerObjectBufferDescription(const Matrix4x4& worldTransform, const Matrix4x4& inverseTranspose, const ResourceHandle material, 
 								   void* indexBuffer, const BufferIndicies& indexIndicies, unsigned int meshIndexStartIndex, void* vertexBuffer, const BufferIndicies& vertexIndicies, size_t vertexSize, unsigned int meshVertexStartIndex)
 			: WorldTransform(worldTransform), WorldInverseTranspose(inverseTranspose), Material(material), IndexBuffer{ indexBuffer }, IndexIndicies{ indexIndicies }, VertexBuffer{ vertexBuffer }, VertexIndicies{ vertexIndicies }, VertexSize{ vertexSize }, MeshIndexStartIndex{ meshIndexStartIndex }, MeshVertexStartIndex{ meshVertexStartIndex }
 		{
-
+			
 		}
 
 		const Matrix4x4 WorldTransform{};
 		const Matrix4x4 WorldInverseTranspose{};
-		const MaterialInstance* Material{nullptr};
+		const ResourceHandle Material{0};
 		void* IndexBuffer{nullptr};
 		const BufferIndicies& IndexIndicies{0, 0};
 		void* VertexBuffer{nullptr};
@@ -42,9 +44,9 @@ namespace VeritasEngine
 			: PerObjectBufferDescription()
 		{
 			
-		}
+		};
 
-		PerAnimatedObjectBufferDescription(const Matrix4x4& worldTransform, const Matrix4x4& inverseTranspose, const MaterialInstance* material,
+		PerAnimatedObjectBufferDescription(const Matrix4x4& worldTransform, const Matrix4x4& inverseTranspose, const ResourceHandle material,
 			void* indexBuffer, const BufferIndicies& indexIndicies, unsigned int meshIndexStartIndex, void* vertexBuffer, const BufferIndicies& vertexIndicies, size_t vertexSize, unsigned int meshVertexStartIndex, const Matrix4x4* skinningPalette)
 			: PerObjectBufferDescription(worldTransform, inverseTranspose, material, indexBuffer, indexIndicies, meshIndexStartIndex, vertexBuffer, vertexIndicies, vertexSize, meshVertexStartIndex)
 		{

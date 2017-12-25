@@ -8,12 +8,13 @@
 #include "../VeritasEngine/PassBuffer.h"
 #include "../VeritasEngine/FrameDescription.h"
 #include "../VeritasEngine/PerObjectBuffer.h"
-#include "../VeritasEngineBase/ResourceHandle.h"
 #include "DirectXTextureData.h"
 #include "DirectXState.h"
 
 #include "MeshVertxShader.h"
 #include "MeshPixelShader.h"
+#include "../VeritasEngine/IResourceManager.h"
+#include "../VeritasEngine/ResourceData.h"
 
 using namespace Microsoft::WRL;
 
@@ -25,8 +26,10 @@ struct VeritasEngine::MeshShaderImpl::Impl
 		
 	}
 
-	void Init()
+	void Init(std::shared_ptr<IResourceManager>&& resourceManager)
 	{
+		m_resourceManager = std::move(resourceManager);
+
 		HHR(m_dxState->Device->CreateVertexShader(g_meshVertexShader, sizeof(g_meshVertexShader), nullptr, m_vertexShader.GetAddressOf()), "Failed creating vertex shader");
 
 		D3D11_INPUT_ELEMENT_DESC ied[] =
@@ -113,54 +116,63 @@ struct VeritasEngine::MeshShaderImpl::Impl
 		PerObjectBuffer* dataPtr = static_cast<PerObjectBuffer*>(mappedResource.pData);
 		dataPtr->ShaderFlags = ShaderFlags_None;
 
-		const auto hasDiffuseMap = buffer.Material->DiffuseMap != nullptr;
-		dataPtr->ShaderFlags |= hasDiffuseMap ? ShaderFlags_HasDiffuseMap : ShaderFlags_None;
+		ID3D11ShaderResourceView* resources[4] = { nullptr, nullptr, nullptr, nullptr };
 
-		const auto hasNormalMap = buffer.Material->NormalMap != nullptr;
-		dataPtr->ShaderFlags |= hasNormalMap ? ShaderFlags_HasNormalMap : ShaderFlags_None;
+		m_resourceManager->GetResource(buffer.Material, [&](const ResourceData& m)
+		{
+			const auto& materialInstance = m.GetData<MaterialInstance>();
 
-		const auto hasSpecularMap = buffer.Material->SpecularMap != nullptr;
-		dataPtr->ShaderFlags |= hasSpecularMap ? ShaderFlags_HasSpecularMap : ShaderFlags_None;
+			std::memcpy(&dataPtr->Material, &materialInstance.Material, sizeof(GraphicsCardMaterial));
 
-		const auto hasTransparencyMap = buffer.Material->TransparentMap != nullptr;
-		dataPtr->ShaderFlags |= hasTransparencyMap ? ShaderFlags_HasTransparancyMap : ShaderFlags_None;
+			const auto hasDiffuseMap = materialInstance.DiffuseMap != 0;
+			dataPtr->ShaderFlags |= hasDiffuseMap ? ShaderFlags_HasDiffuseMap : ShaderFlags_None;
+
+			if (hasDiffuseMap)
+			{
+				m_resourceManager->GetResource(materialInstance.DiffuseMap, [&](const ResourceData& texture)
+				{
+					resources[0] = texture.GetData<DirectXTextureData>().TextureView.Get();
+				});
+			}
+
+			const auto hasNormalMap = materialInstance.NormalMap != 0;
+			dataPtr->ShaderFlags |= hasNormalMap ? ShaderFlags_HasNormalMap : ShaderFlags_None;
+
+			if (hasNormalMap)
+			{
+				m_resourceManager->GetResource(materialInstance.NormalMap, [&](const ResourceData& texture)
+				{
+					resources[1] = texture.GetData<DirectXTextureData>().TextureView.Get();
+				});
+			}
+
+			const auto hasSpecularMap = materialInstance.SpecularMap != 0;
+			dataPtr->ShaderFlags |= hasSpecularMap ? ShaderFlags_HasSpecularMap : ShaderFlags_None;
+
+			if (hasSpecularMap)
+			{
+				m_resourceManager->GetResource(materialInstance.SpecularMap, [&](const ResourceData& texture)
+				{
+					resources[2] = texture.GetData<DirectXTextureData>().TextureView.Get();
+				});
+			}
+
+			const auto hasTransparencyMap = materialInstance.TransparentMap != 0;
+			dataPtr->ShaderFlags |= hasTransparencyMap ? ShaderFlags_HasTransparancyMap : ShaderFlags_None;
+
+			if (hasTransparencyMap)
+			{
+				m_resourceManager->GetResource(materialInstance.TransparentMap, [&](const ResourceData& texture)
+				{
+					resources[3] = texture.GetData<DirectXTextureData>().TextureView.Get();
+				});
+			}
+		});
 
 		WriteMatrixToBuffer(&dataPtr->WorldTransform, buffer.WorldTransform);
 		WriteMatrixToBuffer(&dataPtr->WorldInverseTranspose, buffer.WorldInverseTranspose);
 
-		std::memcpy(&dataPtr->Material, &buffer.Material->Material, sizeof(GraphicsCardMaterial));
-
 		m_dxState->Context->Unmap(m_perObjectBuffer.Get(), 0);
-
-		ID3D11ShaderResourceView* resources[4] = { nullptr, nullptr, nullptr, nullptr };
-
-		if (hasDiffuseMap)
-		{
-			const DirectXTextureData& textureData = buffer.Material->DiffuseMap->GetData<DirectXTextureData>();
-
-			resources[0] = textureData.TextureView.Get();
-		}
-
-		if (hasNormalMap)
-		{
-			const DirectXTextureData& textureData = buffer.Material->NormalMap->GetData<DirectXTextureData>();
-
-			resources[1] = textureData.TextureView.Get();
-		}
-
-		if (hasSpecularMap)
-		{
-			const DirectXTextureData& textureData = buffer.Material->SpecularMap->GetData<DirectXTextureData>();
-
-			resources[2] = textureData.TextureView.Get();
-		}
-
-		if (hasTransparencyMap)
-		{
-			const DirectXTextureData& textureData = buffer.Material->TransparentMap->GetData<DirectXTextureData>();
-
-			resources[3] = textureData.TextureView.Get();
-		}
 
 		m_dxState->Context->PSSetShaderResources(0, 4, resources);
 	}
@@ -176,6 +188,7 @@ struct VeritasEngine::MeshShaderImpl::Impl
 	ComPtr<ID3D11VertexShader> m_vertexShader;
 	ComPtr<ID3D11PixelShader> m_pixelShader;
 	std::shared_ptr<DirectXState> m_dxState;
+	std::shared_ptr<IResourceManager> m_resourceManager;
 };
 
 VeritasEngine::MeshShaderImpl::MeshShaderImpl(std::shared_ptr<DirectXState> dxState)
@@ -202,9 +215,9 @@ VeritasEngine::MeshShaderImpl& VeritasEngine::MeshShaderImpl::operator=(MeshShad
 	return *this;
 }
 
-void VeritasEngine::MeshShaderImpl::Init()
+void VeritasEngine::MeshShaderImpl::Init(std::shared_ptr<IResourceManager> resourceManager)
 {
-	m_impl->Init();
+	m_impl->Init(std::move(resourceManager));
 }
 
 void VeritasEngine::MeshShaderImpl::Activate()

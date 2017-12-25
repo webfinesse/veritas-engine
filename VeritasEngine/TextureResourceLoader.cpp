@@ -2,7 +2,6 @@
 #include <istream>
 
 #include "ITextureLoader.h"
-#include "../VeritasEngineBase/ResourceHandle.h"
 
 constexpr char extension[] = ".dds";
 
@@ -24,7 +23,7 @@ VeritasEngine::StringHash VeritasEngine::TextureResourceLoader::GetExtensionHash
 	return hash;
 }
 
-void VeritasEngine::TextureResourceLoader::LoadResource(IResourceManager& manager, std::istream& data, ResourceHandle& handle)
+void VeritasEngine::TextureResourceLoader::LoadResource(IResourceManager& manager, Job* parentJob, std::istream& data, ResourceData& handle)
 {
 	m_textureLoader->Load(data, handle);
 }

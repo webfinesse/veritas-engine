@@ -1,7 +1,5 @@
 #include "MeshSubset.h"
 
-#include "../VeritasEngineBase/ResourceHandle.h"
-
 #include "BufferIndicies.h"
 #include "../VeritasEngineBase/MeshInfo.h"
 
@@ -15,7 +13,7 @@ struct VeritasEngine::MeshSubset::Impl : public VeritasEngine::SmallObject<>
 
 	BufferIndicies m_indexBufferIndicies;
 	BufferIndicies m_vertexBufferIndicies;
-	const ResourceHandle* m_material{};
+	ResourceHandle m_material{};
 };
 
 VeritasEngine::MeshSubset::MeshSubset(const SerializedMeshSubset& subset)
@@ -36,12 +34,12 @@ const VeritasEngine::BufferIndicies& VeritasEngine::MeshSubset::GetIndexBufferIn
 	return m_impl->m_indexBufferIndicies;
 }
 
-const VeritasEngine::ResourceHandle* const VeritasEngine::MeshSubset::GetMaterial() const
+VeritasEngine::ResourceHandle VeritasEngine::MeshSubset::GetMaterial() const
 {
 	return m_impl->m_material;
 }
 
-void VeritasEngine::MeshSubset::SetMaterial(const ResourceHandle* const material)
+void VeritasEngine::MeshSubset::SetMaterial(ResourceHandle material)
 {
 	m_impl->m_material = material;
 }

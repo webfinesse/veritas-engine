@@ -6,7 +6,8 @@
 namespace VeritasEngine
 {
 	class IResourceManager;
-	class ResourceHandle;
+	class ResourceData;
+	struct Job;
 
 	class IResourceLoader
 	{
@@ -15,6 +16,6 @@ namespace VeritasEngine
 
 		virtual const char* GetExtension() const = 0;
 		virtual VeritasEngine::StringHash GetExtensionHash() const = 0;
-		virtual void LoadResource(IResourceManager& manager, std::istream& data, ResourceHandle& handle) = 0;
+		virtual void LoadResource(IResourceManager& manager, Job* parentJob, std::istream& data, ResourceData& handle) = 0;
 	};
 }

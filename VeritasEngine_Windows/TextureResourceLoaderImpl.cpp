@@ -4,11 +4,10 @@
 #include "WindowsUtil.h"
 #include "DirectXState.h"
 
-#include "../VeritasEngineBase/ResourceHandle.h"
-
 #include "DDSTextureLoader/DDSTextureLoader.h"
 
 #include "DirectXTextureData.h"
+#include "../VeritasEngine/ResourceData.h"
 
 VeritasEngine::TextureResourceLoaderImpl::TextureResourceLoaderImpl(std::shared_ptr<DirectXState> dxState)
 	: m_dxState{ std::move(dxState) }
@@ -17,11 +16,11 @@ VeritasEngine::TextureResourceLoaderImpl::TextureResourceLoaderImpl(std::shared_
 }
 
 
-void VeritasEngine::TextureResourceLoaderImpl::Load(std::istream& data, ResourceHandle& handle) const
+void VeritasEngine::TextureResourceLoaderImpl::Load(std::istream& data, ResourceData& handle) const
 {
 	data.seekg(0, std::ios::end);
 
-	size_t length = static_cast<size_t>(data.tellg());
+	const auto length = static_cast<size_t>(data.tellg());
 
 	data.seekg(0, std::ios::beg);
 

@@ -130,9 +130,12 @@ struct VeritasEngine::JobManager::Impl
 
 	void Push(Job* job)
 	{
-		GetQueue().Push(job);
-		++m_activeJobCount;
-		g_hasJobsConditionVariable.notify_all();
+		if (job && job->UnfinishedJobs > 0)
+		{
+			GetQueue().Push(job);
+			++m_activeJobCount;
+			g_hasJobsConditionVariable.notify_all();
+		}
 	}
 
 	Job* AllocateJob()
@@ -290,6 +293,35 @@ VeritasEngine::Job* VeritasEngine::JobManager::CreateJob(JobFunction&& function,
 	return job;
 }
 
+VeritasEngine::Job* VeritasEngine::JobManager::CreateJobFromResult(void* data, const size_t sizeOfData)
+{
+	assert(sizeOfData < sizeof(Job::Data));
+
+	auto job = m_impl->AllocateJob();
+	job->Callback = nullptr;
+	job->Parent = nullptr;
+	job->UnfinishedJobs = 0;
+
+	if (data)
+	{
+		std::memcpy(job->Data, data, sizeOfData);
+	}
+
+	return job;
+}
+
+void VeritasEngine::JobManager::SetJobResult(Job* job, void* data, const size_t sizeOfData)
+{
+	assert(sizeOfData < sizeof(Job::Data));
+
+	std::memcpy(job->Data, data, sizeOfData);
+}
+
+void* VeritasEngine::JobManager::GetJobResult(Job* job)
+{
+	return job->Data;
+}
+
 VeritasEngine::Job* VeritasEngine::JobManager::CreateJobAsChild(Job* parent, JobFunction&& jobFunction)
 {
 	return CreateJobAsChild(parent, std::move(jobFunction), nullptr, 0);
@@ -319,7 +351,7 @@ void VeritasEngine::JobManager::Run(Job* job)
 
 void VeritasEngine::JobManager::Wait(Job* job)
 {
-	while(job->UnfinishedJobs > 0)
+	while(job && job->UnfinishedJobs > 0)
 	{
 		const auto nextJob = m_impl->GetJob();
 
@@ -327,6 +359,14 @@ void VeritasEngine::JobManager::Wait(Job* job)
 		{
 			m_impl->ExecuteJob(nextJob);
 		}
+	}
+}
+
+void VeritasEngine::JobManager::WaitAll(std::initializer_list<Job*> jobs)
+{
+	for(const auto& job : jobs)
+	{
+		Wait(job);
 	}
 }
 

@@ -264,6 +264,7 @@
     <ClInclude Include="IVertexBufferManager.h" />
     <ClInclude Include="IWorldSetup.h" />
     <ClInclude Include="PerObjectBuffer.h" />
+    <ClInclude Include="ResourceData.h" />
     <ClInclude Include="Skeleton.h" />
     <ClInclude Include="SkeletonJoint.h" />
     <ClInclude Include="SkeletonResourceLoader.h" />

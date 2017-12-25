@@ -4,19 +4,13 @@
 #include "cereal/archives/binary.hpp"
 
 #include "../VeritasEngineBase/Material.h"
-#include "../VeritasEngineBase/ResourceHandle.h"
 
 #include "ResourceManager.h"
 #include "../VeritasEngineBase/MaterialInstance.h"
 
+#include "ResourceData.h"
+
 constexpr char extension[] = ".mat";
-
-VeritasEngine::MaterialResourceLoader::MaterialResourceLoader()
-{
-
-}
-
-VeritasEngine::MaterialResourceLoader::~MaterialResourceLoader() = default;
 
 const char* VeritasEngine::MaterialResourceLoader::GetExtension() const
 {
@@ -29,7 +23,7 @@ VeritasEngine::StringHash VeritasEngine::MaterialResourceLoader::GetExtensionHas
 	return hash;
 }
 
-void VeritasEngine::MaterialResourceLoader::LoadResource(IResourceManager& manager, std::istream& data, ResourceHandle& handle)
+void VeritasEngine::MaterialResourceLoader::LoadResource(IResourceManager& manager, Job* parentJob, std::istream& data, ResourceData& handle)
 {
 	cereal::BinaryInputArchive archive(data);
 
@@ -40,22 +34,22 @@ void VeritasEngine::MaterialResourceLoader::LoadResource(IResourceManager& manag
 
 	if(material.DiffuseMap.length() > 0)
 	{
-		materialInstance.DiffuseMap = manager.GetResource(material.DiffuseMap);
+		materialInstance.DiffuseMap = manager.LoadResource(material.DiffuseMap, parentJob);
 	}
 
 	if (material.NormalMap.length() > 0)
 	{
-		materialInstance.NormalMap = manager.GetResource(material.NormalMap);
+		materialInstance.NormalMap = manager.LoadResource(material.NormalMap, parentJob);
 	}
 
 	if (material.SpecularMap.length() > 0)
 	{
-		materialInstance.SpecularMap = manager.GetResource(material.SpecularMap);
+		materialInstance.SpecularMap = manager.LoadResource(material.SpecularMap, parentJob);
 	}
 
 	if(material.TransparentMap.length() > 0)
 	{
-		materialInstance.TransparentMap = manager.GetResource(material.TransparentMap);
+		materialInstance.TransparentMap = manager.LoadResource(material.TransparentMap, parentJob);
 	}
 
 	handle.SetData(std::move(materialInstance));

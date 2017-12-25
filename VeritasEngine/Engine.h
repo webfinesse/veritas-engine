@@ -49,6 +49,7 @@ namespace VeritasEngine
 		GamePropertyManager& GetGamePropertyManager() const;
 		IWorldSetup& GetWorldSetup() const;
 		IResourceManager& GetResourceManager() const;
+		IJobManager& GetJobManager() const;
 	private:
 		struct Impl;
 		std::unique_ptr<Impl> m_impl;

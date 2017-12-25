@@ -15,7 +15,7 @@ namespace VeritasEngine
 
 		const char* GetExtension() const override;
 		StringHash GetExtensionHash() const override;
-		void LoadResource(IResourceManager& manager, std::istream& data, ResourceHandle& handle) override;
+		void LoadResource(IResourceManager& manager, Job* parentJob, std::istream& data, ResourceData& handle) override;
 	private:
 		std::shared_ptr<ITextureLoader> m_textureLoader;
 	};

@@ -19,7 +19,7 @@
 #include "Engine.h"
 #include "ResourceManager.h"
 #include "IIndexBuffer.h"
-
+#include "IJobManager.h"
 
 namespace VeritasEngine
 {
@@ -242,10 +242,10 @@ namespace VeritasEngine
 	};
 
 	template<>
-	class VeritasEngine::DeserializerFactory < VeritasEngine::ResourceHandle* >
+	class VeritasEngine::DeserializerFactory < VeritasEngine::ResourceHandle >
 	{
 	public:
-		using FUNCTIONTYPE = ResourceHandle*(*)(Engine& engine, JsonValue& values);
+		using FUNCTIONTYPE = ResourceHandle(*)(Engine& engine, JsonValue& values);
 
 		static FUNCTIONTYPE GetDeserializer()
 		{
@@ -253,12 +253,10 @@ namespace VeritasEngine
 		}
 
 	private:
-		static ResourceHandle* Deserialize(Engine& engine, JsonValue& values)
+		static ResourceHandle Deserialize(Engine& engine, JsonValue& values)
 		{
-			auto resourceId = values.get_value<std::string>();
-			auto resource = engine.GetResourceManager().GetResource(resourceId);
-
-			return resource;
+			const auto resourceId = values.get_value<std::string>();
+			return engine.GetResourceManager().LoadResource(resourceId);
 		}
 	};
 

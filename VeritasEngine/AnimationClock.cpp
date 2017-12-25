@@ -73,7 +73,7 @@ const VeritasEngine::TimeDuration& VeritasEngine::AnimationClock::GetDuration() 
 	return m_impl->m_duration;
 }
 
-VeritasEngine::TimeDuration VeritasEngine::AnimationClock::GetCurrentTime() const
+VeritasEngine::TimeDuration VeritasEngine::AnimationClock::GetCurrentTimeDuration() const
 {
 	return TimeDuration{ fmod(m_impl->m_currentTime.count(), m_impl->m_duration.count()) };
 }

@@ -106,10 +106,17 @@ VeritasEngine::IResourceManager& VeritasEngine::Engine::GetResourceManager() con
 	return *m_impl->m_resourceManager;
 }
 
+VeritasEngine::IJobManager& VeritasEngine::Engine::GetJobManager() const
+{
+	return *m_impl->m_jobManager;
+}
+
 void VeritasEngine::Engine::Init(void* osData, unsigned int bufferWidth, unsigned int bufferHeight)
 {
 	m_impl->m_worldSetup->Init(*this);
-	m_impl->m_renderingServices->GetRenderer().Init(osData, bufferWidth, bufferHeight);
+	m_impl->m_renderingServices->GetRenderer().Init(osData, bufferWidth, bufferHeight, m_impl->m_resourceManager);
+	m_impl->m_renderingServices->GetScene().Init(m_impl->m_resourceManager);
+	m_impl->m_animationManager->Init(m_impl->m_resourceManager);
 
 	m_impl->m_renderingServices->GetVertexBufferManager().RegisterVertexFormat(Vertex::Type, sizeof(Vertex));
 	m_impl->m_renderingServices->GetVertexBufferManager().RegisterVertexFormat(SkinnedVertex::Type, sizeof(SkinnedVertex));
