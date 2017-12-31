@@ -8,6 +8,8 @@
 #include <cassert>
 
 #include "Job.h"
+#include "ILogger.h"
+#include "../VeritasEngineBase/StringHelper.h"
 
 #if _WIN32 || _WIN64
 #include <immintrin.h>
@@ -16,29 +18,41 @@
 static_assert(0 && "YIELD COMMAND Not Specified For Platform")
 #endif
 
-
+#define TRACE_ENABLED
 
 // based on the job system detailed at molecular musings: https://blog.molecular-matters.com/2015/08/24/job-system-2-0-lock-free-work-stealing-part-1-basics/
 
 constexpr unsigned int NUMBER_OF_JOBS{ 4096 };
 constexpr unsigned int NUMBER_OF_JOBS_MASK{ 4096 - 1 };
 constexpr unsigned int MAX_NUMBER_OF_QUEUES{ 8 };
+constexpr char JOBMANAGER_LOGGING_CATEGORY[] = "Job Manager";
 
 bool g_runJobs { true };
+std::atomic_int32_t g_activeJobCount{ 0 };
+std::atomic_int32_t g_jobId{ 0 };
 std::condition_variable g_hasJobsConditionVariable{};
 
 struct VeritasEngine::JobManager::WorkQueue
 {
-	void Push(Job* job)
+	void Push(Job* job, unsigned queueIndex, ILogger* logger)
 	{
-		const auto b = m_bottom.fetch_add(1);
-		m_jobs[b & NUMBER_OF_JOBS_MASK] = job;		
+		const auto b = m_bottom.load();
+		m_jobs[b & NUMBER_OF_JOBS_MASK] = job;
+		
+		_mm_mfence();
+
+		logger->Trace(JOBMANAGER_LOGGING_CATEGORY, "Pushing Job %d on queue %d at index %d", job->Id, queueIndex, b);
+
+		m_bottom.fetch_add(1);
 	}
 
-	Job* Pop()
+	Job* Pop(ILogger* logger, unsigned queueIndex)
 	{
-		--m_bottom;
-		const auto b = m_bottom.load();
+		const auto b = m_bottom.load() - 1;
+		m_bottom = b;
+
+		_mm_mfence();
+
 		auto t = m_top.load();
 		if(t <= b)
 		{
@@ -46,13 +60,17 @@ struct VeritasEngine::JobManager::WorkQueue
 
 			if(t != b)
 			{
+				logger->Trace(JOBMANAGER_LOGGING_CATEGORY, "Popping job from queue %d at bottom index %d", queueIndex, b);
 				return job;
 			}
 
 			if(!m_top.compare_exchange_strong(t, t+1))
 			{
+				logger->Trace(JOBMANAGER_LOGGING_CATEGORY, "Lost Pop CompareExchange from queue %d at top index %d", queueIndex, t);
 				job = nullptr;
 			}
+
+			logger->Trace(JOBMANAGER_LOGGING_CATEGORY, "Won Pop CompareExchange from queue %d at top index %d, returning index %d", queueIndex, t, b);
 
 			m_bottom = t + 1;
 			return job;
@@ -64,18 +82,25 @@ struct VeritasEngine::JobManager::WorkQueue
 		}
 	}
 
-	Job* Steal()
+	Job* Steal(ILogger* logger, unsigned queueIndex)
 	{
 		auto t = m_top.load();
+
+		_mm_mfence();
+
 		const auto b = m_bottom.load();
+		
 		if(t < b)
 		{
 			const auto job = m_jobs[t & NUMBER_OF_JOBS_MASK];
 
 			if(!m_top.compare_exchange_strong(t, t+1))
 			{
+				logger->Trace(JOBMANAGER_LOGGING_CATEGORY, "Lost Steal CompareExchange from queue %d at top index %d", queueIndex, t);
 				return nullptr;
 			}
+
+			logger->Trace(JOBMANAGER_LOGGING_CATEGORY, "Won Pop CompareExchange from queue %d at top index %d, returning index %d", queueIndex, t, t);
 
 			return job;
 		}
@@ -89,15 +114,19 @@ private:
 	Job* m_jobs[NUMBER_OF_JOBS];
 	std::atomic_long m_bottom{ 0 };
 	std::atomic_long m_top{ 0 };
-	
 };
 
 struct VeritasEngine::JobManager::Impl
 {
-	Impl()
-	: m_queueCount{ std::min(std::thread::hardware_concurrency(), MAX_NUMBER_OF_QUEUES) }
+	Impl(std::shared_ptr<ILogger>&& logger)
+	: m_queueCount{ std::min(std::thread::hardware_concurrency(), MAX_NUMBER_OF_QUEUES) }, m_logger{ std::move(logger) }
 	{
-		static_assert(std::atomic_int32_t::is_always_lock_free == true && "Platform is not lock free");
+		static_assert(sizeof(Job) == JOB_ALIGNMENT_SIZE);
+		static_assert(std::atomic_int32_t::is_always_lock_free && "Platform is not lock free");
+
+#ifdef TRACE_ENABLED
+		m_logger->SetIsEnabled(true);
+#endif
 	}
 
 	void Init()
@@ -105,6 +134,8 @@ struct VeritasEngine::JobManager::Impl
 		m_queueIndex = 0;
 
 		m_workerThreads.reserve(m_queueCount - 1);
+
+		Trace("Initializing Job System with %u threads", m_queueCount);
 
 		for (unsigned i = 1; i < m_queueCount; i++)
 		{
@@ -130,15 +161,18 @@ struct VeritasEngine::JobManager::Impl
 
 	void Push(Job* job)
 	{
-		if (job && job->UnfinishedJobs > 0)
+		if (job && job->UnfinishedJobs.load() > 0)
 		{
-			GetQueue().Push(job);
-			++m_activeJobCount;
+			g_activeJobCount.fetch_add(1);
+
+			Trace("Pushing Job %u on thread %u. There are %d active jobs", job->Id, m_queueIndex, g_activeJobCount.load());
+
+			GetQueue().Push(job, m_queueIndex, m_logger.get());
 			g_hasJobsConditionVariable.notify_all();
 		}
 	}
 
-	Job* AllocateJob()
+	static Job* AllocateJob()
 	{
 		const auto index = m_allocatedJobs++;
 		return &m_jobs[index & NUMBER_OF_JOBS_MASK];
@@ -151,7 +185,8 @@ struct VeritasEngine::JobManager::Impl
 
 	void ExecuteJob(Job* job)
 	{
-		(job->Callback)(job, job->Data);
+		Trace("Executing Job %u on thread %u", job->Id, m_queueIndex);
+		(job->Callback)(job);
 		FinishJob(job);
 	}
 
@@ -159,39 +194,43 @@ struct VeritasEngine::JobManager::Impl
 	{
 		auto& queue = GetQueue();
 
-		const auto job = queue.Pop();
+		const auto job = queue.Pop(m_logger.get(), m_queueIndex);
 		if (job == nullptr)
 		{
 			auto& otherQueue = m_queues[0];
 
 			if (&queue == &otherQueue)
 			{
-				Yield();
+				std::this_thread::yield();
 				return nullptr;
 			}
 
-			Job* stolenJob = otherQueue.Steal();
+			Job* stolenJob = otherQueue.Steal(m_logger.get(), 0);
 
 			if (stolenJob)
 			{
+				Trace("Stole Job %u from thread 0 with thread %u", stolenJob->Id, m_queueIndex);
 				return stolenJob;
 			}
 
-			auto& randomQueue = m_queues[rand() % m_queueCount];
+			const auto queueIndex = rand() % m_queueCount;
+			auto& randomQueue = m_queues[queueIndex];
 
-			if (&queue == &randomQueue)
+			if (&queue == &randomQueue || &otherQueue == &randomQueue)
 			{
-				Yield();
+				std::this_thread::yield();
 				return nullptr;
 			}
 
-			stolenJob = randomQueue.Steal();
+			stolenJob = randomQueue.Steal(m_logger.get(), queueIndex);
 
 			if (stolenJob == nullptr)
 			{
-				Yield();
+				std::this_thread::yield();
 				return nullptr;
 			}
+
+			Trace("Stole Job %u from thread %u with thread %u", stolenJob->Id, queueIndex, m_queueIndex);
 
 			return stolenJob;
 		}
@@ -201,19 +240,45 @@ struct VeritasEngine::JobManager::Impl
 private:
 	void FinishJob(Job* job)
 	{
-		const auto jobCount = --job->UnfinishedJobs;
+		assert(job->UnfinishedJobs.load() > 0);
 
-		if (jobCount == 0 && (job->Parent))
+		const auto jobCount = job->UnfinishedJobs.fetch_sub(1) - 1;
+
+		if (jobCount == 0)
 		{
-			FinishJob(job->Parent);
+			g_activeJobCount.fetch_sub(1);
+
+			Trace("Finishing Job %u with thread %u, there are %d active jobs remaining", job->Id, m_queueIndex, g_activeJobCount.load());
+
+			if (job->Parent)
+			{
+				Trace("Finishing Job %u (Parent Id: %u) with thread %u, there are %u unfinished parent jobs", job->Id, job->Parent->Id, m_queueIndex, job->Parent->UnfinishedJobs.load());
+				FinishJob(job->Parent);
+			}
+		}
+		else
+		{
+			Trace("Finishing root Job %u with thread %u, there are %u unfinished children", job->Id, m_queueIndex, jobCount);
 		}
 
-		--m_activeJobCount;
+		const auto continuationJobCount = job->ContinousJobCount.load();
+		if (continuationJobCount > 0)
+		{
+			for(int i = 0; i < continuationJobCount; i++)
+			{
+				Push(job->Continuations[i]);
+			}
+		}
+
+		assert(g_activeJobCount.load() >= 0);
 	}
 
-	static void Yield()
+	template <typename ...Args>
+	void Trace(const char* message, Args... args)
 	{
-		YIELD_COMMAND
+#ifdef TRACE_ENABLED
+		m_logger->Trace(JOBMANAGER_LOGGING_CATEGORY, message, args...);
+#endif
 	}
 
 	static void ThreadMain(Impl* impl, const unsigned int queueIndex)
@@ -224,7 +289,7 @@ private:
 				
 		while (g_runJobs)
 		{
-			g_hasJobsConditionVariable.wait(lock, [&] { return impl->m_activeJobCount > 0 || !g_runJobs; });
+			g_hasJobsConditionVariable.wait(lock, []{ return g_activeJobCount.load() > 0 || !g_runJobs; });
 
 			// double check if we need to run jobs since we may be trying to shut down the engine
 			if (g_runJobs)
@@ -244,7 +309,7 @@ private:
 	static thread_local Job m_jobs[NUMBER_OF_JOBS];
 
 	unsigned int m_queueCount;
-	std::atomic_int32_t m_activeJobCount{ 0 };
+	std::shared_ptr<ILogger> m_logger;
 	WorkQueue m_queues[MAX_NUMBER_OF_QUEUES];
 	std::vector<std::thread> m_workerThreads{};
 };
@@ -254,10 +319,10 @@ thread_local unsigned int VeritasEngine::JobManager::Impl::m_allocatedJobs { 0 }
 thread_local std::mutex VeritasEngine::JobManager::Impl::m_threadMainMutex{};
 thread_local VeritasEngine::Job VeritasEngine::JobManager::Impl::m_jobs[NUMBER_OF_JOBS];
 
-VeritasEngine::JobManager::JobManager()
-	: m_impl{std::make_unique<Impl>() }
+VeritasEngine::JobManager::JobManager(std::shared_ptr<ILogger> logger)
+	: m_impl{std::make_unique<Impl>(std::move(logger)) }
 {
-
+	
 }
 
 VeritasEngine::JobManager::JobManager(JobManager&& other) noexcept
@@ -273,76 +338,49 @@ void VeritasEngine::JobManager::Init()
 
 VeritasEngine::Job* VeritasEngine::JobManager::CreateJob(JobFunction&& function)
 {
-	return CreateJob(std::move(function), nullptr, 0);
-}
-
-VeritasEngine::Job* VeritasEngine::JobManager::CreateJob(JobFunction&& function, void* data, const size_t sizeOfData)
-{
-	assert(sizeOfData < sizeof(Job::Data));
-
 	auto job = m_impl->AllocateJob();
 	job->Callback = std::move(function);
 	job->Parent = nullptr;
 	job->UnfinishedJobs = 1;
-
-	if (data)
-	{
-		std::memcpy(job->Data, data, sizeOfData);
-	}
+	job->ContinousJobCount = 0;
+	job->Id = ++g_jobId;
 
 	return job;
 }
 
-VeritasEngine::Job* VeritasEngine::JobManager::CreateJobFromResult(void* data, const size_t sizeOfData)
-{
-	assert(sizeOfData < sizeof(Job::Data));
 
-	auto job = m_impl->AllocateJob();
-	job->Callback = nullptr;
-	job->Parent = nullptr;
-	job->UnfinishedJobs = 0;
-
-	if (data)
-	{
-		std::memcpy(job->Data, data, sizeOfData);
-	}
-
-	return job;
-}
-
-void VeritasEngine::JobManager::SetJobResult(Job* job, void* data, const size_t sizeOfData)
-{
-	assert(sizeOfData < sizeof(Job::Data));
-
-	std::memcpy(job->Data, data, sizeOfData);
-}
-
-void* VeritasEngine::JobManager::GetJobResult(Job* job)
-{
-	return job->Data;
-}
 
 VeritasEngine::Job* VeritasEngine::JobManager::CreateJobAsChild(Job* parent, JobFunction&& jobFunction)
 {
-	return CreateJobAsChild(parent, std::move(jobFunction), nullptr, 0);
-}
-
-VeritasEngine::Job* VeritasEngine::JobManager::CreateJobAsChild(Job* parent, JobFunction&& jobFunction, void* data, const size_t sizeOfData)
-{
-	++parent->UnfinishedJobs;
+	parent->UnfinishedJobs.fetch_add(1);
 
 	auto job = m_impl->AllocateJob();
 	job->Callback = std::move(jobFunction);
 	job->Parent = parent;
 	job->UnfinishedJobs = 1;
-
-	if (data)
-	{
-		std::memcpy(job->Data, data, sizeOfData);
-	}
+	job->Id = ++g_jobId;
 
 	return job;
 }
+
+VeritasEngine::Job* VeritasEngine::JobManager::CreateJobAsContinuation(Job* parent, JobFunction&& jobFunction)
+{
+	assert(parent->ContinousJobCount < NUMBER_JOB_CONTINUATIONS);
+	
+	if (parent->UnfinishedJobs > 0)
+	{
+		const auto index = parent->ContinousJobCount++;
+
+		const auto job = CreateJob(std::move(jobFunction));
+
+		parent->Continuations[index] = job;
+
+		return job;
+	}
+
+	return nullptr;
+}
+
 
 void VeritasEngine::JobManager::Run(Job* job)
 {
@@ -351,7 +389,7 @@ void VeritasEngine::JobManager::Run(Job* job)
 
 void VeritasEngine::JobManager::Wait(Job* job)
 {
-	while(job && job->UnfinishedJobs > 0)
+	while(job && job->UnfinishedJobs.load() > 0)
 	{
 		const auto nextJob = m_impl->GetJob();
 
@@ -359,14 +397,6 @@ void VeritasEngine::JobManager::Wait(Job* job)
 		{
 			m_impl->ExecuteJob(nextJob);
 		}
-	}
-}
-
-void VeritasEngine::JobManager::WaitAll(std::initializer_list<Job*> jobs)
-{
-	for(const auto& job : jobs)
-	{
-		Wait(job);
 	}
 }
 

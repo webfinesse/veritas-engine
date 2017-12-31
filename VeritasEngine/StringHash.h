@@ -105,8 +105,8 @@ namespace VeritasEngine
 	inline StringHash Hash(const std::string& string)
 	{
 		//return Hash(string.c_str(), string.length() - 1) ^ 0xFFFFFFFF;
-		unsigned long  crc = crc32(0L, Z_NULL, 0);
-		crc = crc32(crc, reinterpret_cast<const unsigned char*>(string.c_str()), string.length());
+		unsigned long crc = crc32(0L, Z_NULL, 0);
+		crc = crc32(crc, reinterpret_cast<const unsigned char*>(string.c_str()), unsigned(string.length()));
 
 		return (crc);
 	}

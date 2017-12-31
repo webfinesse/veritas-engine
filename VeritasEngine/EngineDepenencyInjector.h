@@ -24,6 +24,7 @@
 #include "GamePropertyManager.h"
 #include "AnimationManager.h"
 #include "JobManager.h"
+#include "Logger.h"
 
 namespace di = boost::di;
 
@@ -41,7 +42,8 @@ inline auto CreateEngineDependencyInjector()
 		di::bind<VeritasEngine::IVertexBufferManager>().to<VeritasEngine::VertexBufferManager>().in(shared),
 		di::bind<VeritasEngine::IResourceLoader*[]>().to<VeritasEngine::MeshResourceLoader, VeritasEngine::AnimatedMeshResourceLoader, VeritasEngine::MaterialResourceLoader, VeritasEngine::TextureResourceLoader, VeritasEngine::SkeletonResourceLoader>(),
 		di::bind<VeritasEngine::IResourceManager>().to<VeritasEngine::ResourceManager>().in(shared),
-		di::bind<VeritasEngine::IJobManager>().to<VeritasEngine::JobManager>().in(shared)
+		di::bind<VeritasEngine::IJobManager>().to<VeritasEngine::JobManager>().in(shared),
+		di::bind<VeritasEngine::ILogger>().to<VeritasEngine::Logger>().in(shared)
 	);
 }
 

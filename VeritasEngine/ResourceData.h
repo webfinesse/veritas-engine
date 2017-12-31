@@ -31,7 +31,12 @@ namespace VeritasEngine
 		void SetData(T&& data)
 		{
 			m_data = std::move(data);
-		}		
+		}
+		
+		bool IsFullLoaded() const
+		{
+			return m_isFullyLoaded;
+		}
 
 		ResourceData& operator=(const ResourceData& rhs)
 		{
@@ -53,7 +58,10 @@ namespace VeritasEngine
 			return *this;
 		}
 
+		friend class ResourceManager;
+
 	private:
 		std::variant<Skeleton, MeshInstance, DirectXTextureData, MaterialInstance> m_data{};
+		bool m_isFullyLoaded{ false };
 	};
 }

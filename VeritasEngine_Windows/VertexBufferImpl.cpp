@@ -6,6 +6,7 @@
 #include <d3d11.h>
 #include <wrl\client.h>
 #include <vector>
+#include <mutex>
 
 using namespace Microsoft::WRL;
 
@@ -40,6 +41,9 @@ struct VeritasEngine::VertexBufferImpl::Impl
 
 	BufferIndicies AddVerticies(unsigned char* verticies, const size_t numVerticies)
 	{
+		static std::mutex m;
+		std::scoped_lock<std::mutex> l{ m };
+
 		const auto bytesPerVertex = m_sizeOfVertex / sizeof(unsigned char);
 
 		const auto end = m_verticies.end();

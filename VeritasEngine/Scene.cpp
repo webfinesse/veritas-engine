@@ -57,7 +57,7 @@ struct VeritasEngine::Scene::Impl
 	{
 		m_matrixStack.Push(currentNode.GetTransform());
 		auto& stackMatrix = m_matrixStack.Peek();
-		auto inverse = MathHelpers::Inverse(stackMatrix);
+		const auto inverse = MathHelpers::Inverse(stackMatrix);
 		auto inverseTranspose = MathHelpers::Transpose(inverse);
 
 		for (const auto& meshIndex : currentNode.GetMeshIndices())
@@ -80,15 +80,19 @@ struct VeritasEngine::Scene::Impl
 	void RenderAnimatedResourcedMesh(FrameDescription& renderer, const SceneNode& sceneNode, const MeshInstance& instance, const SceneNodeType nodeType, const MeshNode& currentNode) const
 	{
 		auto& stackMatrix = m_matrixStack.Peek();
-		auto inverse = VeritasEngine::MathHelpers::Inverse(stackMatrix);
+		const auto inverse = VeritasEngine::MathHelpers::Inverse(stackMatrix);
 		auto inverseTranspose = VeritasEngine::MathHelpers::Transpose(inverse);
 
 		for (const auto& meshIndex : currentNode.GetMeshIndices())
 		{
 			auto& subset = instance.GetSubset(meshIndex);
 
-			renderer.AnimatedObjects.emplace_back(stackMatrix, inverseTranspose, subset.GetMaterial(), instance.GetIndexBuffer().GetNativeBuffer(),
-				subset.GetIndexBufferIndicies(), unsigned(instance.GetIndexBufferStartIndex()), instance.GetVertexBuffer().GetNativeBuffer(), subset.GetVertexBufferIndicies(), instance.GetVertexSize(), unsigned(instance.GetVertexBufferStartIndex()), m_animationManager->GetGlobalPoses(sceneNode.m_handle));
+			auto poses = m_animationManager->GetGlobalPoses(sceneNode.m_handle);
+			if (poses != nullptr)
+			{
+				renderer.AnimatedObjects.emplace_back(stackMatrix, inverseTranspose, subset.GetMaterial(), instance.GetIndexBuffer().GetNativeBuffer(),
+					subset.GetIndexBufferIndicies(), unsigned(instance.GetIndexBufferStartIndex()), instance.GetVertexBuffer().GetNativeBuffer(), subset.GetVertexBufferIndicies(), instance.GetVertexSize(), unsigned(instance.GetVertexBufferStartIndex()), poses);
+			}
 		}
 
 		for (const auto& item : currentNode.GetChildren())

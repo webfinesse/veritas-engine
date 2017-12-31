@@ -20,6 +20,9 @@
     <Filter Include="JobManager">
       <UniqueIdentifier>{533bdc5a-65b9-43db-a70d-851999beea5b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Logging">
+      <UniqueIdentifier>{cabc0f16-df40-4a79-aaa0-7fcee1591b0e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ResourceManager.cpp">
@@ -102,6 +105,9 @@
     </ClCompile>
     <ClCompile Include="JobManager.cpp">
       <Filter>JobManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Logger.cpp">
+      <Filter>Logging</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -293,6 +299,12 @@
     </ClInclude>
     <ClInclude Include="ResourceData.h">
       <Filter>ResourceManager</Filter>
+    </ClInclude>
+    <ClInclude Include="ILogger.h">
+      <Filter>Logging</Filter>
+    </ClInclude>
+    <ClInclude Include="Logger.h">
+      <Filter>Logging</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

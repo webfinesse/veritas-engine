@@ -20,7 +20,7 @@ namespace VeritasEngine
 	template<typename ... Args>
 	std::wstring FormatString(const std::wstring& format, Args ... args)
 	{
-		size_t size = std::swprintf(nullptr, 0, format.c_str(), args ...) + 1; // Extra space for '\0'
+		const size_t size = std::swprintf(nullptr, 0, format.c_str(), args ...) + 1; // Extra space for '\0'
 		std::unique_ptr<wchar_t[]> buf(new wchar_t[size]);
 		std::swprintf(buf.get(), size, format.c_str(), args ...);
 		return std::wstring(buf.get(), buf.get() + size - 1); // We don't want the '\0' inside

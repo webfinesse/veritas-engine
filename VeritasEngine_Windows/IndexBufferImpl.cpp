@@ -9,10 +9,12 @@ using namespace Microsoft::WRL;
 #include "../VeritasEngine/BufferIndicies.h"
 #include "WindowsUtil.h"
 
+#include <mutex>
+
 struct VeritasEngine::IndexBufferImpl::Impl
 {
 	Impl(std::shared_ptr<DirectXState>&& dxState)
-		: m_buffer{}, m_dxState{ std::move(dxState) }, m_indicies{}
+		: m_dxState{ std::move(dxState) }
 	{
 
 	}
@@ -39,9 +41,12 @@ struct VeritasEngine::IndexBufferImpl::Impl
 
 	BufferIndicies AddIndicies(unsigned int* indicies, size_t numOfIndicies)
 	{
-		BufferIndicies result(m_indicies.size(), numOfIndicies);
+		static std::mutex m;
+		std::scoped_lock<std::mutex> l{ m };
 
-		auto end = m_indicies.end();
+		const BufferIndicies result(m_indicies.size(), numOfIndicies);
+
+		const auto end = m_indicies.end();
 		m_indicies.insert(end, indicies, indicies + numOfIndicies);
 
 		SetBufferData();
@@ -49,9 +54,9 @@ struct VeritasEngine::IndexBufferImpl::Impl
 		return result;
 	}
 
-	ComPtr<ID3D11Buffer> m_buffer;
+	ComPtr<ID3D11Buffer> m_buffer{};
 	std::shared_ptr<DirectXState> m_dxState;
-	std::vector<unsigned int> m_indicies;
+	std::vector<unsigned int> m_indicies{};
 };
 
 VeritasEngine::IndexBufferImpl::IndexBufferImpl(std::shared_ptr<DirectXState> dxState)

@@ -83,7 +83,7 @@ struct VeritasEngine::ResourceManager::Impl : public VeritasEngine::SmallObject<
 
 		if(handleInserted)
 		{
-			const auto job = m_jobManager->CreateJob([&, hash, resourcePath](auto parent, auto data)
+			const auto job = m_jobManager->CreateJob([&, hash, resourcePath](auto parent)
 			{
 				const auto parts = GetResourcePathParts(resourcePath);
 
@@ -103,8 +103,19 @@ struct VeritasEngine::ResourceManager::Impl : public VeritasEngine::SmallObject<
 				}				
 			});
 
+			m_jobManager->CreateJobAsContinuation(job, [&, hash](auto parent)
+			{
+				ResourceMap::accessor writeAccessor;
+
+				if (m_resources.find(writeAccessor, hash))
+				{
+					writeAccessor->second.m_isFullyLoaded = true;
+				}
+
+				writeAccessor.release();
+			});
+
 			m_jobManager->Run(job);
-			m_jobManager->Wait(job);
 		}
 
 		return hash;
@@ -119,7 +130,7 @@ struct VeritasEngine::ResourceManager::Impl : public VeritasEngine::SmallObject<
 
 		if (handleInserted)
 		{
-			const auto job = m_jobManager->CreateJobAsChild(parentJob, [&, hash, resourcePath](auto parent, auto data)
+			const auto job = m_jobManager->CreateJobAsChild(parentJob, [&, hash, resourcePath](auto parent)
 			{
 				const auto parts = GetResourcePathParts(resourcePath);
 
@@ -139,6 +150,18 @@ struct VeritasEngine::ResourceManager::Impl : public VeritasEngine::SmallObject<
 				}
 			});
 
+			m_jobManager->CreateJobAsContinuation(job, [&, hash](auto parent)
+			{
+				ResourceMap::accessor writeAccessor;
+
+				if (m_resources.find(writeAccessor, hash))
+				{
+					writeAccessor->second.m_isFullyLoaded = true;
+				}
+
+				writeAccessor.release();
+			});
+
 			m_jobManager->Run(job);
 		}
 
@@ -149,8 +172,9 @@ struct VeritasEngine::ResourceManager::Impl : public VeritasEngine::SmallObject<
 	{
 		ResourceMap::const_accessor a;
 		const auto found = m_resources.find(a, handle);
+		
 
-		if(found)
+		if(found && a->second.m_isFullyLoaded)
 		{
 			callback(a->second);
 		}

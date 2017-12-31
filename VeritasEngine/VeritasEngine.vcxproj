@@ -213,6 +213,7 @@
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="EngineFactory.cpp" />
     <ClCompile Include="GameClock.cpp" />
+    <ClCompile Include="Logger.cpp" />
     <ClCompile Include="MaterialResourceLoader.cpp" />
     <ClCompile Include="MatrixStack.cpp" />
     <ClCompile Include="MeshInstance.cpp" />
@@ -240,8 +241,10 @@
     <ClInclude Include="BufferIndicies.h" />
     <ClInclude Include="IAnimationManager.h" />
     <ClInclude Include="IJobManager.h" />
+    <ClInclude Include="ILogger.h" />
     <ClInclude Include="Job.h" />
     <ClInclude Include="JobManager.h" />
+    <ClInclude Include="Logger.h" />
     <ClInclude Include="PassBuffer.h" />
     <ClInclude Include="ClockUnits.h" />
     <ClInclude Include="EngineDepenencyInjector.h" />

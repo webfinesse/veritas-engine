@@ -26,12 +26,12 @@ struct VeritasEngine::AnimationManager::Impl
 
 	Job* CalculatePoses(TimeDuration update)
 	{
-		const auto jobCallback = [&, update](Job* job, const void* data)
+		const auto jobCallback = [&, update](Job* rootJob)
 		{
 			for (auto& anim : m_states)
 			{
 				const auto animPtr = &anim;
-				const auto innerJob = [&, update, animPtr](Job* job, const void* data)
+				const auto innerJob = [&, update, animPtr](Job* innerJobPtr)
 				{
 					animPtr->Clock.Update(update);
 
@@ -62,7 +62,7 @@ struct VeritasEngine::AnimationManager::Impl
 					});					
 				};
 
-				const auto calcJob = m_jobManager->CreateJobAsChild(job, innerJob);
+				const auto calcJob = m_jobManager->CreateJobAsChild(rootJob, innerJob);
 				m_jobManager->Run(calcJob);
 			}
 		};
