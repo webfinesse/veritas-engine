@@ -19,7 +19,6 @@ struct VeritasEngine::Logger::Impl
 	{
 		spdlog::set_async_mode(4096);
 		m_logger = spdlog::daily_logger_mt("Veritas Engine", "VeritasEngineLog.txt");
-		m_logger->set_level(spdlog::level::trace);
 
 		signal(SIGABRT, DumpLogs);
 		set_terminate(TerminateHandler);

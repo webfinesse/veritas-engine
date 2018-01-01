@@ -34,26 +34,29 @@ std::condition_variable g_hasJobsConditionVariable{};
 
 struct VeritasEngine::JobManager::WorkQueue
 {
+	WorkQueue()
+	{
+		std::memset(&m_jobs, 0, sizeof(m_jobs));
+	}
+
 	void Push(Job* job, unsigned queueIndex, ILogger* logger)
 	{
-		const auto b = m_bottom.load();
+		const auto b = m_bottom;
 		m_jobs[b & NUMBER_OF_JOBS_MASK] = job;
-		
-		_mm_mfence();
+
+		std::atomic_signal_fence(std::memory_order_acquire);
 
 		logger->Trace(JOBMANAGER_LOGGING_CATEGORY, "Pushing Job %d on queue %d at index %d", job->Id, queueIndex, b);
 
-		m_bottom.fetch_add(1);
+		m_bottom = b + 1;
 	}
 
 	Job* Pop(ILogger* logger, unsigned queueIndex)
 	{
-		const auto b = m_bottom.load() - 1;
-		m_bottom = b;
+		const auto b = m_bottom - 1;
+		_InterlockedExchange(&m_bottom, b);
 
-		_mm_mfence();
-
-		auto t = m_top.load();
+		auto t = m_top;
 		if(t <= b)
 		{
 			auto job = m_jobs[b & NUMBER_OF_JOBS_MASK];
@@ -64,7 +67,7 @@ struct VeritasEngine::JobManager::WorkQueue
 				return job;
 			}
 
-			if(!m_top.compare_exchange_strong(t, t+1))
+			if(_InterlockedCompareExchange(&m_top, t + 1, t) != t)
 			{
 				logger->Trace(JOBMANAGER_LOGGING_CATEGORY, "Lost Pop CompareExchange from queue %d at top index %d", queueIndex, t);
 				job = nullptr;
@@ -84,17 +87,18 @@ struct VeritasEngine::JobManager::WorkQueue
 
 	Job* Steal(ILogger* logger, unsigned queueIndex)
 	{
-		auto t = m_top.load();
+		auto t = m_top;
 
-		_mm_mfence();
+		std::atomic_signal_fence(std::memory_order_acquire);
 
-		const auto b = m_bottom.load();
+		const auto b = m_bottom;
 		
 		if(t < b)
 		{
 			const auto job = m_jobs[t & NUMBER_OF_JOBS_MASK];
 
-			if(!m_top.compare_exchange_strong(t, t+1))
+			
+			if(_InterlockedCompareExchange(&m_top, t+1, t) != t)
 			{
 				logger->Trace(JOBMANAGER_LOGGING_CATEGORY, "Lost Steal CompareExchange from queue %d at top index %d", queueIndex, t);
 				return nullptr;
@@ -112,8 +116,8 @@ struct VeritasEngine::JobManager::WorkQueue
 
 private:
 	Job* m_jobs[NUMBER_OF_JOBS];
-	std::atomic_long m_bottom{ 0 };
-	std::atomic_long m_top{ 0 };
+	volatile long m_bottom{ 0 };
+	volatile long m_top{ 0 };
 };
 
 struct VeritasEngine::JobManager::Impl
