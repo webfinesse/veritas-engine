@@ -28,11 +28,6 @@ constexpr unsigned int NUMBER_OF_JOBS_MASK{ 4096 - 1 };
 constexpr unsigned int MAX_NUMBER_OF_QUEUES{ 8 };
 constexpr char JOBMANAGER_LOGGING_CATEGORY[] = "Job Manager";
 
-bool g_runJobs { true };
-std::atomic_int32_t g_activeJobCount{ 0 };
-std::atomic_int32_t g_jobId{ 0 };
-std::condition_variable g_hasJobsConditionVariable{};
-
 struct VeritasEngine::JobManager::WorkQueue
 {
 	WorkQueue()
@@ -149,8 +144,8 @@ struct VeritasEngine::JobManager::Impl
 
 	~Impl()
 	{
-		g_runJobs = false;
-		g_hasJobsConditionVariable.notify_all();
+		m_runJobs = false;
+		m_hasJobsConditionVariable.notify_all();
 
 		for(auto& t : m_workerThreads)
 		{
@@ -167,12 +162,12 @@ struct VeritasEngine::JobManager::Impl
 	{
 		if (job && job->UnfinishedJobs.load() > 0)
 		{
-			g_activeJobCount.fetch_add(1);
+			m_activeJobCount.fetch_add(1);
 
 			TRACE("Pushing Job %u on thread %u. There are %d active jobs", job->Id, m_queueIndex, g_activeJobCount.load())
 
 			GetQueue().Push(job, m_queueIndex, m_logger.get());
-			g_hasJobsConditionVariable.notify_all();
+			m_hasJobsConditionVariable.notify_all();
 		}
 	}
 
@@ -248,7 +243,7 @@ struct VeritasEngine::JobManager::Impl
 		return job;
 	}
 
-private:
+public:
 	void FinishJob(Job* job)
 	{
 		assert(job->UnfinishedJobs.load() > 0);
@@ -257,7 +252,7 @@ private:
 
 		if (jobCount == 0)
 		{
-			g_activeJobCount.fetch_sub(1);
+			m_activeJobCount.fetch_sub(1);
 
 			TRACE("Finishing Job %u with thread %u, there are %d active jobs remaining", job->Id, m_queueIndex, g_activeJobCount.load())
 
@@ -281,7 +276,7 @@ private:
 			TRACE("Finishing root Job %u with thread %u, there are %u unfinished children", job->Id, m_queueIndex, jobCount)
 		}
 
-		assert(g_activeJobCount.load() >= 0);
+		assert(m_activeJobCount.load() >= 0);
 	}
 
 #ifdef TRACE_ENABLED
@@ -298,12 +293,12 @@ private:
 
 		std::unique_lock<std::mutex> lock{ m_threadMainMutex };
 				
-		while (g_runJobs)
+		while (impl->m_runJobs)
 		{
-			g_hasJobsConditionVariable.wait(lock, []{ return g_activeJobCount.load() > 0 || !g_runJobs; });
+			impl->m_hasJobsConditionVariable.wait(lock, [&]{ return impl->m_activeJobCount.load() > 0 || !impl->m_runJobs; });
 
 			// double check if we need to run jobs since we may be trying to shut down the engine
-			if (g_runJobs)
+			if (impl->m_runJobs)
 			{
 				const auto job = impl->GetJob();
 				if (job != nullptr)
@@ -320,6 +315,10 @@ private:
 	static thread_local Job m_jobs[NUMBER_OF_JOBS];
 
 	unsigned int m_queueCount;
+	std::atomic_int32_t m_activeJobCount{ 0 };
+	std::atomic_int32_t m_jobId{ 0 };
+	std::condition_variable m_hasJobsConditionVariable{};
+	bool m_runJobs{ true };
 	std::shared_ptr<ILogger> m_logger;
 	WorkQueue m_queues[MAX_NUMBER_OF_QUEUES];
 	std::vector<std::thread> m_workerThreads{};
@@ -354,7 +353,7 @@ VeritasEngine::Job* VeritasEngine::JobManager::CreateJob(JobFunction&& function)
 	job->Parent = nullptr;
 	job->UnfinishedJobs = 1;
 	job->ContinousJobCount = 0;
-	job->Id = ++g_jobId;
+	job->Id = ++m_impl->m_jobId;
 
 	return job;
 }
@@ -370,7 +369,7 @@ VeritasEngine::Job* VeritasEngine::JobManager::CreateJobAsChild(Job* parent, Job
 	job->Parent = parent;
 	job->ContinousJobCount = 0;
 	job->UnfinishedJobs = 1;
-	job->Id = ++g_jobId;
+	job->Id = ++m_impl->m_jobId;
 
 	return job;
 }
