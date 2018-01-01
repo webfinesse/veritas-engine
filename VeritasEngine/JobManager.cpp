@@ -11,7 +11,7 @@
 #include "ILogger.h"
 #include "../VeritasEngineBase/StringHelper.h"
 
-#define TRACE_ENABLED
+//#define TRACE_ENABLED
 
 #ifdef TRACE_ENABLED
 #define TRACE(...) Trace(__VA_ARGS__);
@@ -97,7 +97,6 @@ struct VeritasEngine::JobManager::WorkQueue
 		if(t < b)
 		{
 			const auto job = m_jobs[t & NUMBER_OF_JOBS_MASK];
-
 			
 			if(_InterlockedCompareExchange(&m_top, t+1, t) != t)
 			{
@@ -105,7 +104,7 @@ struct VeritasEngine::JobManager::WorkQueue
 				return nullptr;
 			}
 
-			TRACEINTERNAL(JOBMANAGER_LOGGING_CATEGORY, "Won Pop CompareExchange from queue %d at top index %d, returning index %d", queueIndex, t, t)
+			TRACEINTERNAL(JOBMANAGER_LOGGING_CATEGORY, "Won Steal CompareExchange from queue %d at top index %d, returning index %d", queueIndex, t, t)
 
 			return job;
 		}
@@ -179,8 +178,15 @@ struct VeritasEngine::JobManager::Impl
 
 	static Job* AllocateJob()
 	{
-		const auto index = m_allocatedJobs++;
-		return &m_jobs[index & NUMBER_OF_JOBS_MASK];
+		Job* result = nullptr;
+
+		do
+		{
+			const auto index = m_allocatedJobs++;
+			result = &m_jobs[index & NUMBER_OF_JOBS_MASK];
+		} while (result->UnfinishedJobs > 0);
+
+		return result;
 	}
 
 	WorkQueue& GetQueue()
@@ -260,19 +266,19 @@ private:
 				TRACE("Finishing Job %u (Parent Id: %u) with thread %u, there are %u unfinished parent jobs", job->Id, job->Parent->Id, m_queueIndex, job->Parent->UnfinishedJobs.load())
 				FinishJob(job->Parent);
 			}
+
+			const auto continuationJobCount = job->ContinousJobCount.load();
+			if (continuationJobCount > 0)
+			{
+				for (int i = 0; i < continuationJobCount; i++)
+				{
+					Push(job->Continuations[i]);
+				}
+			}
 		}
 		else
 		{
 			TRACE("Finishing root Job %u with thread %u, there are %u unfinished children", job->Id, m_queueIndex, jobCount)
-		}
-
-		const auto continuationJobCount = job->ContinousJobCount.load();
-		if (continuationJobCount > 0)
-		{
-			for(int i = 0; i < continuationJobCount; i++)
-			{
-				Push(job->Continuations[i]);
-			}
 		}
 
 		assert(g_activeJobCount.load() >= 0);
@@ -362,6 +368,7 @@ VeritasEngine::Job* VeritasEngine::JobManager::CreateJobAsChild(Job* parent, Job
 	auto job = m_impl->AllocateJob();
 	job->Callback = std::move(jobFunction);
 	job->Parent = parent;
+	job->ContinousJobCount = 0;
 	job->UnfinishedJobs = 1;
 	job->Id = ++g_jobId;
 
