@@ -11,14 +11,15 @@
 #include "ILogger.h"
 #include "../VeritasEngineBase/StringHelper.h"
 
-#if _WIN32 || _WIN64
-#include <immintrin.h>
-#define YIELD_COMMAND _mm_pause();
-#else
-static_assert(0 && "YIELD COMMAND Not Specified For Platform")
-#endif
-
 #define TRACE_ENABLED
+
+#ifdef TRACE_ENABLED
+#define TRACE(...) Trace(__VA_ARGS__);
+#define TRACEINTERNAL(...) logger->Trace(__VA_ARGS__);
+#else
+#define TRACE(...) 
+#define TRACEINTERNAL(...) 
+#endif
 
 // based on the job system detailed at molecular musings: https://blog.molecular-matters.com/2015/08/24/job-system-2-0-lock-free-work-stealing-part-1-basics/
 
@@ -46,7 +47,7 @@ struct VeritasEngine::JobManager::WorkQueue
 
 		std::atomic_signal_fence(std::memory_order_acquire);
 
-		logger->Trace(JOBMANAGER_LOGGING_CATEGORY, "Pushing Job %d on queue %d at index %d", job->Id, queueIndex, b);
+		TRACEINTERNAL(JOBMANAGER_LOGGING_CATEGORY, "Pushing Job %d on queue %d at index %d", job->Id, queueIndex, b)
 
 		m_bottom = b + 1;
 	}
@@ -63,17 +64,17 @@ struct VeritasEngine::JobManager::WorkQueue
 
 			if(t != b)
 			{
-				logger->Trace(JOBMANAGER_LOGGING_CATEGORY, "Popping job from queue %d at bottom index %d", queueIndex, b);
+				TRACEINTERNAL(JOBMANAGER_LOGGING_CATEGORY, "Popping job from queue %d at bottom index %d", queueIndex, b)
 				return job;
 			}
 
 			if(_InterlockedCompareExchange(&m_top, t + 1, t) != t)
 			{
-				logger->Trace(JOBMANAGER_LOGGING_CATEGORY, "Lost Pop CompareExchange from queue %d at top index %d", queueIndex, t);
+				TRACEINTERNAL(JOBMANAGER_LOGGING_CATEGORY, "Lost Pop CompareExchange from queue %d at top index %d", queueIndex, t)
 				job = nullptr;
 			}
 
-			logger->Trace(JOBMANAGER_LOGGING_CATEGORY, "Won Pop CompareExchange from queue %d at top index %d, returning index %d", queueIndex, t, b);
+			TRACEINTERNAL(JOBMANAGER_LOGGING_CATEGORY, "Won Pop CompareExchange from queue %d at top index %d, returning index %d", queueIndex, t, b)
 
 			m_bottom = t + 1;
 			return job;
@@ -100,11 +101,11 @@ struct VeritasEngine::JobManager::WorkQueue
 			
 			if(_InterlockedCompareExchange(&m_top, t+1, t) != t)
 			{
-				logger->Trace(JOBMANAGER_LOGGING_CATEGORY, "Lost Steal CompareExchange from queue %d at top index %d", queueIndex, t);
+				TRACEINTERNAL(JOBMANAGER_LOGGING_CATEGORY, "Lost Steal CompareExchange from queue %d at top index %d", queueIndex, t)
 				return nullptr;
 			}
 
-			logger->Trace(JOBMANAGER_LOGGING_CATEGORY, "Won Pop CompareExchange from queue %d at top index %d, returning index %d", queueIndex, t, t);
+			TRACEINTERNAL(JOBMANAGER_LOGGING_CATEGORY, "Won Pop CompareExchange from queue %d at top index %d, returning index %d", queueIndex, t, t)
 
 			return job;
 		}
@@ -139,7 +140,7 @@ struct VeritasEngine::JobManager::Impl
 
 		m_workerThreads.reserve(m_queueCount - 1);
 
-		Trace("Initializing Job System with %u threads", m_queueCount);
+		TRACE("Initializing Job System with %u threads", m_queueCount)
 
 		for (unsigned i = 1; i < m_queueCount; i++)
 		{
@@ -169,7 +170,7 @@ struct VeritasEngine::JobManager::Impl
 		{
 			g_activeJobCount.fetch_add(1);
 
-			Trace("Pushing Job %u on thread %u. There are %d active jobs", job->Id, m_queueIndex, g_activeJobCount.load());
+			TRACE("Pushing Job %u on thread %u. There are %d active jobs", job->Id, m_queueIndex, g_activeJobCount.load())
 
 			GetQueue().Push(job, m_queueIndex, m_logger.get());
 			g_hasJobsConditionVariable.notify_all();
@@ -189,7 +190,7 @@ struct VeritasEngine::JobManager::Impl
 
 	void ExecuteJob(Job* job)
 	{
-		Trace("Executing Job %u on thread %u", job->Id, m_queueIndex);
+		TRACE("Executing Job %u on thread %u", job->Id, m_queueIndex)
 		(job->Callback)(job);
 		FinishJob(job);
 	}
@@ -213,7 +214,7 @@ struct VeritasEngine::JobManager::Impl
 
 			if (stolenJob)
 			{
-				Trace("Stole Job %u from thread 0 with thread %u", stolenJob->Id, m_queueIndex);
+				TRACE("Stole Job %u from thread 0 with thread %u", stolenJob->Id, m_queueIndex)
 				return stolenJob;
 			}
 
@@ -234,7 +235,7 @@ struct VeritasEngine::JobManager::Impl
 				return nullptr;
 			}
 
-			Trace("Stole Job %u from thread %u with thread %u", stolenJob->Id, queueIndex, m_queueIndex);
+			TRACE("Stole Job %u from thread %u with thread %u", stolenJob->Id, queueIndex, m_queueIndex)
 
 			return stolenJob;
 		}
@@ -252,17 +253,17 @@ private:
 		{
 			g_activeJobCount.fetch_sub(1);
 
-			Trace("Finishing Job %u with thread %u, there are %d active jobs remaining", job->Id, m_queueIndex, g_activeJobCount.load());
+			TRACE("Finishing Job %u with thread %u, there are %d active jobs remaining", job->Id, m_queueIndex, g_activeJobCount.load())
 
 			if (job->Parent)
 			{
-				Trace("Finishing Job %u (Parent Id: %u) with thread %u, there are %u unfinished parent jobs", job->Id, job->Parent->Id, m_queueIndex, job->Parent->UnfinishedJobs.load());
+				TRACE("Finishing Job %u (Parent Id: %u) with thread %u, there are %u unfinished parent jobs", job->Id, job->Parent->Id, m_queueIndex, job->Parent->UnfinishedJobs.load())
 				FinishJob(job->Parent);
 			}
 		}
 		else
 		{
-			Trace("Finishing root Job %u with thread %u, there are %u unfinished children", job->Id, m_queueIndex, jobCount);
+			TRACE("Finishing root Job %u with thread %u, there are %u unfinished children", job->Id, m_queueIndex, jobCount)
 		}
 
 		const auto continuationJobCount = job->ContinousJobCount.load();
@@ -277,13 +278,13 @@ private:
 		assert(g_activeJobCount.load() >= 0);
 	}
 
+#ifdef TRACE_ENABLED
 	template <typename ...Args>
 	void Trace(const char* message, Args... args)
 	{
-#ifdef TRACE_ENABLED
 		m_logger->Trace(JOBMANAGER_LOGGING_CATEGORY, message, args...);
-#endif
 	}
+#endif
 
 	static void ThreadMain(Impl* impl, const unsigned int queueIndex)
 	{
