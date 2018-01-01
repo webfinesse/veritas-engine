@@ -317,11 +317,11 @@ public:
 	unsigned int m_queueCount;
 	std::atomic_int32_t m_activeJobCount{ 0 };
 	std::atomic_int32_t m_jobId{ 0 };
-	std::condition_variable m_hasJobsConditionVariable{};
 	bool m_runJobs{ true };
 	std::shared_ptr<ILogger> m_logger;
-	WorkQueue m_queues[MAX_NUMBER_OF_QUEUES];
+	std::condition_variable m_hasJobsConditionVariable{};
 	std::vector<std::thread> m_workerThreads{};
+	WorkQueue m_queues[MAX_NUMBER_OF_QUEUES];
 };
 
 thread_local unsigned int VeritasEngine::JobManager::Impl::m_queueIndex;
