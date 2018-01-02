@@ -52,7 +52,7 @@ struct VeritasEngine::JobManager::WorkQueue
 		const auto b = m_bottom - 1;
 		_InterlockedExchange(&m_bottom, b);
 
-		auto t = m_top;
+		const auto t = m_top;
 		if(t <= b)
 		{
 			auto job = m_jobs[b & NUMBER_OF_JOBS_MASK];
@@ -83,7 +83,7 @@ struct VeritasEngine::JobManager::WorkQueue
 
 	Job* Steal(ILogger* logger, unsigned queueIndex)
 	{
-		auto t = m_top;
+		const auto t = m_top;
 
 		std::atomic_signal_fence(std::memory_order_acquire);
 

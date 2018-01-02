@@ -28,6 +28,8 @@ namespace VeritasEngine
 		void SetIsLooped(bool isLooped);
 
 		const TimeDuration& GetDuration() const;
+		const void SetDuration(const TimeDuration& duration);
+
 		TimeDuration GetCurrentTimeDuration() const;
 
 		AnimationClock& operator=(const AnimationClock& other);

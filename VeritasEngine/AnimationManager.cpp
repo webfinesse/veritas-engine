@@ -33,16 +33,18 @@ struct VeritasEngine::AnimationManager::Impl
 				const auto animPtr = &anim;
 				const auto innerJob = [&, update, animPtr](Job* innerJobPtr)
 				{
-					animPtr->Clock.Update(update);
-
-					const auto currentTime = animPtr->Clock.GetCurrentTimeDuration().count();
-
 					const auto meshHandle = GetMesh(animPtr->Handle);
 
 					m_resourceManager->GetResource(meshHandle, [&](const ResourceData& meshData)
 					{
 						const auto& meshInstance = meshData.GetData<MeshInstance>();
 						auto animation = FindAnimation(meshInstance, animPtr->AnimationName);
+
+						animPtr->Clock.SetDuration(TimeDuration{ animation->Duration });
+
+						animPtr->Clock.Update(update);
+
+						const auto currentTime = animPtr->Clock.GetCurrentTimeDuration().count();
 
 						for (const auto& boneInfo : animation->BoneInfo)
 						{
@@ -57,7 +59,7 @@ struct VeritasEngine::AnimationManager::Impl
 						{
 							const auto& skeleton = skeletonData.GetData<Skeleton>();
 							MatrixStack matrixStack;
-							CalculateGlobalPoses(meshInstance, skeleton, matrixStack, meshInstance.GetRootNode(), anim);
+							CalculateGlobalPoses(meshInstance, skeleton, matrixStack, meshInstance.GetRootNode(), animPtr);
 						});						
 					});					
 				};
@@ -106,13 +108,13 @@ struct VeritasEngine::AnimationManager::Impl
 		return MathHelpers::Interpolate(previousKeyFrame->Data, keyFrame->Data, interpolationFactor);
 	}
 
-	static void CalculateGlobalPoses(const MeshInstance& meshInstance, const Skeleton& skeleton, MatrixStack& matrixStack, const MeshNode& currentNode, AnimationState& anim)
+	static void CalculateGlobalPoses(const MeshInstance& meshInstance, const Skeleton& skeleton, MatrixStack& matrixStack, const MeshNode& currentNode, AnimationState* anim)
 	{
 		const auto jointIndex = currentNode.GetJointIndex();
 		if (jointIndex >= 0)
 		{
-			matrixStack.Push(anim.LocalPoses[jointIndex]);
-			anim.GlobalPoses[jointIndex] = meshInstance.GetGlobalInverseTransform() * matrixStack.Peek() * skeleton.Joints[jointIndex].InverseBindPose;			
+			matrixStack.Push(anim->LocalPoses[jointIndex]);
+			anim->GlobalPoses[jointIndex] = meshInstance.GetGlobalInverseTransform() * matrixStack.Peek() * skeleton.Joints[jointIndex].InverseBindPose;			
 		}
 		else
 		{
@@ -161,18 +163,7 @@ void VeritasEngine::AnimationManager::Init(std::shared_ptr<IResourceManager> res
 
 void VeritasEngine::AnimationManager::AddAnimaton(GameObjectHandle handle, StringHash animationName, bool isLooped, float timeScale)
 {
-	const auto meshHandle = m_impl->GetMesh(handle);
-
-	m_impl->m_resourceManager->GetResource(meshHandle, [&](const ResourceData& meshData)
-	{
-		const auto& meshInstance = meshData.GetData<MeshInstance>();
-		auto animation = Impl::FindAnimation(meshInstance, animationName);
-
-		if (animation != nullptr)
-		{
-			m_impl->m_states.emplace_back(handle, animationName, TimeDuration{ animation->Duration }, TimeDuration{ 0 }, isLooped, timeScale);
-		}
-	});
+	m_impl->m_states.emplace_back(handle, animationName, TimeDuration{ 0 }, TimeDuration{ 0 }, isLooped, timeScale);
 }
 
 VeritasEngine::Job* VeritasEngine::AnimationManager::CalculatePoses(TimeDuration update)

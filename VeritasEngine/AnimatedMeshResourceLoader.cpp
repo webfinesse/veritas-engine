@@ -72,15 +72,15 @@ void VeritasEngine::AnimatedMeshResourceLoader::LoadResource(IResourceManager& m
 	rootNode.SetMeshIndices(info.m_root.meshIndicies);
 	rootNode.SetJointIndex(info.m_root.m_jointIndex);
 
+	for (auto& child : info.m_root.m_children)
+	{
+		rootNode.AddChild(child);
+	}
+
 	for (const auto& serializedSubset : info.m_subsets)
 	{
 		auto& subset = mesh.CreateSubset(serializedSubset);
 		subset.SetMaterial(manager.LoadResource(serializedSubset.m_materialId, parentJob));
-	}
-
-	for (auto& child : info.m_root.m_children)
-	{
-		rootNode.AddChild(child);
 	}
 	
 	mesh.SetSkeleton(manager.LoadResource(info.m_skeletonId, parentJob));
