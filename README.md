@@ -7,20 +7,26 @@ This a personal project I work on in my spare time aside from the work I do prof
 # Features
 There some features that have been written that are under iteration, however they do work
 
-* A simple asset conditioning pipeline - Recursively iterates over a directory and exports models, materials (using Assimp) and textures files (using NVTT) into a file format Veritas Engine can load and display.
+* A simple asset conditioning pipeline - Recursively iterates over a directory and exports models, animations, skeletons materials (using Assimp) and textures files (using NVTT) into a file format Veritas Engine can load and render.
 * World Setup using JSON - Describe the scene using JSON to position of lights and models in the world.
 * Renders models using diffuse, specular, and normal maps.
-* Directional, point, and spot lights
+* Animates models and skeletons that assimp is able to export.
+* Directional, point, and spot lights.
 * Recursive scene graph for adding removing entities from the scene.
-* Recursive resource loader to load models, and textures into the engine.
+* Asynchronous resource loader for loading models, skeletons, and textures into the engine.
 * A process manager.
 * Small object allocator
+* Compile time string hashing.
+* Asynchronous job system with child and continuous jobs.
 
 # External Dependencies
 
-There are several 3rd party libraries the engine relies on including:
+There are several 3rd party libraries the engine relies on including from vcpkg:
 
-* Boost 1.60+ (Property map, Filesystem, any)
+* Boost (Property map, Filesystem)
+* Boost-DI
+* SPDLOG
+* Intel Thread Building Blocks
 * Cereal
 * NVidia Texture Tools (NVTT)
 * Assimp
@@ -48,6 +54,7 @@ Parts of the code are inspired from several sources
 * Miniz-CPP (https://github.com/tfussell/miniz-cpp)
 * Jill model and Cat Model from turbo squid (http://www.turbosquid.com)
 * RasterTek (http://www.rastertek.com/)
+* Molecular Musings Blog (Special thanks for the tutorials on a multithreaded job system: https://blog.molecular-matters.com/2015/08/24/job-system-2-0-lock-free-work-stealing-part-1-basics/)
 
 # Architecture
 
@@ -57,7 +64,7 @@ Parts of the code are inspired from several sources
 
 ### VeritasEngine
 
-This is a dynamic linked library that is that main interface the game executable talks to. It exposes interfaces for the process manager, scene graph, and resource manager. This code is platform agnostic and compiles using Clang. This links with VeritasEngine_Windows to hook up a DirectX renderer. 
+This is a dynamic linked library that is that main interface the game executable talks to. It exposes interfaces for the process manager, job manager, animation manager, scene graph, and resource manager. This code is platform agnostic and compiles using Clang. This links with VeritasEngine_Windows to hook up a DirectX renderer. 
 
 ### VeritasEngine_Windows
 
@@ -69,15 +76,12 @@ This is a static lib that provides shared facilities amongst the VeritasACP and 
 
 ### VertiasACP
 
-This is an application that iterates over a directory and creates resource files that can be loaded by the engine. It currently exports models, materials, specular maps, diffuse maps, and normal maps. Additional types will be added as the engine adds support for them.
+This is an application that iterates over a directory and creates resource files that can be loaded by the engine. It currently exports models, skeletons, animations, materials, specular maps, diffuse maps, and normal maps. Additional types will be added as the engine adds support for them.
 
 # Future Work
 
-* asynchronous/fibered processes
-* asynchronous resource loading
-* string hashing
+* Event System
 * Scripting/Console interface
-* Model Animations
 * Height maps
 * Integrate physics engine
 * more when I get there....
