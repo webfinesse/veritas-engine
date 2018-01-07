@@ -32,7 +32,7 @@ struct VeritasEngine::WorldSetup::Impl
 			{
 				if (sceneItem.first != "Id")
 				{
-					const auto deserializer = m_deserializeMapping->GetDeserializer(Hash(sceneItem.first.c_str()));
+					const auto deserializer = m_deserializeMapping->GetDeserializer(Hash(sceneItem.first));
 					assert(deserializer != nullptr);
 					(*deserializer)(*m_engine, id, sceneItem.second);
 				}

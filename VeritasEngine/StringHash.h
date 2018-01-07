@@ -2,7 +2,6 @@
 
 #include <cstdint>
 #include <string>
-#include <zlib.h>
 
 // based on http://stackoverflow.com/questions/2111667/compile-time-string-hashing
 
@@ -68,47 +67,37 @@ namespace VeritasEngine
 			0x2d02ef8dL
 		};
 
-			template<size_t idx>
-		constexpr uint32_t combine_crc32(const char * str, uint32_t part) {
-			return (part >> 8) ^ crc_table[(part ^ str[idx]) & 0x000000FF];
-		}
-
-		template<size_t idx>
-		constexpr uint32_t crc32(const char * str) {
-			return combine_crc32<idx>(str, crc32<idx - 1>(str));
-		}
-
-		// This is the stop-recursion function
-		template<>
-		constexpr uint32_t crc32<size_t(-1)>(const char * str) {
-			return 0xFFFFFFFF;
-		}
-
 	} //namespace detail
 
-	template <size_t len>
-	constexpr uint32_t CompileTimeHash(const char(&str)[len]) {
-		return hashdetail::crc32<len - 2>(str) ^ 0xFFFFFFFF;
+	constexpr uint32_t CompileTimeHash(const char* str, size_t len)
+	{
+		uint32_t result = 0xFFFFFFFF;
+
+		for (size_t i = 0; i < (len - 1); i++)
+		{
+			result = (result >> 8) ^ hashdetail::crc_table[(result ^ str[i]) & 0x000000FF];
+		}
+
+		result ^= 0xFFFFFFFF;
+
+		return result;
 	}
 
-	// Runtime functions
-	constexpr StringHash Hash(const char* str, size_t index)
+	template <size_t len>
+	constexpr uint32_t CompileTimeHash(const char(&str)[len]) 
 	{
-		return index == -1 ? 0xFFFFFFFF : ((Hash(str, index - 1) >> 8) ^ hashdetail::crc_table[(Hash(str, index - 1) ^ str[index]) & 0x000000FF]);
+		return CompileTimeHash(str, len);
 	}
-	
+
+	// Runtime functions		
 	inline StringHash Hash(const char* string)
 	{
-		return Hash(string, strlen(string) - 1) ^ 0xFFFFFFFF;
+		return CompileTimeHash(string, strlen(string) + 1);
 	}
 
 	inline StringHash Hash(const std::string& string)
 	{
-		//return Hash(string.c_str(), string.length() - 1) ^ 0xFFFFFFFF;
-		unsigned long crc = crc32(0L, Z_NULL, 0);
-		crc = crc32(crc, reinterpret_cast<const unsigned char*>(string.c_str()), unsigned(string.length()));
-
-		return (crc);
+		return CompileTimeHash(string.c_str(), string.length() + 1);
 	}
 }
 
